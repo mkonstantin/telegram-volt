@@ -1,0 +1,24 @@
+version: '3'
+
+volumes:
+  volt_volumes:
+
+services:
+#  volt:
+#    build: ./
+#    restart: always
+
+  db:
+    image: mysql:8.0
+    volumes:
+      - volt_volumes:/data/mysql
+    command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION"
+    restart: always
+    ports:
+      - "3310:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: volt
+      MYSQL_PASSWORD: root
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
