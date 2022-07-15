@@ -2,8 +2,15 @@ package repo
 
 import "telegram-api/internal/model"
 
+type PlaceRepository interface {
+	Create(place model.Place) (model.Place, error)
+	Read(id int64) (model.Place, error)
+	Update(place model.Place) (model.Place, error)
+	Delete(id int64) error
+}
+
 type PlaceRepositoryImpl struct {
-	PlaceRepository model.PlaceRepository
+	PlaceRepository PlaceRepository
 }
 
 func (s *PlaceRepositoryImpl) Create(place model.Place) (model.Place, error) {
