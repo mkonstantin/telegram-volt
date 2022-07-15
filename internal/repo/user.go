@@ -1,30 +1,32 @@
 package repo
 
-import "telegram-api/internal/model"
+import (
+	"github.com/jmoiron/sqlx"
+	"telegram-api/internal/model"
+)
 
-type UserRepository interface {
-	Create(user model.User) (model.User, error)
-	Read(id int64) (model.User, error)
-	Update(user model.User) (model.User, error)
-	Delete(id int64) error
+type userRepositoryImpl struct {
+	db *sqlx.DB
 }
 
-type UserRepositoryImpl struct {
-	UserRepository UserRepository
+func NewUserRepositoryImpl(db *sqlx.DB) model.UserRepository {
+	return &userRepositoryImpl{
+		db: db,
+	}
 }
 
-func (s *UserRepositoryImpl) Create(user model.User) (model.User, error) {
+func (s *userRepositoryImpl) Create(user model.User) (model.User, error) {
 	return model.User{}, nil
 }
 
-func (s *UserRepositoryImpl) Read(id int64) (model.User, error) {
+func (s *userRepositoryImpl) Read(id int64) (model.User, error) {
 	return model.User{}, nil
 }
 
-func (s *UserRepositoryImpl) Update(user model.User) (model.User, error) {
+func (s *userRepositoryImpl) Update(user model.User) (model.User, error) {
 	return model.User{}, nil
 }
 
-func (s *UserRepositoryImpl) Delete(id int64) error {
+func (s *userRepositoryImpl) Delete(id int64) error {
 	return nil
 }

@@ -1,30 +1,32 @@
 package repo
 
-import "telegram-api/internal/model"
+import (
+	"github.com/jmoiron/sqlx"
+	"telegram-api/internal/model"
+)
 
-type OfficeRepository interface {
-	Create(office model.Office) (model.Office, error)
-	Read(id int64) (model.Office, error)
-	Update(office model.Office) (model.Office, error)
-	Delete(id int64) error
+type officeRepositoryImpl struct {
+	db *sqlx.DB
 }
 
-type OfficeRepositoryImpl struct {
-	OfficeRepository OfficeRepository
+func NewOfficeRepository(db *sqlx.DB) model.OfficeRepository {
+	return &officeRepositoryImpl{
+		db: db,
+	}
 }
 
-func (s *OfficeRepositoryImpl) Create(office model.Office) (model.Office, error) {
+func (s *officeRepositoryImpl) Create(office model.Office) (model.Office, error) {
 	return model.Office{}, nil
 }
 
-func (s *OfficeRepositoryImpl) Read(id int64) (model.Office, error) {
+func (s *officeRepositoryImpl) Read(id int64) (model.Office, error) {
 	return model.Office{}, nil
 }
 
-func (s *OfficeRepositoryImpl) Update(office model.Office) (model.Office, error) {
+func (s *officeRepositoryImpl) Update(office model.Office) (model.Office, error) {
 	return model.Office{}, nil
 }
 
-func (s *OfficeRepositoryImpl) Delete(id int64) error {
+func (s *officeRepositoryImpl) Delete(id int64) error {
 	return nil
 }
