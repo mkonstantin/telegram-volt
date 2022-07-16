@@ -6,8 +6,24 @@ import (
 	"log"
 )
 
+type TelegramBot struct {
+	BotAPI tgbotapi.BotAPI
+}
+
+func NewTelegramBot(botAPI tgbotapi.BotAPI) TelegramBot {
+	return TelegramBot{
+		BotAPI: botAPI,
+	}
+}
+
 func main() {
 	fmt.Println("sdfs")
+
+	//officeRepo := service.CreateTGBot("210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk")
+
+	//officeRepo, _, _ := InitializeApplication()
+	//fmt.Println(officeRepo)
+
 	bot, err := tgbotapi.NewBotAPI("210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk")
 	if err != nil {
 		log.Panic(err)
