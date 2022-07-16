@@ -9,7 +9,7 @@ type userRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewUserRepositoryImpl(db *sqlx.DB) model.UserRepository {
+func NewUserRepository(db *sqlx.DB) model.UserRepository {
 	return &userRepositoryImpl{
 		db: db,
 	}
