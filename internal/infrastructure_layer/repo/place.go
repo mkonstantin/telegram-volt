@@ -3,13 +3,14 @@ package repo
 import (
 	"github.com/jmoiron/sqlx"
 	"telegram-api/internal/domain_layer/model"
+	"telegram-api/internal/infrastructure_layer/interfaces"
 )
 
 type placeRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewPlaceRepository(db *sqlx.DB) model.PlaceRepository {
+func NewPlaceRepository(db *sqlx.DB) interfaces.PlaceRepository {
 	return &placeRepositoryImpl{
 		db: db,
 	}
