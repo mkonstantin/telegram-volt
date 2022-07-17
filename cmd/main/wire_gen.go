@@ -7,13 +7,13 @@
 package main
 
 import (
-	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"telegram-api/internal/service_layer/service"
 )
 
 // Injectors from wire.go:
 
-func InitializeApplication(botAPI tgbotapi.BotAPI) (TelegramBot, func(), error) {
-	telegramBot := NewTelegramBot(botAPI)
+func InitializeApplication(secret string) (service.TelegramBot, func(), error) {
+	telegramBot := service.NewTelegramBot(secret)
 	return telegramBot, func() {
 	}, nil
 }

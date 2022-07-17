@@ -4,14 +4,14 @@
 package main
 
 import (
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/google/wire"
+	"telegram-api/internal/service_layer/service"
 )
 
-func InitializeApplication(botAPI tgbotapi.BotAPI) (TelegramBot, func(), error) {
+func InitializeApplication(secret string) (service.TelegramBot, func(), error) {
 	wire.Build(
-		NewTelegramBot,
+		service.NewTelegramBot,
 		//repositorySet,
 	)
-	return TelegramBot{}, nil, nil
+	return service.TelegramBot{}, nil, nil
 }

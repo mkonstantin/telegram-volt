@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/google/wire"
-	"telegram-api/internal/repo"
+	repo2 "telegram-api/internal/infrastructure_layer/repo"
 )
 
 var repositorySet = wire.NewSet(
-	repo.NewOfficeRepository,
-	repo.NewUserRepository,
-	repo.NewPlaceRepository,
+	repo2.NewOfficeRepository,
+	repo2.NewUserRepository,
+	repo2.NewPlaceRepository,
 )
