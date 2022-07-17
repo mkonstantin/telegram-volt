@@ -2,7 +2,7 @@ package repo
 
 import (
 	"github.com/jmoiron/sqlx"
-	"telegram-api/internal/model"
+	"telegram-api/internal/domain_layer/model"
 )
 
 type userRepositoryImpl struct {

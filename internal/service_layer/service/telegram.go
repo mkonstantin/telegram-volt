@@ -7,23 +7,24 @@ import (
 
 // 210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk
 
-func CreateTGBot(key string) tgbotapi.BotAPI {
-	bot, err := tgbotapi.NewBotAPI(key)
-	if err != nil {
-		log.Panic(err)
-	}
-	return *bot
+type TelegramBot struct {
+	BotAPI *tgbotapi.BotAPI
 }
 
-func StartTelegramServer(key string, debugFlag bool, timeout int) {
-	bot, err := tgbotapi.NewBotAPI(key)
+func NewTelegramBot(secret string) TelegramBot {
+	bot, err := tgbotapi.NewBotAPI(secret)
 	if err != nil {
 		log.Panic(err)
 	}
+	return TelegramBot{
+		BotAPI: bot,
+	}
+}
 
-	bot.Debug = debugFlag
-
+func StartTelegramServer(bot *tgbotapi.BotAPI, debugFlag bool, timeout int) {
 	log.Printf("Authorized on account %s", bot.Self.UserName)
+	
+	bot.Debug = debugFlag
 
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = timeout
