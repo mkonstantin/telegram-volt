@@ -5,13 +5,13 @@ package main
 
 import (
 	"github.com/google/wire"
-	"telegram-api/internal/service_layer/service"
+	"telegram-api/internal/infrastructure_layer/telegram"
 )
 
-func InitializeApplication(secret string) (service.TelegramBot, func(), error) {
+func InitializeApplication(secret string) (telegram.TelegramBot, func(), error) {
 	wire.Build(
-		service.NewTelegramBot,
+		telegram.NewTelegramBot,
 		//repositorySet,
 	)
-	return service.TelegramBot{}, nil, nil
+	return telegram.TelegramBot{}, nil, nil
 }

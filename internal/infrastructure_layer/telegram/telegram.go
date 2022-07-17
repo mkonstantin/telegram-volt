@@ -1,4 +1,4 @@
-package service
+package telegram
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -23,7 +23,7 @@ func NewTelegramBot(secret string) TelegramBot {
 
 func StartTelegramServer(bot *tgbotapi.BotAPI, debugFlag bool, timeout int) {
 	log.Printf("Authorized on account %s", bot.Self.UserName)
-	
+
 	bot.Debug = debugFlag
 
 	u := tgbotapi.NewUpdate(0)

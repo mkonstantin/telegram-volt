@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"telegram-api/internal/service_layer/service"
+	"telegram-api/internal/infrastructure_layer/telegram"
 )
 
 func main() {
 	fmt.Println("sdfs")
 
 	botAPI, _, _ := InitializeApplication("210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk")
-	service.StartTelegramServer(botAPI.BotAPI, true, 60)
+	telegram.StartTelegramServer(botAPI.BotAPI, true, 60)
 
 }

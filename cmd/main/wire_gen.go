@@ -7,13 +7,13 @@
 package main
 
 import (
-	"telegram-api/internal/service_layer/service"
+	"telegram-api/internal/infrastructure_layer/telegram"
 )
 
 // Injectors from wire.go:
 
-func InitializeApplication(secret string) (service.TelegramBot, func(), error) {
-	telegramBot := service.NewTelegramBot(secret)
+func InitializeApplication(secret string) (telegram.TelegramBot, func(), error) {
+	telegramBot := telegram.NewTelegramBot(secret)
 	return telegramBot, func() {
 	}, nil
 }
