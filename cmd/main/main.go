@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"telegram-api/internal/infrastructure_layer/telegram"
 	"telegram-api/pkg/log"
 )
 
@@ -16,7 +15,7 @@ func main() {
 	logger.Info("app starting")
 
 	botAPI, _, _ := InitializeApplication("210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk", logger)
+	botAPI.StartTelegramServer(true, 60)
 
-	telegram.StartTelegramServer(botAPI.BotAPI, true, 60)
 	logger.Info("StartTelegramServer")
 }

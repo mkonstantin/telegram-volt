@@ -7,14 +7,24 @@
 package main
 
 import (
+	"context"
 	"go.uber.org/zap"
+	"telegram-api/internal/infrastructure_layer/repo"
+	"telegram-api/internal/infrastructure_layer/router"
 	"telegram-api/internal/infrastructure_layer/telegram"
+	"telegram-api/internal/service_layer/hundlers"
 )
 
 // Injectors from wire.go:
 
 func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
-	telegramBot := telegram.NewTelegramBot(secret)
+	contextContext := context.Background()
+	connection, cleanup := provideDBConnection(contextContext, logger)
+	officeRepository := repo.NewOfficeRepository(connection)
+	officeHundler := hundlers.NewOfficeHundler(officeRepository)
+	routerRouter := router.NewRouter(officeHundler)
+	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {
+		cleanup()
 	}, nil
 }
