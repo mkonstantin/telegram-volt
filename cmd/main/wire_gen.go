@@ -9,10 +9,10 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
+	"telegram-api/internal/infrastructure_layer/hundlers"
 	"telegram-api/internal/infrastructure_layer/repo"
 	"telegram-api/internal/infrastructure_layer/router"
 	"telegram-api/internal/infrastructure_layer/telegram"
-	"telegram-api/internal/service_layer/hundlers"
 )
 
 // Injectors from wire.go:

@@ -14,7 +14,7 @@ func main() {
 	}
 	logger.Info("app starting")
 
-	botAPI, _, _ := InitializeApplication("210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk", logger)
+	botAPI, _, _ := InitializeApplication("5419202121:AAFotPHNAuL9B12NHziyFsWEhIDEfNGd3NU", logger)
 	botAPI.StartTelegramServer(true, 60)
 
 	logger.Info("StartTelegramServer")
