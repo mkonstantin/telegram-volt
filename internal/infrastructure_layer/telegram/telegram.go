@@ -41,12 +41,12 @@ func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {
 
 		msg, err := t.router.EntryPoint(update)
 		if err != nil {
-			log.Printf("error when try to send %d", err)
+			log.Printf("error when try to send1 %d", err)
 			return
 		}
 
 		if _, err = t.BotAPI.Send(msg); err != nil {
-			log.Printf("error when try to send %d", err)
+			log.Printf("error when try to send2 %d", err)
 			return
 		}
 
