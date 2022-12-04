@@ -16,6 +16,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 		telegram.NewTelegramBot,
 		router.NewRouter,
 		hundlers.NewOfficeHundler,
+		hundlers.NewPrimaryHundler,
 		repositorySet,
 		dbSet,
 	)

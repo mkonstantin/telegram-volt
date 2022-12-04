@@ -17,6 +17,11 @@ func NewUserRepository(conn repository.Connection) interfaces.UserRepository {
 	}
 }
 
+func (s *userRepositoryImpl) GetByTelegramID(id int64) (model.User, error) {
+
+	return model.User{}, nil
+}
+
 func (s *userRepositoryImpl) Create(user model.User) (model.User, error) {
 	return model.User{}, nil
 }

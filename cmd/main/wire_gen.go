@@ -22,7 +22,9 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	officeRepository := repo.NewOfficeRepository(connection)
 	officeHundler := hundlers.NewOfficeHundler(officeRepository)
-	routerRouter := router.NewRouter(officeHundler)
+	userRepository := repo.NewUserRepository(connection)
+	userHundler := hundlers.NewPrimaryHundler(userRepository, logger)
+	routerRouter := router.NewRouter(officeHundler, userHundler, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {
 		cleanup()

@@ -1,33 +1,44 @@
 package model
 
-import "time"
-
 type User struct {
-	ID            int64
-	Name          string
-	officeID      int64
-	placeID       int64
-	wishGoToLunch bool
-	LunchTime     time.Time
+	name        string
+	officeName  string
+	placeName   string
+	isGoToLunch bool
+}
+
+func (u *User) Name() string {
+	return u.name
+}
+
+func (u *User) SetName(name string) {
+	u.name = name
 }
 
 func (u *User) IsOfficeChoosed() bool {
-	return u.officeID > 0
+	return u.officeName != ""
 }
 
-func (u *User) ChooseOffice(id int64) {
-	u.officeID = id
+func (u *User) ChooseOffice(name string) {
+	u.officeName = name
+}
+
+func (u *User) OfficeName() string {
+	return u.officeName
 }
 
 func (u *User) WantLunch() {
-	u.wishGoToLunch = true
-	u.LunchTime = time.Now()
+	u.isGoToLunch = true
 }
 
 func (u *User) AbortLunch() {
-	u.wishGoToLunch = false
+	u.isGoToLunch = false
 }
 
-func (u *User) ChoosePlace(id int64) {
-	u.placeID = id
+func (u *User) ChoosePlace(name string) {
+	u.placeName = name
+}
+
+func (u *User) PlaceName() string {
+	return u.placeName
 }
