@@ -16,7 +16,8 @@ func main() {
 
 	// in_launch_bot: 5419202121:AAFotPHNAuL9B12NHziyFsWEhIDEfNGd3NU
 	// volt : 210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk
-	botAPI, _, _ := InitializeApplication("5419202121:AAFotPHNAuL9B12NHziyFsWEhIDEfNGd3NU", logger)
+	// inHotdesk_bot : 5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk
+	botAPI, _, _ := InitializeApplication("5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk", logger)
 	botAPI.StartTelegramServer(true, 60)
 
 	logger.Info("StartTelegramServer")
