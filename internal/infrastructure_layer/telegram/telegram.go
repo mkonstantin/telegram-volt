@@ -6,8 +6,6 @@ import (
 	"telegram-api/internal/infrastructure_layer/router"
 )
 
-// 210985494:AAG-GE6m_JwsU31ZDHti91SNmSbePnTSJLk
-
 type TelegramBot struct {
 	BotAPI *tgbotapi.BotAPI
 	router router.Router
@@ -34,22 +32,15 @@ func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {
 
 	updates := t.BotAPI.GetUpdatesChan(u)
 	for update := range updates {
-		if update.Message == nil { // ignore non-Message updates
-			continue
-		}
-		log.Printf("[%s] %s", update.Message.From.UserName, update.Message.Text)
-
-		msg, err := t.router.EntryPoint(update)
+		msg, err := t.router.MainEntryPoint(update)
 		if err != nil {
-			log.Printf("error when try to send1 %d", err)
+			log.Printf("Error handle EntryPoint %d", err)
 			return
 		}
 
 		if _, err = t.BotAPI.Send(msg); err != nil {
-			log.Printf("error when try to send2 %d", err)
+			log.Printf("Error when try to send message %d", err)
 			return
 		}
-
 	}
-
 }
