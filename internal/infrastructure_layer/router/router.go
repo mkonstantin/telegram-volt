@@ -7,42 +7,35 @@ import (
 )
 
 type Router struct {
-	primaryHundler hundlers.UserHundler
-	officeHundler  hundlers.OfficeHundler
-	logger         *zap.Logger
+	customMessageHandler hundlers.CustomMessageHandler
+	commandHandler       hundlers.CommandHandler
+	inlineHandler        hundlers.InlineMessageHandler
+	logger               *zap.Logger
 }
 
-func NewRouter(officeHundler hundlers.OfficeHundler,
-	primaryHundler hundlers.UserHundler, logger *zap.Logger) Router {
+func NewRouter(customMessageHandler hundlers.CustomMessageHandler,
+	commandHandler hundlers.CommandHandler,
+	inlineHandler hundlers.InlineMessageHandler,
+	logger *zap.Logger) Router {
+
 	return Router{
-		officeHundler:  officeHundler,
-		primaryHundler: primaryHundler,
-		logger:         logger,
+		customMessageHandler: customMessageHandler,
+		commandHandler:       commandHandler,
+		inlineHandler:        inlineHandler,
+		logger:               logger,
 	}
 }
 
-func (r *Router) EntryPoint(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	var msgConfig tgbotapi.MessageConfig
-	switch update.Message.Text {
-	case "/start":
-		msg, err := r.primaryHundler.Start(update)
-		if err != nil {
-			r.logger.Info("StartTelegramServer")
+func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	if update.Message != nil {
+		if update.Message.IsCommand() {
+			return r.commandHandler.Handle(update)
+		} else {
+			return r.customMessageHandler.Handle(update)
 		}
-		msgConfig = msg
-
-	case hundlers.Yakutsk203, hundlers.YakutskGluhoi, hundlers.Moscow, hundlers.Almaty:
-		//msg, err := r.officeHundler.SetOffice(update)
-		//if err != nil {
-		//	r.logger.Info("StartTelegramServer")
-		//}
-		//msgConfig = msg
-	case "Выбрать место":
-
-	case "Я пойду на обед":
-		msgConfig.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
+	} else if update.CallbackQuery != nil {
+		return r.inlineHandler.Handle(update)
 	}
-	//msg.ReplyToMessageID = update.Message.MessageID
 
-	return msgConfig, nil
+	return nil, nil
 }

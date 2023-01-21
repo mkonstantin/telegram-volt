@@ -34,13 +34,16 @@ func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {
 	for update := range updates {
 		msg, err := t.router.MainEntryPoint(update)
 		if err != nil {
-			log.Printf("Error handle EntryPoint %d", err)
-			return
+			log.Printf("Error handle MainEntryPoint %d", err)
+			continue
 		}
-
+		if msg == nil {
+			log.Printf("Error handle MainEntryPoint msg = nil %d", err)
+			continue
+		}
 		if _, err = t.BotAPI.Send(msg); err != nil {
 			log.Printf("Error when try to send message %d", err)
-			return
+			continue
 		}
 	}
 }
