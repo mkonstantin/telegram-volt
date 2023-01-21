@@ -1,6 +1,6 @@
-package interfaces
+package _interface
 
-import "telegram-api/internal/domain_layer/model"
+import "telegram-api/internal/domain/model"
 
 type PlaceRepository interface {
 	Create(place model.Place) (model.Place, error)

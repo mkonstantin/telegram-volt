@@ -1,6 +1,6 @@
-package interfaces
+package _interface
 
-import "telegram-api/internal/domain_layer/model"
+import "telegram-api/internal/domain/model"
 
 type UserRepository interface {
 	GetByTelegramID(id int64) (model.User, error)

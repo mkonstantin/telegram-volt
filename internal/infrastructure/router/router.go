@@ -3,19 +3,19 @@ package router
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure_layer/hundlers"
+	"telegram-api/internal/infrastructure/handler"
 )
 
 type Router struct {
-	customMessageHandler hundlers.CustomMessageHandler
-	commandHandler       hundlers.CommandHandler
-	inlineHandler        hundlers.InlineMessageHandler
+	customMessageHandler handler.CustomMessageHandler
+	commandHandler       handler.CommandHandler
+	inlineHandler        handler.InlineMessageHandler
 	logger               *zap.Logger
 }
 
-func NewRouter(customMessageHandler hundlers.CustomMessageHandler,
-	commandHandler hundlers.CommandHandler,
-	inlineHandler hundlers.InlineMessageHandler,
+func NewRouter(customMessageHandler handler.CustomMessageHandler,
+	commandHandler handler.CommandHandler,
+	inlineHandler handler.InlineMessageHandler,
 	logger *zap.Logger) Router {
 
 	return Router{

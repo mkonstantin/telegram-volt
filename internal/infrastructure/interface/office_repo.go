@@ -1,6 +1,6 @@
-package interfaces
+package _interface
 
-import "telegram-api/internal/domain_layer/model"
+import "telegram-api/internal/domain/model"
 
 type OfficeRepository interface {
 	Create(office model.Office) (model.Office, error)

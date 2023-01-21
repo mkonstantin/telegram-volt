@@ -1,4 +1,4 @@
-package hundlers
+package handler
 
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -36,7 +36,7 @@ func (s *customMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 //		}
 //		msgConfig = msg
 //
-//	case hundlers.Yakutsk203, hundlers.YakutskGluhoi, hundlers.Moscow, hundlers.Almaty:
+//	case handler.Yakutsk203, handler.YakutskGluhoi, handler.Moscow, handler.Almaty:
 //		msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
 //		msgConfig.ReplyToMessageID = update.Message.MessageID
 //		//msg, err := r.officeHundler.SetOffice(update)

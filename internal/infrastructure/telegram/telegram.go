@@ -3,7 +3,7 @@ package telegram
 import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"telegram-api/internal/infrastructure_layer/router"
+	"telegram-api/internal/infrastructure/router"
 )
 
 type TelegramBot struct {

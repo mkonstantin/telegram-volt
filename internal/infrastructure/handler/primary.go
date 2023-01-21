@@ -1,18 +1,18 @@
-package hundlers
+package handler
 
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure_layer/interfaces"
+	"telegram-api/internal/infrastructure/interface"
 )
 
 type UserHundler struct {
-	userRepo interfaces.UserRepository
+	userRepo _interface.UserRepository
 	logger   *zap.Logger
 }
 
-func NewPrimaryHundler(repo interfaces.UserRepository, logger *zap.Logger) UserHundler {
+func NewPrimaryHundler(repo _interface.UserRepository, logger *zap.Logger) UserHundler {
 	return UserHundler{
 		userRepo: repo,
 		logger:   logger,

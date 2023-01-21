@@ -8,17 +8,17 @@ package main
 
 import (
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure_layer/hundlers"
-	"telegram-api/internal/infrastructure_layer/router"
-	"telegram-api/internal/infrastructure_layer/telegram"
+	"telegram-api/internal/infrastructure/handler"
+	"telegram-api/internal/infrastructure/router"
+	"telegram-api/internal/infrastructure/telegram"
 )
 
 // Injectors from wire.go:
 
 func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
-	customMessageHandler := hundlers.NewCustomMessageHandler(logger)
-	commandHandler := hundlers.NewCommandHandler(logger)
-	inlineMessageHandler := hundlers.NewInlineMessageHandler(logger)
+	customMessageHandler := handler.NewCustomMessageHandler(logger)
+	commandHandler := handler.NewCommandHandler(logger)
+	inlineMessageHandler := handler.NewInlineMessageHandler(logger)
 	routerRouter := router.NewRouter(customMessageHandler, commandHandler, inlineMessageHandler, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {

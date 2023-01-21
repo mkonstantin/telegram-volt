@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"telegram-api/internal/domain_layer/model"
+	"telegram-api/internal/domain/model"
 )
 
 type UserEntity struct {
