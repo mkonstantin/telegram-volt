@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"log"
+	"telegram-api/internal/app/use_case"
 )
 
 type CommandHandler interface {
@@ -11,12 +13,14 @@ type CommandHandler interface {
 }
 
 type commandHandlerImpl struct {
-	logger *zap.Logger
+	userService use_case.UserService
+	logger      *zap.Logger
 }
 
-func NewCommandHandler(logger *zap.Logger) CommandHandler {
+func NewCommandHandler(userService use_case.UserService, logger *zap.Logger) CommandHandler {
 	return &commandHandlerImpl{
-		logger: logger,
+		userService: userService,
+		logger:      logger,
 	}
 }
 
@@ -43,8 +47,13 @@ func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageCo
 
 	// Extract the command from the Message.
 	switch update.Message.Command() {
-	case "help":
-		msg.Text = "I understand /sayhi and /status."
+	case "start":
+		name := update.Message.From.FirstName
+		strName := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", name)
+		msg.Text = strName
+		//msg.ReplyMarkup = firstOfficeChoose
+		msg.ReplyMarkup = numericKeyboard
+		msg.ReplyToMessageID = update.Message.MessageID
 	case "sayhi":
 		msg.Text = "Hi :)"
 	case "status":

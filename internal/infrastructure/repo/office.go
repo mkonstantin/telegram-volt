@@ -3,7 +3,7 @@ package repo
 import (
 	"github.com/jmoiron/sqlx"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/repo/interface"
+	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
 )
 
@@ -11,7 +11,7 @@ type officeRepositoryImpl struct {
 	db *sqlx.DB
 }
 
-func NewOfficeRepository(conn repository.Connection) _interface.OfficeRepository {
+func NewOfficeRepository(conn repository.Connection) interfaces.OfficeRepository {
 	return &officeRepositoryImpl{
 		db: conn.Main,
 	}

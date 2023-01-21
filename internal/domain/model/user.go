@@ -26,19 +26,3 @@ func (u *User) ChooseOffice(name string) {
 func (u *User) OfficeName() string {
 	return u.officeName
 }
-
-func (u *User) WantLunch() {
-	u.isGoToLunch = true
-}
-
-func (u *User) AbortLunch() {
-	u.isGoToLunch = false
-}
-
-func (u *User) ChoosePlace(name string) {
-	u.placeName = name
-}
-
-func (u *User) PlaceName() string {
-	return u.placeName
-}
