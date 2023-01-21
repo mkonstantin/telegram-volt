@@ -4,7 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure/interface"
+	"telegram-api/internal/infrastructure/repo/interface"
 )
 
 type UserHundler struct {

@@ -3,7 +3,7 @@ package repo
 import (
 	"github.com/jmoiron/sqlx"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/interface"
+	"telegram-api/internal/infrastructure/repo/interface"
 	repository "telegram-api/pkg"
 )
 
