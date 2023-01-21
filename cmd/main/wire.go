@@ -13,12 +13,14 @@ import (
 
 func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
 	wire.Build(
-		telegram.NewTelegramBot,
 		router.NewRouter,
-		hundlers.NewOfficeHundler,
-		hundlers.NewPrimaryHundler,
-		repositorySet,
-		dbSet,
+		telegram.NewTelegramBot,
+		hundlers.NewCommandHandler,
+		hundlers.NewCustomMessageHandler,
+		hundlers.NewInlineMessageHandler,
+		//hundlers.NewPrimaryHundler,
+		//repositorySet,
+		//dbSet,
 	)
 	return telegram.TelegramBot{}, nil, nil
 }

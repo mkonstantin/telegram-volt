@@ -6,7 +6,7 @@ import (
 )
 
 var repositorySet = wire.NewSet(
-	repo2.NewOfficeRepository,
+	//repo2.NewOfficeRepository,
 	repo2.NewUserRepository,
-	repo2.NewPlaceRepository,
+	//repo2.NewPlaceRepository,
 )
