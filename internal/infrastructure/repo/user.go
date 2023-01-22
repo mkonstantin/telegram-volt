@@ -54,15 +54,3 @@ func (s *userRepositoryImpl) Create(user model.User) error {
 	_, err = s.db.Exec(query, args...)
 	return nil
 }
-
-func (s *userRepositoryImpl) Read(id int64) (model.User, error) {
-	return model.User{}, nil
-}
-
-func (s *userRepositoryImpl) Update(user model.User) (model.User, error) {
-	return model.User{}, nil
-}
-
-func (s *userRepositoryImpl) Delete(id int64) error {
-	return nil
-}
