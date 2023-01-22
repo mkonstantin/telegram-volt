@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -51,26 +50,26 @@ var choosePlaceOrChangeOffice = tgbotapi.NewReplyKeyboard(
 )
 
 func (s *UserHundler) Start(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-	user, err := s.userRepo.GetByTelegramID(update.Message.From.ID)
+	//user, err := s.userRepo.GetByTelegramID(update.Message.From.ID)
+	//
+	//if err != nil {
+	//	s.logger.Warn("UserHundler cant get telegram id", zap.Error(err))
+	//	return tgbotapi.MessageConfig{}, err
+	//}
+	//var msgConfig tgbotapi.MessageConfig
 
-	if err != nil {
-		s.logger.Warn("UserHundler cant get telegram id", zap.Error(err))
-		return tgbotapi.MessageConfig{}, err
-	}
-	var msgConfig tgbotapi.MessageConfig
-
-	if user.IsOfficeChoosed() {
-		officeName := user.OfficeName()
-		strName := fmt.Sprintf("Ваш офис: %s", officeName)
-		msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, strName)
-		msgConfig.ReplyMarkup = choosePlaceOrChangeOffice
-		msgConfig.ReplyToMessageID = update.Message.MessageID
-	} else {
-		name := update.Message.From.FirstName
-		strName := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", name)
-		msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, strName)
-		msgConfig.ReplyMarkup = firstOfficeChoose
-		msgConfig.ReplyToMessageID = update.Message.MessageID
-	}
-	return msgConfig, nil
+	//if user.IsOfficeChoosed() {
+	//	officeName := user.OfficeName()
+	//	strName := fmt.Sprintf("Ваш офис: %s", officeName)
+	//	msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, strName)
+	//	msgConfig.ReplyMarkup = choosePlaceOrChangeOffice
+	//	msgConfig.ReplyToMessageID = update.Message.MessageID
+	//} else {
+	//	name := update.Message.From.FirstName
+	//	strName := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", name)
+	//	msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, strName)
+	//	msgConfig.ReplyMarkup = firstOfficeChoose
+	//	msgConfig.ReplyToMessageID = update.Message.MessageID
+	//}
+	return tgbotapi.MessageConfig{}, nil
 }
