@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"strconv"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
@@ -13,37 +14,35 @@ type UserService interface {
 }
 
 type userServiceImpl struct {
-	userRepo interfaces.UserRepository
-	logger   *zap.Logger
+	userRepo   interfaces.UserRepository
+	officeRepo interfaces.OfficeRepository
+	logger     *zap.Logger
 }
 
-func NewUserService(userRepo interfaces.UserRepository, logger *zap.Logger) UserService {
+func NewUserService(userRepo interfaces.UserRepository,
+	officeRepo interfaces.OfficeRepository,
+	logger *zap.Logger) UserService {
 	return &userServiceImpl{
-		userRepo: userRepo,
-		logger:   logger,
+		userRepo:   userRepo,
+		officeRepo: officeRepo,
+		logger:     logger,
 	}
 }
 
-var numericKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+var confirmOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonURL("1.com", "http://1.com"),
-		tgbotapi.NewInlineKeyboardButtonData("2", "2"),
-		tgbotapi.NewInlineKeyboardButtonData("3", "3"),
-	),
-	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData("4", "4"),
-		tgbotapi.NewInlineKeyboardButtonData("5", "5"),
-		tgbotapi.NewInlineKeyboardButtonData("6", "6"),
+		tgbotapi.NewInlineKeyboardButtonData("Да", "yes"),
+		tgbotapi.NewInlineKeyboardButtonData("Нет", "no"),
 	),
 )
 
 func (u *userServiceImpl) FirstCome(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 
 	user, err := u.userRepo.GetByTelegramID(update.Message.From.ID)
 	if err != nil {
 		return nil, err
 	}
+
 	if user == nil {
 		err = u.saveUser(update.Message.From)
 		if err != nil {
@@ -52,14 +51,10 @@ func (u *userServiceImpl) FirstCome(update tgbotapi.Update) (*tgbotapi.MessageCo
 	}
 
 	if user.HaveChosenOffice() {
-
+		return u.confirmAlreadyChosenOffice(update.Message.MessageID, update.Message.Chat.ID, user)
+	} else {
+		return u.chooseOffice(update.Message.MessageID, update.Message.Chat.ID, user)
 	}
-	message := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", user.Name)
-	msg.Text = message
-	msg.ReplyMarkup = numericKeyboard
-	//msg.ReplyToMessageID = update.Message.MessageID
-
-	return &msg, nil
 }
 
 func (u *userServiceImpl) saveUser(TGUser *tgbotapi.User) error {
@@ -73,4 +68,46 @@ func (u *userServiceImpl) saveUser(TGUser *tgbotapi.User) error {
 		return err
 	}
 	return nil
+}
+
+func (u *userServiceImpl) confirmAlreadyChosenOffice(messageID int, chatID int64, user *model.User) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(chatID, "")
+
+	office, err := u.officeRepo.FindByID(user.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+	message := fmt.Sprintf("%s, хотите занять место в: %s?", user.Name, office.Name)
+	msg.Text = message
+	msg.ReplyMarkup = confirmOfficeKeyboard
+	msg.ReplyToMessageID = messageID
+	return &msg, nil
+}
+
+func (u *userServiceImpl) chooseOffice(messageID int, chatID int64, user *model.User) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(chatID, "")
+
+	offices, err := u.officeRepo.GetAll()
+	if err != nil {
+		return nil, err
+	}
+
+	var rows [][]tgbotapi.InlineKeyboardButton
+	for _, office := range offices {
+		button := tgbotapi.NewInlineKeyboardButtonData(office.Name, strconv.FormatInt(office.ID, 10))
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		rows = append(rows, row)
+	}
+
+	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+		rows...,
+	)
+
+	fmt.Println(offices)
+	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", user.Name)
+	msg.Text = message
+	msg.ReplyMarkup = chooseOfficeKeyboard
+	msg.ReplyToMessageID = messageID
+
+	return &msg, nil
 }
