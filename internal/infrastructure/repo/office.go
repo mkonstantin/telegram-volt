@@ -42,5 +42,21 @@ func (s *officeRepositoryImpl) FindByID(id int64) (*model.Office, error) {
 }
 
 func (s *officeRepositoryImpl) GetAll() ([]*model.Office, error) {
-	return []*model.Office{}, nil
+	sqQuery := sq.Select("*").
+		From("office")
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO []dto.Office
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return dto.ToOfficeModels(dtoO), nil
 }

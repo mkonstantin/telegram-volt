@@ -20,3 +20,11 @@ func (o *Office) ToModel() *model.Office {
 		City: o.City,
 	}
 }
+
+func ToOfficeModels(array []Office) []*model.Office {
+	var models []*model.Office
+	for _, item := range array {
+		models = append(models, item.ToModel())
+	}
+	return models
+}
