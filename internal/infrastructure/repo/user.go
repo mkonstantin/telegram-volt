@@ -21,7 +21,6 @@ func NewUserRepository(conn repository.Connection) interfaces.UserRepository {
 }
 
 func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
-
 	sqQuery := sq.Select("*").
 		From("user").
 		Where(sq.Eq{"telegram_id": id})
@@ -43,7 +42,6 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 }
 
 func (s *userRepositoryImpl) Create(user model.User) error {
-
 	sqQuery := sq.
 		Insert("user").Columns("name", "telegram_id", "telegram_name").
 		Values(user.Name, user.TelegramID, user.TelegramName)

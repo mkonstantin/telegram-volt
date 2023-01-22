@@ -56,3 +56,5 @@ CREATE TABLE `book_seat`
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_unicode_ci;
+
+alter table user add office_id INT(11) default NULL;

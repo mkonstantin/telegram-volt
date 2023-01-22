@@ -45,24 +45,32 @@ func (u *userServiceImpl) FirstCome(update tgbotapi.Update) (*tgbotapi.MessageCo
 		return nil, err
 	}
 	if user == nil {
-		ussd := model.User{
-			Name:         update.Message.From.FirstName,
-			TelegramID:   update.Message.From.ID,
-			TelegramName: update.Message.From.UserName,
-		}
-		err = u.userRepo.Create(ussd)
+		err = u.saveUser(update.Message.From)
 		if err != nil {
 			return nil, err
 		}
 	}
-	fmt.Println(user)
 
-	name := update.Message.From.FirstName
-	strName := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", name)
-	msg.Text = strName
-	//msg.ReplyMarkup = firstOfficeChoose
+	if user.HaveChosenOffice() {
+
+	}
+	message := fmt.Sprintf("Привет, %s! Для начала давай выберем офис)", user.Name)
+	msg.Text = message
 	msg.ReplyMarkup = numericKeyboard
-	msg.ReplyToMessageID = update.Message.MessageID
+	//msg.ReplyToMessageID = update.Message.MessageID
 
 	return &msg, nil
+}
+
+func (u *userServiceImpl) saveUser(TGUser *tgbotapi.User) error {
+	userModel := model.User{
+		Name:         TGUser.FirstName,
+		TelegramID:   TGUser.ID,
+		TelegramName: TGUser.UserName,
+	}
+	err := u.userRepo.Create(userModel)
+	if err != nil {
+		return err
+	}
+	return nil
 }
