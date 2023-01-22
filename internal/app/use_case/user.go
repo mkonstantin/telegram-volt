@@ -48,6 +48,10 @@ func (u *userServiceImpl) FirstCome(update tgbotapi.Update) (*tgbotapi.MessageCo
 		if err != nil {
 			return nil, err
 		}
+		user, err = u.userRepo.GetByTelegramID(update.Message.From.ID)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if user.HaveChosenOffice() {
