@@ -1,6 +1,7 @@
 package model
 
 type Office struct {
-	ID   int64  `json:"id,omitempty" db:"id"`
-	Name string `json:"name,omitempty" db:"name"`
+	ID   int64
+	Name string
+	City string
 }
