@@ -32,15 +32,29 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 	}
 
 	var dtoU dto.User
-	if err = s.db.Get(&dtoU, query, args...); err != nil && err != sql.ErrNoRows {
+	if err = s.db.Get(&dtoU, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
 		return nil, err
 	}
 
 	return dtoU.ToModel(), nil
 }
 
-func (s *userRepositoryImpl) Create(user model.User) (model.User, error) {
-	return model.User{}, nil
+func (s *userRepositoryImpl) Create(user model.User) error {
+
+	sqQuery := sq.
+		Insert("user").Columns("name", "telegram_id", "telegram_name").
+		Values(user.Name, user.TelegramID, user.TelegramName)
+	query, args, err := sqQuery.ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
 }
 
 func (s *userRepositoryImpl) Read(id int64) (model.User, error) {
