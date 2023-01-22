@@ -5,9 +5,9 @@ type User struct {
 	Name         string
 	TelegramID   int64
 	TelegramName string
-	OfficeID     *int64
+	OfficeID     int64
 }
 
 func (u *User) HaveChosenOffice() bool {
-	return u.OfficeID != nil
+	return u.OfficeID != 0
 }
