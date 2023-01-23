@@ -4,7 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"log"
-	"telegram-api/internal/app/use_case"
+	"telegram-api/internal/app/usecase"
 )
 
 type CommandHandler interface {
@@ -12,11 +12,11 @@ type CommandHandler interface {
 }
 
 type commandHandlerImpl struct {
-	userService use_case.UserService
+	userService usecase.UserService
 	logger      *zap.Logger
 }
 
-func NewCommandHandler(userService use_case.UserService, logger *zap.Logger) CommandHandler {
+func NewCommandHandler(userService usecase.UserService, logger *zap.Logger) CommandHandler {
 	return &commandHandlerImpl{
 		userService: userService,
 		logger:      logger,

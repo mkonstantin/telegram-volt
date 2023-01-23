@@ -9,7 +9,7 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
-	"telegram-api/internal/app/use_case"
+	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/repo"
 	"telegram-api/internal/infrastructure/router"
@@ -24,7 +24,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	userRepository := repo.NewUserRepository(connection)
 	officeRepository := repo.NewOfficeRepository(connection)
-	userService := use_case.NewUserService(userRepository, officeRepository, logger)
+	userService := usecase.NewUserService(userRepository, officeRepository, logger)
 	commandHandler := handler.NewCommandHandler(userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(logger)
 	routerRouter := router.NewRouter(customMessageHandler, commandHandler, inlineMessageHandler, logger)

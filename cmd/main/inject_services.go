@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/google/wire"
-	"telegram-api/internal/app/use_case"
+	"telegram-api/internal/app/usecase"
 )
 
 var servicesSet = wire.NewSet(
-	//repo2.NewOfficeRepository,
-	use_case.NewUserService,
+	usecase.NewOfficeService,
+	usecase.NewUserService,
 	//repo2.NewPlaceRepository,
 )
