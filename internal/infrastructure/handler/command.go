@@ -5,7 +5,6 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"strconv"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
 )
@@ -24,6 +23,22 @@ func NewCommandHandler(userService usecase.UserService, logger *zap.Logger) Comm
 		userService: userService,
 		logger:      logger,
 	}
+}
+
+type CommandResponse struct {
+	CommandType   string         `json:"type"`
+	ConfirmOffice *ConfirmOffice `json:"confirm,omitempty"`
+	ChooseOffice  *ChooseOffice  `json:"choose,omitempty"`
+}
+
+type CommandType string
+
+type ConfirmOffice struct {
+	IsConfirm bool `json:"is_confirm"`
+}
+
+type ChooseOffice struct {
+	OfficeID int64 `json:"office_id"`
 }
 
 func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
@@ -66,28 +81,34 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 	return nil, nil
 }
 
-type Sdf struct {
-	Name string
-	Ags  int
-}
-
 func (s *commandHandlerImpl) confirmAlreadyChosenOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
-	emp := &Sdf{Name: "Kostya", Ags: 37}
-	estr, err := json.Marshal(emp)
+
+	trueAnswer := &CommandResponse{
+		CommandType:   usecase.ConfirmOffice,
+		ConfirmOffice: &ConfirmOffice{IsConfirm: true},
+	}
+	falseAnswer := &CommandResponse{
+		CommandType:   usecase.ConfirmOffice,
+		ConfirmOffice: &ConfirmOffice{IsConfirm: false},
+	}
+
+	trueA, err := json.Marshal(trueAnswer)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	fmt.Println(string(estr))
-	fff := string(estr)
-	buttonPos := tgbotapi.NewInlineKeyboardButtonData("Да", fff)
-	buttonNeg := tgbotapi.NewInlineKeyboardButtonData("Нет", fff)
+	falseA, err := json.Marshal(falseAnswer)
+	if err != nil {
+		return nil, err
+	}
+
+	buttonPos := tgbotapi.NewInlineKeyboardButtonData("Да", string(trueA))
+	buttonNeg := tgbotapi.NewInlineKeyboardButtonData("Нет", string(falseA))
 	row := tgbotapi.NewInlineKeyboardRow(buttonPos, buttonNeg)
 	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 
-	message := fmt.Sprintf("%s, хотите занять место в: %s?", result.User.Name, result.Office.Name)
-	msg.Text = message
+	msg.Text = result.Message
 	msg.ReplyMarkup = confirmOfficeKeyboard
 	msg.ReplyToMessageID = result.MessageID
 	return &msg, nil
@@ -97,7 +118,16 @@ func (s *commandHandlerImpl) chooseOffice(result *usecase.UserLogicResult) (*tgb
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
-		button := tgbotapi.NewInlineKeyboardButtonData(office.Name, strconv.FormatInt(office.ID, 10))
+		resp := &CommandResponse{
+			CommandType:  usecase.ChooseOffice,
+			ChooseOffice: &ChooseOffice{OfficeID: office.ID},
+		}
+		responseData, err := json.Marshal(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		button := tgbotapi.NewInlineKeyboardButtonData(office.Name, string(responseData))
 		row := tgbotapi.NewInlineKeyboardRow(button)
 		rows = append(rows, row)
 	}
@@ -106,8 +136,7 @@ func (s *commandHandlerImpl) chooseOffice(result *usecase.UserLogicResult) (*tgb
 		rows...,
 	)
 
-	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", result.User.Name)
-	msg.Text = message
+	msg.Text = result.Message
 	msg.ReplyMarkup = chooseOfficeKeyboard
 	msg.ReplyToMessageID = result.MessageID
 	return &msg, nil
