@@ -2,15 +2,34 @@ package usecase
 
 import (
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"strconv"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
+const (
+	ChooseOffice  = "choose_office"
+	ConfirmOffice = "confirm_office"
+)
+
+type UserLogicData struct {
+	User      model.User
+	MessageID int
+	ChatID    int64
+}
+
+type UserLogicResult struct {
+	Key       string
+	Office    *model.Office
+	Offices   []*model.Office
+	Message   string
+	User      model.User
+	MessageID int
+	ChatID    int64
+}
+
 type UserService interface {
-	FirstCome(update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
+	FirstCome(data UserLogicData) (*UserLogicResult, error)
 }
 
 type userServiceImpl struct {
@@ -29,89 +48,64 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-var confirmOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData("Да", "yes"),
-		tgbotapi.NewInlineKeyboardButtonData("Нет", "no"),
-	),
-)
+func (u *userServiceImpl) FirstCome(data UserLogicData) (*UserLogicResult, error) {
 
-func (u *userServiceImpl) FirstCome(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-
-	user, err := u.userRepo.GetByTelegramID(update.Message.From.ID)
+	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
 	if err != nil {
 		return nil, err
 	}
 
 	if user == nil {
-		err = u.saveUser(update.Message.From)
+		err := u.userRepo.Create(data.User)
 		if err != nil {
 			return nil, err
 		}
-		user, err = u.userRepo.GetByTelegramID(update.Message.From.ID)
+		user, err = u.userRepo.GetByTelegramID(data.User.TelegramID)
 		if err != nil {
 			return nil, err
 		}
 	}
 
+	data.User = *user
 	if user.HaveChosenOffice() {
-		return u.confirmAlreadyChosenOffice(update.Message.MessageID, update.Message.Chat.ID, user)
+		return u.confirmAlreadyChosenOffice(data)
 	} else {
-		return u.chooseOffice(update.Message.MessageID, update.Message.Chat.ID, user)
+		return u.chooseOffice(data)
 	}
 }
 
-func (u *userServiceImpl) saveUser(TGUser *tgbotapi.User) error {
-	userModel := model.User{
-		Name:         TGUser.FirstName,
-		TelegramID:   TGUser.ID,
-		TelegramName: TGUser.UserName,
-	}
-	err := u.userRepo.Create(userModel)
-	if err != nil {
-		return err
-	}
-	return nil
-}
+func (u *userServiceImpl) confirmAlreadyChosenOffice(data UserLogicData) (*UserLogicResult, error) {
 
-func (u *userServiceImpl) confirmAlreadyChosenOffice(messageID int, chatID int64, user *model.User) (*tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(chatID, "")
-
-	office, err := u.officeRepo.FindByID(user.OfficeID)
+	office, err := u.officeRepo.FindByID(data.User.OfficeID)
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("%s, хотите занять место в: %s?", user.Name, office.Name)
-	msg.Text = message
-	msg.ReplyMarkup = confirmOfficeKeyboard
-	msg.ReplyToMessageID = messageID
-	return &msg, nil
+	message := fmt.Sprintf("%s, хотите занять место в: %s?", data.User.Name, office.Name)
+	return &UserLogicResult{
+		Key:       ConfirmOffice,
+		Office:    office,
+		Offices:   nil,
+		Message:   message,
+		User:      data.User,
+		ChatID:    data.ChatID,
+		MessageID: data.MessageID,
+	}, nil
 }
 
-func (u *userServiceImpl) chooseOffice(messageID int, chatID int64, user *model.User) (*tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(chatID, "")
+func (u *userServiceImpl) chooseOffice(data UserLogicData) (*UserLogicResult, error) {
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
-
-	var rows [][]tgbotapi.InlineKeyboardButton
-	for _, office := range offices {
-		button := tgbotapi.NewInlineKeyboardButtonData(office.Name, strconv.FormatInt(office.ID, 10))
-		row := tgbotapi.NewInlineKeyboardRow(button)
-		rows = append(rows, row)
-	}
-
-	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-		rows...,
-	)
-
-	fmt.Println(offices)
-	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", user.Name)
-	msg.Text = message
-	msg.ReplyMarkup = chooseOfficeKeyboard
-	msg.ReplyToMessageID = messageID
-
-	return &msg, nil
+	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
+	return &UserLogicResult{
+		Key:       ChooseOffice,
+		Office:    nil,
+		Offices:   offices,
+		Message:   message,
+		User:      data.User,
+		ChatID:    data.ChatID,
+		MessageID: data.MessageID,
+	}, nil
 }
