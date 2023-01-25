@@ -56,7 +56,7 @@ func (u *userServiceImpl) FirstCome(data UserLogicData) (*UserLogicResult, error
 	}
 
 	if user == nil {
-		err := u.userRepo.Create(data.User)
+		err = u.userRepo.Create(data.User)
 		if err != nil {
 			return nil, err
 		}
