@@ -73,15 +73,15 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 
 	switch result.Key {
 	case usecase.ChooseOffice:
-		return s.chooseOffice(result)
+		return chooseOffice(result)
 	case usecase.ConfirmOffice:
-		return s.confirmAlreadyChosenOffice(result)
+		return confirmAlreadyChosenOffice(result)
 	}
 
 	return nil, nil
 }
 
-func (s *commandHandlerImpl) confirmAlreadyChosenOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
+func confirmAlreadyChosenOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 
 	trueAnswer := &CommandResponse{
@@ -114,7 +114,7 @@ func (s *commandHandlerImpl) confirmAlreadyChosenOffice(result *usecase.UserLogi
 	return &msg, nil
 }
 
-func (s *commandHandlerImpl) chooseOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
+func chooseOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
