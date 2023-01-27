@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/handler/dto"
 )
 
 type CommandHandler interface {
@@ -23,22 +24,6 @@ func NewCommandHandler(userService usecase.UserService, logger *zap.Logger) Comm
 		userService: userService,
 		logger:      logger,
 	}
-}
-
-type CommandResponse struct {
-	CommandType   string         `json:"type"`
-	ConfirmOffice *ConfirmOffice `json:"confirm,omitempty"`
-	ChooseOffice  *ChooseOffice  `json:"choose,omitempty"`
-}
-
-type CommandType string
-
-type ConfirmOffice struct {
-	IsConfirm bool `json:"is_confirm"`
-}
-
-type ChooseOffice struct {
-	OfficeID int64 `json:"office_id"`
 }
 
 func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
@@ -84,13 +69,13 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 func confirmAlreadyChosenOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 
-	trueAnswer := &CommandResponse{
+	trueAnswer := &dto.CommandResponse{
 		CommandType:   usecase.ConfirmOffice,
-		ConfirmOffice: &ConfirmOffice{IsConfirm: true},
+		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: true},
 	}
-	falseAnswer := &CommandResponse{
+	falseAnswer := &dto.CommandResponse{
 		CommandType:   usecase.ConfirmOffice,
-		ConfirmOffice: &ConfirmOffice{IsConfirm: false},
+		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: false},
 	}
 
 	trueA, err := json.Marshal(trueAnswer)
@@ -118,9 +103,9 @@ func chooseOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, err
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
-		resp := &CommandResponse{
+		resp := &dto.CommandResponse{
 			CommandType:  usecase.ChooseOffice,
-			ChooseOffice: &ChooseOffice{OfficeID: office.ID},
+			ChooseOffice: &dto.ChooseOffice{OfficeID: office.ID},
 		}
 		responseData, err := json.Marshal(resp)
 		if err != nil {
