@@ -26,7 +26,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	officeRepository := repo.NewOfficeRepository(connection)
 	userService := usecase.NewUserService(userRepository, officeRepository, logger)
 	commandHandler := handler.NewCommandHandler(userService, logger)
-	inlineMessageHandler := handler.NewInlineMessageHandler(logger)
+	inlineMessageHandler := handler.NewInlineMessageHandler(userService, logger)
 	routerRouter := router.NewRouter(customMessageHandler, commandHandler, inlineMessageHandler, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {
