@@ -54,3 +54,8 @@ func (s *userRepositoryImpl) Create(user model.User) error {
 	_, err = s.db.Exec(query, args...)
 	return nil
 }
+
+func (s *userRepositoryImpl) Update(user *model.User) error {
+	//TODO implement me
+	panic("implement me")
+}

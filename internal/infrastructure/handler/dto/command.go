@@ -1,7 +1,7 @@
 package dto
 
 type CommandResponse struct {
-	CommandType   string         `json:"type"`
+	Type          string         `json:"type"`
 	ConfirmOffice *ConfirmOffice `json:"confirm,omitempty"`
 	ChooseOffice  *ChooseOffice  `json:"choose,omitempty"`
 }

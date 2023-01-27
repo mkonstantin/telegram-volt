@@ -28,8 +28,14 @@ type UserLogicResult struct {
 	ChatID    int64
 }
 
+type SetOfficeDTO struct {
+	TelegramID int64
+	OfficeID   int64
+}
+
 type UserService interface {
 	FirstCome(data UserLogicData) (*UserLogicResult, error)
+	SetOffice(data SetOfficeDTO) error
 }
 
 type userServiceImpl struct {
@@ -108,4 +114,18 @@ func (u *userServiceImpl) chooseOffice(data UserLogicData) (*UserLogicResult, er
 		ChatID:    data.ChatID,
 		MessageID: data.MessageID,
 	}, nil
+}
+
+func (u *userServiceImpl) SetOffice(data SetOfficeDTO) error {
+	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
+	if err != nil {
+		return err
+	}
+
+	user.OfficeID = data.OfficeID
+	err = u.userRepo.Update(user)
+	if err != nil {
+		return err
+	}
+	return nil
 }

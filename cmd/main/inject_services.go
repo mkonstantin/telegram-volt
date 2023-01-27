@@ -6,7 +6,5 @@ import (
 )
 
 var servicesSet = wire.NewSet(
-	usecase.NewOfficeService,
 	usecase.NewUserService,
-	//repo2.NewPlaceRepository,
 )

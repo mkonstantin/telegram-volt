@@ -70,11 +70,11 @@ func confirmAlreadyChosenOffice(result *usecase.UserLogicResult) (*tgbotapi.Mess
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 
 	trueAnswer := &dto.CommandResponse{
-		CommandType:   usecase.ConfirmOffice,
+		Type:          usecase.ConfirmOffice,
 		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: true},
 	}
 	falseAnswer := &dto.CommandResponse{
-		CommandType:   usecase.ConfirmOffice,
+		Type:          usecase.ConfirmOffice,
 		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: false},
 	}
 
@@ -104,7 +104,7 @@ func chooseOffice(result *usecase.UserLogicResult) (*tgbotapi.MessageConfig, err
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
 		resp := &dto.CommandResponse{
-			CommandType:  usecase.ChooseOffice,
+			Type:         usecase.ChooseOffice,
 			ChooseOffice: &dto.ChooseOffice{OfficeID: office.ID},
 		}
 		responseData, err := json.Marshal(resp)
