@@ -3,7 +3,7 @@ package usecase
 import (
 	"fmt"
 	"go.uber.org/zap"
-	"telegram-api/internal/domain/model"
+	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -12,30 +12,9 @@ const (
 	ConfirmOffice = "confirm_office"
 )
 
-type UserLogicData struct {
-	User      model.User
-	MessageID int
-	ChatID    int64
-}
-
-type UserLogicResult struct {
-	Key       string
-	Office    *model.Office
-	Offices   []*model.Office
-	Message   string
-	User      model.User
-	MessageID int
-	ChatID    int64
-}
-
-type SetOfficeDTO struct {
-	TelegramID int64
-	OfficeID   int64
-}
-
 type UserService interface {
-	FirstCome(data UserLogicData) (*UserLogicResult, error)
-	SetOffice(data SetOfficeDTO) error
+	FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error)
+	SetOffice(data dto.SetOfficeDTO) error
 }
 
 type userServiceImpl struct {
@@ -54,7 +33,7 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) FirstCome(data UserLogicData) (*UserLogicResult, error) {
+func (u *userServiceImpl) FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error) {
 
 	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
 	if err != nil {
@@ -80,14 +59,14 @@ func (u *userServiceImpl) FirstCome(data UserLogicData) (*UserLogicResult, error
 	}
 }
 
-func (u *userServiceImpl) confirmAlreadyChosenOffice(data UserLogicData) (*UserLogicResult, error) {
+func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.UserLogicData) (*dto.UserLogicResult, error) {
 
 	office, err := u.officeRepo.FindByID(data.User.OfficeID)
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("%s, хотите занять место в: %s?", data.User.Name, office.Name)
-	return &UserLogicResult{
+	return &dto.UserLogicResult{
 		Key:       ConfirmOffice,
 		Office:    office,
 		Offices:   nil,
@@ -98,14 +77,14 @@ func (u *userServiceImpl) confirmAlreadyChosenOffice(data UserLogicData) (*UserL
 	}, nil
 }
 
-func (u *userServiceImpl) chooseOffice(data UserLogicData) (*UserLogicResult, error) {
+func (u *userServiceImpl) chooseOffice(data dto.UserLogicData) (*dto.UserLogicResult, error) {
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
-	return &UserLogicResult{
+	return &dto.UserLogicResult{
 		Key:       ChooseOffice,
 		Office:    nil,
 		Offices:   offices,
@@ -116,12 +95,15 @@ func (u *userServiceImpl) chooseOffice(data UserLogicData) (*UserLogicResult, er
 	}, nil
 }
 
-func (u *userServiceImpl) SetOffice(data SetOfficeDTO) error {
+func (u *userServiceImpl) SetOffice(data dto.SetOfficeDTO) error {
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return err
 	}
-
+	if user == nil {
+		// TODO добавить ошибку NotFoundUser
+		return nil
+	}
 	user.OfficeID = data.OfficeID
 	err = u.userRepo.Update(user)
 	if err != nil {
