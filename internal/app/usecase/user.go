@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	ChooseOffice  = "choose_office"
-	ConfirmOffice = "confirm_office"
+	ChooseOffice = "choose_office"
+	OfficeMenu   = "office_menu"
 )
 
 type UserService interface {
-	FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResult, error)
-	OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.OfficeChosenResult, error)
+	FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error)
+	OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -37,7 +37,7 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
+func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error) {
 
 	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
 
@@ -52,9 +52,9 @@ func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResu
 
 	data.User = *user
 	if user.HaveChosenOffice() {
-		return u.confirmAlreadyChosenOffice(data)
+		return u.callOfficeMenu(data.User.OfficeID, data.ChatID, data.MessageID)
 	} else {
-		return u.chooseOffice(data)
+		return u.callChooseOfficeMenu(data)
 	}
 }
 
@@ -71,31 +71,31 @@ func (u *userServiceImpl) createUser(data dto.FirstStartDTO) (*model.User, error
 	return user, nil
 }
 
-func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
+func (u *userServiceImpl) callOfficeMenu(officeID, chatID int64, MessageID int) (*dto.UserResult, error) {
 
-	office, err := u.officeRepo.FindByID(data.User.OfficeID)
+	office, err := u.officeRepo.FindByID(officeID)
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("%s, хотите занять место в: %s?", data.User.Name, office.Name)
-	return &dto.FirstStartResult{
-		Key:       ConfirmOffice,
+	message := fmt.Sprintf("Офис: %s", office.Name)
+	return &dto.UserResult{
+		Key:       OfficeMenu,
 		Office:    office,
 		Offices:   nil,
 		Message:   message,
-		ChatID:    data.ChatID,
-		MessageID: data.MessageID,
+		ChatID:    chatID,
+		MessageID: MessageID,
 	}, nil
 }
 
-func (u *userServiceImpl) chooseOffice(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
+func (u *userServiceImpl) callChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error) {
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
-	return &dto.FirstStartResult{
+	return &dto.UserResult{
 		Key:       ChooseOffice,
 		Office:    nil,
 		Offices:   offices,
@@ -107,7 +107,7 @@ func (u *userServiceImpl) chooseOffice(data dto.FirstStartDTO) (*dto.FirstStartR
 
 // Office выбран, теперь надо выбрать место
 
-func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.OfficeChosenResult, error) {
+func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.UserResult, error) {
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return nil, err
@@ -123,14 +123,5 @@ func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.Of
 		return nil, err
 	}
 
-	seats, err := u.seatRepo.GetAllByOfficeID(user.OfficeID)
-	if err != nil {
-		return nil, err
-	}
-
-	result := dto.OfficeChosenResult{
-		Seats: seats,
-	}
-
-	return &result, nil
+	return u.callOfficeMenu(user.OfficeID, data.ChatID, data.MessageID)
 }
