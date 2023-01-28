@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
@@ -75,7 +74,11 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandRespo
 			MessageID: 0,
 			ChatID:    0,
 		}
-		s.userService.CallChooseOfficeMenu(startDTO)
+		result, err := s.userService.CallChooseOfficeMenu(startDTO)
+		if err != nil {
+			return nil, err
+		}
+		return s.msgFormer.FormChooseOfficeMenuMsg(result)
 	}
 
 	return nil, nil
@@ -94,7 +97,6 @@ func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(telegramID, officeID, cha
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println(result)
-	return nil, nil
+	
+	return s.msgFormer.FormOfficeMenuMsg(result)
 }
