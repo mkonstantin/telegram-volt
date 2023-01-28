@@ -64,6 +64,7 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 		return confirmAlreadyChosenOffice(result)
 	}
 
+	// TODO
 	return nil, nil
 }
 

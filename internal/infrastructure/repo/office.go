@@ -33,6 +33,7 @@ func (s *officeRepositoryImpl) FindByID(id int64) (*model.Office, error) {
 	var dtoO dto.Office
 	if err = s.db.Get(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
+			// TODO
 			return nil, nil
 		}
 		return nil, err
@@ -53,6 +54,7 @@ func (s *officeRepositoryImpl) GetAll() ([]*model.Office, error) {
 	var dtoO []dto.Office
 	if err = s.db.Select(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
+			// TODO
 			return nil, nil
 		}
 		return nil, err

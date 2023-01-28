@@ -37,5 +37,6 @@ func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig
 		return r.inlineHandler.Handle(update)
 	}
 
+	// TODO
 	return nil, nil
 }
