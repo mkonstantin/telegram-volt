@@ -16,7 +16,7 @@ const (
 
 type UserService interface {
 	FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResult, error)
-	OfficeChosenScenery(data dto.OfficeChosenDTO) error
+	OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.OfficeChosenResult, error)
 }
 
 type userServiceImpl struct {
@@ -109,21 +109,30 @@ func (u *userServiceImpl) chooseOffice(data dto.FirstStartDTO) (*dto.FirstStartR
 
 // Office выбран, теперь надо выбрать место
 
-func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) error {
+func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.OfficeChosenResult, error) {
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if user == nil {
-		return common.ErrUserNotFound
+		return nil, common.ErrUserNotFound
 	}
 
 	user.OfficeID = data.OfficeID
 
 	err = u.userRepo.SetOffice(user)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	seats, err := u.seatRepo.GetAllByOfficeID(user.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+
+	result := dto.OfficeChosenResult{
+		Seats: seats,
+	}
+
+	return &result, nil
 }

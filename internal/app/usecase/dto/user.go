@@ -24,6 +24,5 @@ type OfficeChosenDTO struct {
 }
 
 type OfficeChosenResult struct {
-	TelegramID int64
-	OfficeID   int64
+	Seats []*model.Seat
 }
