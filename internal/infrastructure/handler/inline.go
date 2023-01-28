@@ -38,9 +38,9 @@ func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 
 	switch command.Type {
 	case usecase.ChooseOffice:
-		return s.setOffice(update.CallbackQuery.From.ID, command.ChooseOffice.OfficeID)
+		return s.officeChosenScenery(command, update)
 	case usecase.ConfirmOffice:
-
+		return s.officeConfirmScenery(command, update)
 	}
 
 	// TODO
@@ -58,18 +58,34 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 	return &command, nil
 }
 
-func (s *inlineMessageHandlerImpl) setOffice(telegramID, officeID int64) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) officeChosenScenery(command *dto.CommandResponse,
+	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+
 	data := dto2.SetOfficeDTO{
-		TelegramID: telegramID,
-		OfficeID:   officeID,
+		TelegramID: update.CallbackQuery.From.ID,
+		OfficeID:   command.ChooseOffice.OfficeID,
 	}
 
-	err := s.userService.SetOffice(data)
+	err := s.userService.OfficeChoosedScenary(data)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO
 	return nil, nil
-	//msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
+}
+
+func (s *inlineMessageHandlerImpl) officeConfirmScenery(command *dto.CommandResponse,
+	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+
+	data := dto2.SetOfficeDTO{
+		TelegramID: update.CallbackQuery.From.ID,
+		OfficeID:   command.ChooseOffice.OfficeID,
+	}
+
+	err := s.userService.OfficeChoosedScenary(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return nil, nil
 }

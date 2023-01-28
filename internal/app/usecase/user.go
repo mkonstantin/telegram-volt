@@ -16,7 +16,7 @@ const (
 
 type UserService interface {
 	FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error)
-	SetOffice(data dto.SetOfficeDTO) error
+	OfficeChosenScenery(data dto.SetOfficeDTO) error
 }
 
 type userServiceImpl struct {
@@ -105,7 +105,10 @@ func (u *userServiceImpl) chooseOffice(data dto.UserLogicData) (*dto.UserLogicRe
 	}, nil
 }
 
-func (u *userServiceImpl) SetOffice(data dto.SetOfficeDTO) error {
+func (u *userServiceImpl) OfficeChosenScenery(data dto.SetOfficeDTO) error {
+	//TODO implement me
+	panic("implement me")
+
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return err
