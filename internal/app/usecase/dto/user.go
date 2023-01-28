@@ -13,7 +13,6 @@ type FirstStartResult struct {
 	Office    *model.Office
 	Offices   []*model.Office
 	Message   string
-	User      model.User
 	MessageID int
 	ChatID    int64
 }

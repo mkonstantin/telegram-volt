@@ -83,7 +83,6 @@ func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.FirstStartDTO) (*d
 		Office:    office,
 		Offices:   nil,
 		Message:   message,
-		User:      data.User,
 		ChatID:    data.ChatID,
 		MessageID: data.MessageID,
 	}, nil
@@ -101,7 +100,6 @@ func (u *userServiceImpl) chooseOffice(data dto.FirstStartDTO) (*dto.FirstStartR
 		Office:    nil,
 		Offices:   offices,
 		Message:   message,
-		User:      data.User,
 		ChatID:    data.ChatID,
 		MessageID: data.MessageID,
 	}, nil
