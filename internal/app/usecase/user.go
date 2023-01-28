@@ -17,7 +17,7 @@ const (
 type UserService interface {
 	FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error)
 	CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error)
-	OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.UserResult, error)
+	SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -106,9 +106,9 @@ func (u *userServiceImpl) CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.Use
 	}, nil
 }
 
-//========= Office выбран, теперь надо выбрать место
+//========= Выбрали офис и вызываем его меню
 
-func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error) {
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return nil, err

@@ -70,7 +70,7 @@ func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(telegramID, officeID, cha
 		MessageID:  messageID,
 	}
 
-	result, err := s.userService.OfficeChosenScenery(data)
+	result, err := s.userService.SetOfficeScript(data)
 	if err != nil {
 		return nil, err
 	}
