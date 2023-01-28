@@ -6,7 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
-	dto2 "telegram-api/internal/app/usecase/dto"
+	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
@@ -42,7 +42,7 @@ func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageCo
 }
 
 func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	data := dto2.UserLogicData{
+	data := usecasedto.FirstStartDTO{
 		User: model.User{
 			Name:         update.Message.From.FirstName,
 			TelegramID:   update.Message.From.ID,
@@ -68,7 +68,7 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 	return nil, nil
 }
 
-func confirmAlreadyChosenOffice(result *dto2.UserLogicResult) (*tgbotapi.MessageConfig, error) {
+func confirmAlreadyChosenOffice(result *usecasedto.FirstStartResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 
 	trueAnswer := &dto.CommandResponse{
@@ -101,7 +101,7 @@ func confirmAlreadyChosenOffice(result *dto2.UserLogicResult) (*tgbotapi.Message
 	return &msg, nil
 }
 
-func chooseOffice(result *dto2.UserLogicResult) (*tgbotapi.MessageConfig, error) {
+func chooseOffice(result *usecasedto.FirstStartResult) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {

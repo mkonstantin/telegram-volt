@@ -2,13 +2,13 @@ package dto
 
 import "telegram-api/internal/domain/model"
 
-type UserLogicData struct {
+type FirstStartDTO struct {
 	User      model.User
 	MessageID int
 	ChatID    int64
 }
 
-type UserLogicResult struct {
+type FirstStartResult struct {
 	Key       string
 	Office    *model.Office
 	Offices   []*model.Office
@@ -23,7 +23,7 @@ type OfficeChosenDTO struct {
 	OfficeID   int64
 }
 
-type OfficeChosenResultDTO struct {
+type OfficeChosenResult struct {
 	TelegramID int64
 	OfficeID   int64
 }

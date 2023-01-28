@@ -15,7 +15,7 @@ const (
 )
 
 type UserService interface {
-	FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error)
+	FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResult, error)
 	OfficeChosenScenery(data dto.OfficeChosenDTO) error
 }
 
@@ -37,7 +37,7 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error) {
+func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
 
 	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
 
@@ -58,7 +58,7 @@ func (u *userServiceImpl) FirstCome(data dto.UserLogicData) (*dto.UserLogicResul
 	}
 }
 
-func (u *userServiceImpl) createUser(data dto.UserLogicData) (*model.User, error) {
+func (u *userServiceImpl) createUser(data dto.FirstStartDTO) (*model.User, error) {
 	err := u.userRepo.Create(data.User)
 	if err != nil {
 		return nil, err
@@ -71,14 +71,14 @@ func (u *userServiceImpl) createUser(data dto.UserLogicData) (*model.User, error
 	return user, nil
 }
 
-func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.UserLogicData) (*dto.UserLogicResult, error) {
+func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
 
 	office, err := u.officeRepo.FindByID(data.User.OfficeID)
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("%s, хотите занять место в: %s?", data.User.Name, office.Name)
-	return &dto.UserLogicResult{
+	return &dto.FirstStartResult{
 		Key:       ConfirmOffice,
 		Office:    office,
 		Offices:   nil,
@@ -89,14 +89,14 @@ func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.UserLogicData) (*d
 	}, nil
 }
 
-func (u *userServiceImpl) chooseOffice(data dto.UserLogicData) (*dto.UserLogicResult, error) {
+func (u *userServiceImpl) chooseOffice(data dto.FirstStartDTO) (*dto.FirstStartResult, error) {
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
-	return &dto.UserLogicResult{
+	return &dto.FirstStartResult{
 		Key:       ChooseOffice,
 		Office:    nil,
 		Offices:   offices,
