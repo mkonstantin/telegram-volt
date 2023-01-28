@@ -34,7 +34,7 @@ func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageCo
 	case "start":
 		return s.handleStartCommand(update)
 	default:
-		msg.Text = "I don't know that command"
+		msg.Text = "Я незнаю этой команды"
 	}
 
 	return &msg, nil
@@ -63,8 +63,8 @@ func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbota
 		return s.sendChooseOfficeMenu(result)
 	}
 
-	// TODO
-	return nil, nil
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестный вызов")
+	return &msg, nil
 }
 
 func (s *commandHandlerImpl) sendOfficeMenu(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
