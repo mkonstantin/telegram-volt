@@ -1,18 +1,7 @@
 package dto
 
 type CommandResponse struct {
-	Type          string         `json:"type"`
-	ConfirmOffice *ConfirmOffice `json:"confirm,omitempty"`
-	ChooseOffice  *ChooseOffice  `json:"choose,omitempty"`
-}
-
-type CommandType string
-
-type ConfirmOffice struct {
-	OfficeID  int64 `json:"office_id"`
-	IsConfirm bool  `json:"is_confirm"`
-}
-
-type ChooseOffice struct {
-	OfficeID int64 `json:"office_id"`
+	Type      string `json:"type,omitempty"`
+	OfficeID  int64  `json:"office_id,omitempty"`
+	IsConfirm bool   `json:"is_confirm,omitempty"`
 }

@@ -39,7 +39,7 @@ func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 
 	switch command.Type {
 	case usecase.ChooseOffice:
-		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.ChooseOffice.OfficeID)
+		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.OfficeID)
 	case usecase.ConfirmOffice:
 		return s.officeConfirmScenery(command, update)
 	}
@@ -61,8 +61,8 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 
 func (s *inlineMessageHandlerImpl) officeConfirmScenery(command *dto.CommandResponse,
 	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	if command.ConfirmOffice.IsConfirm {
-		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.ChooseOffice.OfficeID)
+	if command.IsConfirm {
+		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.OfficeID)
 	} else {
 
 	}
