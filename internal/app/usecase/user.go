@@ -16,6 +16,7 @@ const (
 
 type UserService interface {
 	FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error)
+	CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error)
 	OfficeChosenScenery(data dto.OfficeChosenDTO) (*dto.UserResult, error)
 }
 
@@ -54,7 +55,7 @@ func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.UserResult, er
 	if user.HaveChosenOffice() {
 		return u.callOfficeMenu(data.User.OfficeID, data.ChatID, data.MessageID)
 	} else {
-		return u.callChooseOfficeMenu(data.User.Name, data.ChatID, data.MessageID)
+		return u.CallChooseOfficeMenu(data)
 	}
 }
 
@@ -88,20 +89,20 @@ func (u *userServiceImpl) callOfficeMenu(officeID, chatID int64, MessageID int) 
 	}, nil
 }
 
-func (u *userServiceImpl) callChooseOfficeMenu(name string, chatID int64, messageID int) (*dto.UserResult, error) {
+func (u *userServiceImpl) CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error) {
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", name)
+	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
 	return &dto.UserResult{
 		Key:       ChooseOfficeMenu,
 		Office:    nil,
 		Offices:   offices,
 		Message:   message,
-		ChatID:    chatID,
-		MessageID: messageID,
+		ChatID:    data.ChatID,
+		MessageID: data.MessageID,
 	}, nil
 }
 

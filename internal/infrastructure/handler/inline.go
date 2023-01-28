@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
 	dto2 "telegram-api/internal/app/usecase/dto"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
@@ -38,10 +39,10 @@ func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 	}
 
 	switch command.Type {
-	case usecase.ChooseOffice:
-		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.OfficeID, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
 	case usecase.OfficeMenu:
-		return s.officeConfirmScenery(command, update)
+		return s.officeMenuTapScript(command, update)
+	case usecase.ChooseOfficeMenu:
+		return s.chooseOfficeMenuTap(update.CallbackQuery.From.ID, command.OfficeID, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
 	}
 
 	// TODO
@@ -59,17 +60,26 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 	return &command, nil
 }
 
-func (s *inlineMessageHandlerImpl) officeConfirmScenery(command *dto.CommandResponse,
-	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	if command.IsConfirm {
-		return s.officeChosenScenery(update.CallbackQuery.From.ID, command.OfficeID, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
-	} else {
-		// TODO
+func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+
+	switch command.Action {
+	case dto.OfficeMenuFreeSeats:
+
+	case dto.OfficeMenuSubscribe:
+
+	case dto.OfficeMenuChooseAnotherOffice:
+		startDTO := dto2.FirstStartDTO{
+			User:      model.User{},
+			MessageID: 0,
+			ChatID:    0,
+		}
+		s.userService.CallChooseOfficeMenu(startDTO)
 	}
+
 	return nil, nil
 }
 
-func (s *inlineMessageHandlerImpl) officeChosenScenery(telegramID, officeID, chatID int64, messageID int) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(telegramID, officeID, chatID int64, messageID int) (*tgbotapi.MessageConfig, error) {
 
 	data := dto2.OfficeChosenDTO{
 		TelegramID: telegramID,
