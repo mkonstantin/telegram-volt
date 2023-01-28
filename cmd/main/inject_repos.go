@@ -9,4 +9,5 @@ var repositorySet = wire.NewSet(
 	repo.NewOfficeRepository,
 	repo.NewUserRepository,
 	repo.NewSeatRepository,
+	repo.NewBookSeatRepository,
 )
