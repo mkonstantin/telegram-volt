@@ -105,7 +105,7 @@ func (u *userServiceImpl) SetOffice(data dto.SetOfficeDTO) error {
 		return nil
 	}
 	user.OfficeID = data.OfficeID
-	err = u.userRepo.Update(user)
+	err = u.userRepo.SetOffice(user)
 	if err != nil {
 		return err
 	}

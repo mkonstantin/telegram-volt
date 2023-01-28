@@ -55,7 +55,16 @@ func (s *userRepositoryImpl) Create(user model.User) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) Update(user *model.User) error {
-	//TODO implement me
-	panic("implement me")
+func (s *userRepositoryImpl) SetOffice(user *model.User) error {
+	sqQuery := sq.Update("user").
+		Set("office_id", user.OfficeID).
+		Where(sq.Eq{"telegram_id": user.TelegramID})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
 }
