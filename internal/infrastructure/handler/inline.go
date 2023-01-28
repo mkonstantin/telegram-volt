@@ -16,12 +16,14 @@ type InlineMessageHandler interface {
 }
 
 type inlineMessageHandlerImpl struct {
+	msgFormer   MessageFormer
 	userService usecase.UserService
 	logger      *zap.Logger
 }
 
-func NewInlineMessageHandler(userService usecase.UserService, logger *zap.Logger) InlineMessageHandler {
+func NewInlineMessageHandler(msgFormer MessageFormer, userService usecase.UserService, logger *zap.Logger) InlineMessageHandler {
 	return &inlineMessageHandlerImpl{
+		msgFormer:   msgFormer,
 		userService: userService,
 		logger:      logger,
 	}

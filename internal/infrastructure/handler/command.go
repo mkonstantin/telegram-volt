@@ -15,12 +15,14 @@ type CommandHandler interface {
 }
 
 type commandHandlerImpl struct {
+	msgFormer   MessageFormer
 	userService usecase.UserService
 	logger      *zap.Logger
 }
 
-func NewCommandHandler(userService usecase.UserService, logger *zap.Logger) CommandHandler {
+func NewCommandHandler(msgFormer MessageFormer, userService usecase.UserService, logger *zap.Logger) CommandHandler {
 	return &commandHandlerImpl{
+		msgFormer:   msgFormer,
 		userService: userService,
 		logger:      logger,
 	}
