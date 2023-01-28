@@ -20,6 +20,6 @@ func NewCustomMessageHandler(logger *zap.Logger) CustomMessageHandler {
 }
 
 func (s *customMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Ничего не могу с этим сделать)")
+	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ничего не могу с этим сделать)")
 	return &msg, nil
 }
