@@ -9,7 +9,8 @@ type CommandResponse struct {
 type CommandType string
 
 type ConfirmOffice struct {
-	IsConfirm bool `json:"is_confirm"`
+	OfficeID  int64 `json:"office_id"`
+	IsConfirm bool  `json:"is_confirm"`
 }
 
 type ChooseOffice struct {

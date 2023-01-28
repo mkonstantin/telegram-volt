@@ -72,12 +72,18 @@ func confirmAlreadyChosenOffice(result *usecasedto.FirstStartResult) (*tgbotapi.
 	msg := tgbotapi.NewMessage(result.ChatID, "")
 
 	trueAnswer := &dto.CommandResponse{
-		Type:          usecase.ConfirmOffice,
-		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: true},
+		Type: usecase.ConfirmOffice,
+		ConfirmOffice: &dto.ConfirmOffice{
+			IsConfirm: true,
+			OfficeID:  result.Office.ID,
+		},
 	}
 	falseAnswer := &dto.CommandResponse{
-		Type:          usecase.ConfirmOffice,
-		ConfirmOffice: &dto.ConfirmOffice{IsConfirm: false},
+		Type: usecase.ConfirmOffice,
+		ConfirmOffice: &dto.ConfirmOffice{
+			IsConfirm: false,
+			OfficeID:  result.Office.ID,
+		},
 	}
 
 	trueA, err := json.Marshal(trueAnswer)
