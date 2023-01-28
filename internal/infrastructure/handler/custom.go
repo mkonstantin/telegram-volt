@@ -14,42 +14,12 @@ type customMessageHandlerImpl struct {
 }
 
 func NewCustomMessageHandler(logger *zap.Logger) CustomMessageHandler {
-	return &inlineMessageHandlerImpl{
+	return &customMessageHandlerImpl{
 		logger: logger,
 	}
 }
 
 func (s *customMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-
-	// And finally, send a message containing the data received.
-	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Data)
+	msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Ничего не могу с этим сделать)")
 	return &msg, nil
 }
-
-//func (r *Router) EntryPoint(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-//	var msgConfig tgbotapi.MessageConfig
-//	switch update.Message.Text {
-//	case "/start":
-//		msg, err := r.primaryHundler.Start(update)
-//		if err != nil {
-//			r.logger.Info("StartTelegramServer")
-//		}
-//		msgConfig = msg
-//
-//	case handler.Yakutsk203, handler.YakutskGluhoi, handler.Moscow, handler.Almaty:
-//		msgConfig = tgbotapi.NewMessage(update.Message.Chat.ID, update.Message.Text)
-//		msgConfig.ReplyToMessageID = update.Message.MessageID
-//		//msg, err := r.officeHundler.SetOffice(update)
-//		//if err != nil {
-//		//	r.logger.Info("StartTelegramServer")
-//		//}
-//		//msgConfig = msg
-//	case "Выбрать место":
-//
-//	case "Я пойду на обед":
-//		msgConfig.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true)
-//	}
-//	//msg.ReplyToMessageID = update.Message.MessageID
-//
-//	return msgConfig, nil
-//}
