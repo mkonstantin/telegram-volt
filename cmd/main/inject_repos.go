@@ -8,5 +8,5 @@ import (
 var repositorySet = wire.NewSet(
 	repo.NewOfficeRepository,
 	repo.NewUserRepository,
-	//repo2.NewPlaceRepository,
+	repo.NewSeatRepository,
 )
