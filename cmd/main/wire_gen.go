@@ -20,14 +20,15 @@ import (
 
 func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
 	customMessageHandler := handler.NewCustomMessageHandler(logger)
+	messageFormer := handler.NewMessageFormer(logger)
 	contextContext := context.Background()
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	userRepository := repo.NewUserRepository(connection)
 	officeRepository := repo.NewOfficeRepository(connection)
 	seatRepository := repo.NewSeatRepository(connection)
 	userService := usecase.NewUserService(userRepository, officeRepository, seatRepository, logger)
-	commandHandler := handler.NewCommandHandler(userService, logger)
-	inlineMessageHandler := handler.NewInlineMessageHandler(userService, logger)
+	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
+	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(customMessageHandler, commandHandler, inlineMessageHandler, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {

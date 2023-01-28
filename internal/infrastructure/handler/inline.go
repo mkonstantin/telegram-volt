@@ -97,6 +97,6 @@ func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(telegramID, officeID, cha
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return s.msgFormer.FormOfficeMenuMsg(result)
 }
