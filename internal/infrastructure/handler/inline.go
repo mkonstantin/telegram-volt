@@ -70,10 +70,15 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandRespo
 
 	case dto.OfficeMenuChooseAnotherOffice:
 		startDTO := dto2.FirstStartDTO{
-			User:      model.User{},
-			MessageID: 0,
-			ChatID:    0,
+			User: model.User{
+				Name:         update.CallbackQuery.From.FirstName,
+				TelegramID:   update.CallbackQuery.From.ID,
+				TelegramName: update.CallbackQuery.From.UserName,
+			},
+			MessageID: update.CallbackQuery.Message.MessageID,
+			ChatID:    update.CallbackQuery.Message.Chat.ID,
 		}
+
 		result, err := s.userService.CallChooseOfficeMenu(startDTO)
 		if err != nil {
 			return nil, err
