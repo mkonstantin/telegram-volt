@@ -5,6 +5,7 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
@@ -33,7 +34,7 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 	var dtoU dto.User
 	if err = s.db.Get(&dtoU, query, args...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return nil, common.ErrUserNotFound
 		}
 		return nil, err
 	}

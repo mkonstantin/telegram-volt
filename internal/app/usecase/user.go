@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase/dto"
+	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -36,19 +38,14 @@ func NewUserService(userRepo interfaces.UserRepository,
 func (u *userServiceImpl) FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error) {
 
 	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
-	if err != nil {
-		return nil, err
-	}
 
-	if user == nil {
-		err = u.userRepo.Create(data.User)
+	if err == common.ErrUserNotFound {
+		user, err = u.createUser(data)
 		if err != nil {
 			return nil, err
 		}
-		user, err = u.userRepo.GetByTelegramID(data.User.TelegramID)
-		if err != nil {
-			return nil, err
-		}
+	} else if err != nil {
+		return nil, err
 	}
 
 	data.User = *user
@@ -57,6 +54,19 @@ func (u *userServiceImpl) FirstCome(data dto.UserLogicData) (*dto.UserLogicResul
 	} else {
 		return u.chooseOffice(data)
 	}
+}
+
+func (u *userServiceImpl) createUser(data dto.UserLogicData) (*model.User, error) {
+	err := u.userRepo.Create(data.User)
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
+	if err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (u *userServiceImpl) confirmAlreadyChosenOffice(data dto.UserLogicData) (*dto.UserLogicResult, error) {
