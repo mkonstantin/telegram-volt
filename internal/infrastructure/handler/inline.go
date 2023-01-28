@@ -61,12 +61,12 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 func (s *inlineMessageHandlerImpl) officeChosenScenery(command *dto.CommandResponse,
 	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
-	data := dto2.SetOfficeDTO{
+	data := dto2.OfficeChosenDTO{
 		TelegramID: update.CallbackQuery.From.ID,
 		OfficeID:   command.ChooseOffice.OfficeID,
 	}
 
-	err := s.userService.OfficeChoosedScenary(data)
+	err := s.userService.OfficeChosenScenery(data)
 	if err != nil {
 		return nil, err
 	}
@@ -77,12 +77,12 @@ func (s *inlineMessageHandlerImpl) officeChosenScenery(command *dto.CommandRespo
 func (s *inlineMessageHandlerImpl) officeConfirmScenery(command *dto.CommandResponse,
 	update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
-	data := dto2.SetOfficeDTO{
+	data := dto2.OfficeChosenDTO{
 		TelegramID: update.CallbackQuery.From.ID,
 		OfficeID:   command.ChooseOffice.OfficeID,
 	}
 
-	err := s.userService.OfficeChoosedScenary(data)
+	err := s.userService.OfficeChosenScenery(data)
 	if err != nil {
 		return nil, err
 	}

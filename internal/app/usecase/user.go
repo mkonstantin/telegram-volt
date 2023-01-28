@@ -16,21 +16,23 @@ const (
 
 type UserService interface {
 	FirstCome(data dto.UserLogicData) (*dto.UserLogicResult, error)
-	OfficeChosenScenery(data dto.SetOfficeDTO) error
+	OfficeChosenScenery(data dto.OfficeChosenDTO) error
 }
 
 type userServiceImpl struct {
 	userRepo   interfaces.UserRepository
 	officeRepo interfaces.OfficeRepository
+	seatRepo   interfaces.SeatRepository
 	logger     *zap.Logger
 }
 
 func NewUserService(userRepo interfaces.UserRepository,
-	officeRepo interfaces.OfficeRepository,
+	officeRepo interfaces.OfficeRepository, seatRepo interfaces.SeatRepository,
 	logger *zap.Logger) UserService {
 	return &userServiceImpl{
 		userRepo:   userRepo,
 		officeRepo: officeRepo,
+		seatRepo:   seatRepo,
 		logger:     logger,
 	}
 }
@@ -105,22 +107,23 @@ func (u *userServiceImpl) chooseOffice(data dto.UserLogicData) (*dto.UserLogicRe
 	}, nil
 }
 
-func (u *userServiceImpl) OfficeChosenScenery(data dto.SetOfficeDTO) error {
-	//TODO implement me
-	panic("implement me")
+// Office выбран, теперь надо выбрать место
 
+func (u *userServiceImpl) OfficeChosenScenery(data dto.OfficeChosenDTO) error {
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return err
 	}
 	if user == nil {
-		// TODO добавить ошибку NotFoundUser
-		return nil
+		return common.ErrUserNotFound
 	}
+
 	user.OfficeID = data.OfficeID
+
 	err = u.userRepo.SetOffice(user)
 	if err != nil {
 		return err
 	}
+
 	return nil
 }

@@ -18,7 +18,12 @@ type UserLogicResult struct {
 	ChatID    int64
 }
 
-type SetOfficeDTO struct {
+type OfficeChosenDTO struct {
+	TelegramID int64
+	OfficeID   int64
+}
+
+type OfficeChosenResultDTO struct {
 	TelegramID int64
 	OfficeID   int64
 }
