@@ -53,7 +53,7 @@ func (s *messageFormerImpl) FormChooseOfficeMenuMsg(result *usecasedto.UserResul
 
 	msg.Text = result.Message
 	msg.ReplyMarkup = chooseOfficeKeyboard
-	msg.ReplyToMessageID = result.MessageID
+	//msg.ReplyToMessageID = result.MessageID
 	return &msg, nil
 }
 
@@ -92,11 +92,13 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(result *usecasedto.UserResult) (*t
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Свободные места", string(butt1))
 	button2 := tgbotapi.NewInlineKeyboardButtonData("Подписаться на запись", string(butt2))
 	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
-	row := tgbotapi.NewInlineKeyboardRow(button1, button2, button3)
-	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row)
+	row1 := tgbotapi.NewInlineKeyboardRow(button1)
+	row2 := tgbotapi.NewInlineKeyboardRow(button2)
+	row3 := tgbotapi.NewInlineKeyboardRow(button3)
+	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row1, row2, row3)
 
 	msg.Text = result.Message
 	msg.ReplyMarkup = confirmOfficeKeyboard
-	msg.ReplyToMessageID = result.MessageID
+	//msg.ReplyToMessageID = result.MessageID
 	return &msg, nil
 }

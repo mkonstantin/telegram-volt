@@ -78,7 +78,7 @@ func (u *userServiceImpl) callOfficeMenu(officeID, chatID int64, MessageID int) 
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("Офис: %s, выберите действие:", office.Name)
+	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
 	return &dto.UserResult{
 		Key:       OfficeMenu,
 		Office:    office,
@@ -95,7 +95,7 @@ func (u *userServiceImpl) CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.Use
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("Привет, %s! Давай выберем офис)", data.User.Name)
+	message := fmt.Sprintf("%s, давай выберем офис:", data.User.Name)
 	return &dto.UserResult{
 		Key:       ChooseOfficeMenu,
 		Office:    nil,
