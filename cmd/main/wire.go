@@ -6,7 +6,6 @@ package main
 import (
 	"github.com/google/wire"
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/router"
 	"telegram-api/internal/infrastructure/telegram"
 )
@@ -17,11 +16,8 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 		repositorySet,
 		router.NewRouter,
 		telegram.NewTelegramBot,
-		handler.NewCommandHandler,
-		handler.NewCustomMessageHandler,
-		handler.NewInlineMessageHandler,
+		handlerSet,
 		servicesSet,
-		//handler.NewPrimaryHundler,
 	)
 	return telegram.TelegramBot{}, nil, nil
 }
