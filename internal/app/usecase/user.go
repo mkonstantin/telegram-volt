@@ -20,6 +20,7 @@ type UserService interface {
 	CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error)
 	SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error)
 	CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, error)
+	BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -150,4 +151,26 @@ func (u *userServiceImpl) CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, 
 		ChatID:    data.ChatID,
 		MessageID: data.MessageID,
 	}, nil
+}
+
+// ========== Выбрали место в списке
+
+func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult, error) {
+
+	bookSeat, err := u.bookSeatRepo.FindByID(data.BookSeatID)
+	if err != nil {
+		return nil, err
+	}
+
+	if bookSeat.User != nil {
+		if bookSeat.User.TelegramID == data.TelegramID {
+			// это он
+		} else {
+			// занято
+		}
+	} else {
+		// свободно
+	}
+
+	return nil, nil
 }

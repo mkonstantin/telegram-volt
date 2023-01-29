@@ -44,6 +44,8 @@ func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 		return s.chooseOfficeMenuTap(update.CallbackQuery.From.ID, command.OfficeID, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
 	case usecase.OfficeMenu:
 		return s.officeMenuTapScript(command, update)
+	case usecase.ChooseSeatsMenu:
+		return s.chooseSeatsMenuTap(command, update)
 	}
 
 	// TODO
@@ -116,4 +118,20 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandRespo
 	}
 
 	return nil, nil
+}
+
+func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	data := dto2.BookSeatTapDTO{
+		TelegramID: update.CallbackQuery.From.ID,
+		BookSeatID: command.BookSeatID,
+		ChatID:     update.CallbackQuery.Message.Chat.ID,
+		MessageID:  update.CallbackQuery.Message.MessageID,
+	}
+
+	result, err := s.userService.BookSeatTap(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.msgFormer.FormOfficeMenuMsg(result)
 }
