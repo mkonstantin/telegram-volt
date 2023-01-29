@@ -171,7 +171,7 @@ func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult,
 		if bookSeat.User.TelegramID == data.TelegramID {
 			// место уже занято самим же юзером
 			answerType = SeatOwn
-			message = "Вы уже заняли это место"
+			message = "Вы уже заняли это место, хотите его освободить?"
 		} else {
 			// место занято другим юзером
 			answerType = SeatBusy
@@ -184,12 +184,13 @@ func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult,
 	}
 
 	return &dto.UserResult{
-		Key:       answerType,
-		Office:    nil,
-		Offices:   nil,
-		BookSeats: nil,
-		Message:   message,
-		ChatID:    data.ChatID,
-		MessageID: data.MessageID,
+		Key:        answerType,
+		Office:     nil,
+		Offices:    nil,
+		BookSeats:  nil,
+		BookSeatID: bookSeat.ID,
+		Message:    message,
+		ChatID:     data.ChatID,
+		MessageID:  data.MessageID,
 	}, nil
 }

@@ -30,11 +30,12 @@ type OfficeChosenDTO struct {
 }
 
 type UserResult struct {
-	Key       string
-	Office    *model.Office
-	Offices   []*model.Office
-	BookSeats []*model.BookSeat
-	Message   string
-	MessageID int
-	ChatID    int64
+	Key        string
+	Office     *model.Office
+	Offices    []*model.Office
+	BookSeats  []*model.BookSeat
+	BookSeatID int64
+	Message    string
+	MessageID  int
+	ChatID     int64
 }

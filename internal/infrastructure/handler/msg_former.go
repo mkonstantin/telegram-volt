@@ -148,6 +148,33 @@ func (s *messageFormerImpl) FormBookSeatMsg(result *usecasedto.UserResult) (*tgb
 	switch result.Key {
 	case usecase.SeatOwn:
 		msg.Text = result.Message
+
+		b1 := &dto.CommandResponse{
+			Type:       usecase.SeatOwn,
+			BookSeatID: result.BookSeatID,
+			Action:     dto.ActionCancelBookYes,
+		}
+		b2 := &dto.CommandResponse{
+			Type:       usecase.SeatOwn,
+			BookSeatID: result.BookSeatID,
+			Action:     dto.ActionCancelBookNo,
+		}
+
+		butt1, err := json.Marshal(b1)
+		if err != nil {
+			return nil, err
+		}
+		butt2, err := json.Marshal(b2)
+		if err != nil {
+			return nil, err
+		}
+
+		button1 := tgbotapi.NewInlineKeyboardButtonData("Да", string(butt1))
+		button2 := tgbotapi.NewInlineKeyboardButtonData("Нет", string(butt2))
+		row := tgbotapi.NewInlineKeyboardRow(button1, button2)
+		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
+		msg.ReplyMarkup = keyboard
+
 	case usecase.SeatBusy:
 		msg.Text = result.Message
 	case usecase.SeatFree:

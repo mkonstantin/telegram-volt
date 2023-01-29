@@ -11,4 +11,7 @@ const (
 	OfficeMenuFreeSeats           = 1
 	OfficeMenuSubscribe           = 2
 	OfficeMenuChooseAnotherOffice = 3
+
+	ActionCancelBookYes = 11
+	ActionCancelBookNo  = 12
 )
