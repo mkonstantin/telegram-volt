@@ -22,9 +22,12 @@ func NewBookSeatRepository(conn repository.Connection) interfaces.BookSeatReposi
 }
 
 func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
-	sqQuery := sq.Select("*").
-		From("seat").
-		Where(sq.Eq{"id": id})
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+		From("book_seat as bs").
+		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
+		InnerJoin("office as o1 ON bs.office_id=o1.id").
+		LeftJoin("user as u1 ON bs.user_id = u1.id").
+		Where(sq.Eq{"bs.id": id})
 
 	query, args, err := sqQuery.ToSql()
 	if err != nil {
@@ -32,7 +35,7 @@ func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
 	}
 
 	var dtoO dto.BookSeat
-	if err = s.db.Get(&dtoO, query, args...); err != nil {
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, common.ErrBookSeatsNotFound
 		}
