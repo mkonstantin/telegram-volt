@@ -86,8 +86,8 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(result *usecasedto.UserResult) (*t
 		return nil, err
 	}
 
-	button1 := tgbotapi.NewInlineKeyboardButtonData("Свободные места", string(butt1))
-	button2 := tgbotapi.NewInlineKeyboardButtonData("Подписаться на запись", string(butt2))
+	button1 := tgbotapi.NewInlineKeyboardButtonData("Показать места", string(butt1))
+	button2 := tgbotapi.NewInlineKeyboardButtonData("Подписаться на свободные места", string(butt2))
 	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
 	row1 := tgbotapi.NewInlineKeyboardRow(button1)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)
@@ -101,7 +101,7 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(result *usecasedto.UserResult) (*t
 }
 
 func (s *messageFormerImpl) FormSeatListMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
-	msg := tgbotapi.NewMessage(result.ChatID, "")
+
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, bookSeat := range result.BookSeats {
 		resp := &dto.CommandResponse{
@@ -126,12 +126,18 @@ func (s *messageFormerImpl) FormSeatListMsg(result *usecasedto.UserResult) (*tgb
 		rows = append(rows, row)
 	}
 
-	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-		rows...,
-	)
+	var msg tgbotapi.MessageConfig
 
-	msg.Text = result.Message
-	msg.ReplyMarkup = chooseOfficeKeyboard
-	//msg.ReplyToMessageID = result.MessageID
+	if len(result.BookSeats) > 0 {
+		msg = tgbotapi.NewMessage(result.ChatID, "")
+		var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+			rows...,
+		)
+		msg.Text = result.Message
+		msg.ReplyMarkup = chooseOfficeKeyboard
+	} else {
+		msg = tgbotapi.NewMessage(result.ChatID, "Мест не найдено")
+	}
+
 	return &msg, nil
 }
