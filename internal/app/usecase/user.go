@@ -18,23 +18,24 @@ type UserService interface {
 	FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error)
 	CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error)
 	SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error)
+	CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
-	userRepo   interfaces.UserRepository
-	officeRepo interfaces.OfficeRepository
-	seatRepo   interfaces.SeatRepository
-	logger     *zap.Logger
+	userRepo     interfaces.UserRepository
+	officeRepo   interfaces.OfficeRepository
+	bookSeatRepo interfaces.BookSeatRepository
+	logger       *zap.Logger
 }
 
 func NewUserService(userRepo interfaces.UserRepository,
-	officeRepo interfaces.OfficeRepository, seatRepo interfaces.SeatRepository,
+	officeRepo interfaces.OfficeRepository, bookSeatRepo interfaces.BookSeatRepository,
 	logger *zap.Logger) UserService {
 	return &userServiceImpl{
-		userRepo:   userRepo,
-		officeRepo: officeRepo,
-		seatRepo:   seatRepo,
-		logger:     logger,
+		userRepo:     userRepo,
+		officeRepo:   officeRepo,
+		bookSeatRepo: bookSeatRepo,
+		logger:       logger,
 	}
 }
 
@@ -109,6 +110,7 @@ func (u *userServiceImpl) CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.Use
 //========= Выбрали офис и вызываем его меню
 
 func (u *userServiceImpl) SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error) {
+
 	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
 	if err != nil {
 		return nil, err
@@ -125,4 +127,26 @@ func (u *userServiceImpl) SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserRe
 	}
 
 	return u.callOfficeMenu(user.OfficeID, data.ChatID, data.MessageID)
+}
+
+//========= Места в офисе
+
+func (u *userServiceImpl) CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, error) {
+
+	seats, err := u.bookSeatRepo.GetAllByOfficeID(data.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+
+	message := fmt.Sprintf("Выберите место:")
+
+	return &dto.UserResult{
+		Key:       ChooseOfficeMenu,
+		Office:    nil,
+		Offices:   nil,
+		BookSeats: seats,
+		Message:   message,
+		ChatID:    data.ChatID,
+		MessageID: data.MessageID,
+	}, nil
 }
