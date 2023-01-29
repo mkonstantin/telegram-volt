@@ -6,8 +6,8 @@ type BookSeat struct {
 	ID            int64
 	Office        Office
 	Seat          Seat
-	User          User
+	User          *User
 	BookDate      time.Time
-	BookStartTime time.Time
-	BookEndTime   time.Time
+	BookStartTime *time.Time
+	BookEndTime   *time.Time
 }
