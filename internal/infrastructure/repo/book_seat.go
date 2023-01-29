@@ -35,7 +35,7 @@ func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
 	}
 
 	var dtoO dto.BookSeat
-	if err = s.db.Select(&dtoO, query, args...); err != nil {
+	if err = s.db.Get(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
 			return nil, common.ErrBookSeatsNotFound
 		}

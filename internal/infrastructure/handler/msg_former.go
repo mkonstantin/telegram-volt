@@ -14,6 +14,7 @@ type MessageFormer interface {
 	FormChooseOfficeMenuMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormOfficeMenuMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormSeatListMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	FormBookSeatMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 }
 
 type messageFormerImpl struct {
@@ -139,5 +140,18 @@ func (s *messageFormerImpl) FormSeatListMsg(result *usecasedto.UserResult) (*tgb
 		msg = tgbotapi.NewMessage(result.ChatID, "Мест не найдено")
 	}
 
+	return &msg, nil
+}
+
+func (s *messageFormerImpl) FormBookSeatMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(result.ChatID, "")
+	switch result.Key {
+	case usecase.SeatOwn:
+		msg.Text = result.Message
+	case usecase.SeatBusy:
+		msg.Text = result.Message
+	case usecase.SeatFree:
+		msg.Text = result.Message
+	}
 	return &msg, nil
 }

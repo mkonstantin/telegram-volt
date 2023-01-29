@@ -133,5 +133,5 @@ func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(command *dto.CommandRespon
 		return nil, err
 	}
 
-	return s.msgFormer.FormOfficeMenuMsg(result)
+	return s.msgFormer.FormBookSeatMsg(result)
 }

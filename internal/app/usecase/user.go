@@ -13,6 +13,9 @@ const (
 	ChooseOfficeMenu = "choose_office"
 	OfficeMenu       = "office_menu"
 	ChooseSeatsMenu  = "choose_seats_menu"
+	SeatOwn          = "seat_own"
+	SeatBusy         = "seat_busy"
+	SeatFree         = "seat_free"
 )
 
 type UserService interface {
@@ -162,15 +165,31 @@ func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult,
 		return nil, err
 	}
 
+	var answerType string
+	var message string
 	if bookSeat.User != nil {
 		if bookSeat.User.TelegramID == data.TelegramID {
-			// это он
+			// место уже занято самим же юзером
+			answerType = SeatOwn
+			message = "Вы уже заняли это место"
 		} else {
-			// занято
+			// место занято другим юзером
+			answerType = SeatBusy
+			message = "Место уже занято другим юзером"
 		}
 	} else {
-		// свободно
+		// место свободно
+		answerType = SeatFree
+		message = fmt.Sprintf("Чтобы занять место №%d, укажите время:", bookSeat.Seat.SeatNumber)
 	}
 
-	return nil, nil
+	return &dto.UserResult{
+		Key:       answerType,
+		Office:    nil,
+		Offices:   nil,
+		BookSeats: nil,
+		Message:   message,
+		ChatID:    data.ChatID,
+		MessageID: data.MessageID,
+	}, nil
 }
