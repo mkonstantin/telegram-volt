@@ -12,6 +12,7 @@ import (
 const (
 	ChooseOfficeMenu = "choose_office"
 	OfficeMenu       = "office_menu"
+	ChooseSeatsMenu  = "choose_seats_menu"
 )
 
 type UserService interface {

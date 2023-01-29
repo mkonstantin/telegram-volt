@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
@@ -12,6 +13,7 @@ import (
 type MessageFormer interface {
 	FormChooseOfficeMenuMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormOfficeMenuMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	FormSeatListMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 }
 
 type messageFormerImpl struct {
@@ -22,11 +24,6 @@ func NewMessageFormer(logger *zap.Logger) MessageFormer {
 	return &messageFormerImpl{
 		logger: logger,
 	}
-}
-
-func (s *messageFormerImpl) Start(update tgbotapi.Update) (tgbotapi.MessageConfig, error) {
-
-	return tgbotapi.MessageConfig{}, nil
 }
 
 func (s *messageFormerImpl) FormChooseOfficeMenuMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
@@ -99,6 +96,42 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(result *usecasedto.UserResult) (*t
 
 	msg.Text = result.Message
 	msg.ReplyMarkup = confirmOfficeKeyboard
+	//msg.ReplyToMessageID = result.MessageID
+	return &msg, nil
+}
+
+func (s *messageFormerImpl) FormSeatListMsg(result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+	msg := tgbotapi.NewMessage(result.ChatID, "")
+	var rows [][]tgbotapi.InlineKeyboardButton
+	for _, bookSeat := range result.BookSeats {
+		resp := &dto.CommandResponse{
+			Type:       usecase.ChooseSeatsMenu,
+			BookSeatID: bookSeat.ID,
+		}
+		responseData, err := json.Marshal(resp)
+		if err != nil {
+			return nil, err
+		}
+
+		var button tgbotapi.InlineKeyboardButton
+		if bookSeat.User != nil {
+			str := fmt.Sprintf("Место %d, занято: %s", bookSeat.Seat.SeatNumber, bookSeat.User.Name)
+			button = tgbotapi.NewInlineKeyboardButtonData(str, string(responseData))
+		} else {
+			str := fmt.Sprintf("Место %d. Свободно!", bookSeat.Seat.SeatNumber)
+			button = tgbotapi.NewInlineKeyboardButtonData(str, string(responseData))
+		}
+
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		rows = append(rows, row)
+	}
+
+	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+		rows...,
+	)
+
+	msg.Text = result.Message
+	msg.ReplyMarkup = chooseOfficeKeyboard
 	//msg.ReplyToMessageID = result.MessageID
 	return &msg, nil
 }

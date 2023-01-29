@@ -82,6 +82,18 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandRespo
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:
+		dtoO := dto2.BookSeatDTO{
+			TelegramID: update.CallbackQuery.From.ID,
+			OfficeID:   command.OfficeID,
+			MessageID:  update.CallbackQuery.Message.MessageID,
+			ChatID:     update.CallbackQuery.Message.Chat.ID,
+		}
+
+		result, err := s.userService.CallSeatsMenu(dtoO)
+		if err != nil {
+			return nil, err
+		}
+		return s.msgFormer.FormSeatListMsg(result)
 
 	case dto.OfficeMenuSubscribe:
 

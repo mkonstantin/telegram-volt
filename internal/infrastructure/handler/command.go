@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
@@ -43,7 +44,7 @@ func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageCo
 func (s *commandHandlerImpl) handleStartCommand(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 	data := usecasedto.FirstStartDTO{
 		User: model.User{
-			Name:         update.Message.From.FirstName,
+			Name:         fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName),
 			TelegramID:   update.Message.From.ID,
 			TelegramName: update.Message.From.UserName,
 		},
