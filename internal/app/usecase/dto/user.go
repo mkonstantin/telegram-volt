@@ -8,6 +8,13 @@ type FirstStartDTO struct {
 	ChatID    int64
 }
 
+type BookSeatTapDTO struct {
+	TelegramID int64
+	BookSeatID int64
+	ChatID     int64
+	MessageID  int
+}
+
 type BookSeatDTO struct {
 	TelegramID int64
 	OfficeID   int64
