@@ -3,5 +3,6 @@ package common
 import "errors"
 
 var (
-	ErrUserNotFound = errors.New("order not found")
+	ErrUserNotFound      = errors.New("user not found")
+	ErrBookSeatsNotFound = errors.New("book seats not found")
 )
