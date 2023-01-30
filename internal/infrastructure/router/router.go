@@ -1,12 +1,16 @@
 package router
 
 import (
+	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler"
+	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
 type Router struct {
+	userRepo             interfaces.UserRepository
 	customMessageHandler handler.CustomMessageHandler
 	commandHandler       handler.CommandHandler
 	inlineHandler        handler.InlineMessageHandler
@@ -27,6 +31,7 @@ func NewRouter(customMessageHandler handler.CustomMessageHandler,
 }
 
 func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	
 	if update.Message != nil {
 		if update.Message.IsCommand() {
 			return r.commandHandler.Handle(update)
@@ -39,4 +44,16 @@ func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig
 
 	// TODO
 	return nil, nil
+}
+
+func (r *Router) setUserContext(id int64) context.Context {
+	ctx := context.Background()
+
+	user, err := r.userRepo.GetByTelegramID(id)
+	if err != nil || user == nil {
+		return ctx
+	}
+
+	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
+	return ctx
 }
