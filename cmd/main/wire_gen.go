@@ -19,17 +19,17 @@ import (
 // Injectors from wire.go:
 
 func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
-	customMessageHandler := handler.NewCustomMessageHandler(logger)
-	messageFormer := handler.NewMessageFormer(logger)
 	contextContext := context.Background()
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	userRepository := repo.NewUserRepository(connection)
+	customMessageHandler := handler.NewCustomMessageHandler(logger)
+	messageFormer := handler.NewMessageFormer(logger)
 	officeRepository := repo.NewOfficeRepository(connection)
 	bookSeatRepository := repo.NewBookSeatRepository(connection)
 	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, logger)
 	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
-	routerRouter := router.NewRouter(customMessageHandler, commandHandler, inlineMessageHandler, logger)
+	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
 	return telegramBot, func() {
 		cleanup()

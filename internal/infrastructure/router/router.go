@@ -17,12 +17,13 @@ type Router struct {
 	logger               *zap.Logger
 }
 
-func NewRouter(customMessageHandler handler.CustomMessageHandler,
+func NewRouter(userRepo interfaces.UserRepository, customMessageHandler handler.CustomMessageHandler,
 	commandHandler handler.CommandHandler,
 	inlineHandler handler.InlineMessageHandler,
 	logger *zap.Logger) Router {
 
 	return Router{
+		userRepo:             userRepo,
 		customMessageHandler: customMessageHandler,
 		commandHandler:       commandHandler,
 		inlineHandler:        inlineHandler,
@@ -31,15 +32,17 @@ func NewRouter(customMessageHandler handler.CustomMessageHandler,
 }
 
 func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	
+
 	if update.Message != nil {
+		//ctx := r.setUserContext(update.Message.From.ID)
 		if update.Message.IsCommand() {
 			return r.commandHandler.Handle(update)
 		} else {
 			return r.customMessageHandler.Handle(update)
 		}
 	} else if update.CallbackQuery != nil {
-		return r.inlineHandler.Handle(update)
+		ctx := r.setUserContext(update.CallbackQuery.From.ID)
+		return r.inlineHandler.Handle(ctx, update)
 	}
 
 	// TODO

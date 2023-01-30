@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
@@ -11,7 +12,7 @@ import (
 )
 
 type InlineMessageHandler interface {
-	Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
+	Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
 }
 
 type inlineMessageHandlerImpl struct {
@@ -28,7 +29,7 @@ func NewInlineMessageHandler(msgFormer MessageFormer, userService usecase.UserSe
 	}
 }
 
-func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 	if update.CallbackQuery.Data == "" {
 		// TODO
 		return nil, nil
@@ -46,6 +47,8 @@ func (s *inlineMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.Mes
 		return s.officeMenuTapScript(command, update)
 	case usecase.ChooseSeatsMenu:
 		return s.chooseSeatsMenuTap(command, update)
+	case usecase.SeatOwn:
+		return s.chooseSeatOwnTap(ctx, command, update)
 	}
 
 	// TODO
@@ -134,4 +137,35 @@ func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(command *dto.CommandRespon
 	}
 
 	return s.msgFormer.FormBookSeatMsg(result)
+}
+
+func (s *inlineMessageHandlerImpl) chooseSeatOwnTap(ctx context.Context, command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+
+	currentUser := model.GetCurrentUser(ctx)
+
+	switch command.Action {
+	case dto.ActionCancelBookYes:
+
+	case dto.ActionCancelBookNo:
+
+		command.OfficeID = currentUser.OfficeID
+		return s.callSeatsMenu(command, update)
+	}
+	// TODO
+	return nil, nil
+}
+
+func (s *inlineMessageHandlerImpl) callSeatsMenu(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+	dtoO := dto2.BookSeatDTO{
+		TelegramID: update.CallbackQuery.From.ID,
+		OfficeID:   command.OfficeID,
+		MessageID:  update.CallbackQuery.Message.MessageID,
+		ChatID:     update.CallbackQuery.Message.Chat.ID,
+	}
+
+	result, err := s.userService.CallSeatsMenu(dtoO)
+	if err != nil {
+		return nil, err
+	}
+	return s.msgFormer.FormSeatListMsg(result)
 }
