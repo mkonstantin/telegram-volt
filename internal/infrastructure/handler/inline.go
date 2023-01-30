@@ -6,8 +6,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
-	dto2 "telegram-api/internal/app/usecase/dto"
-	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
@@ -42,13 +40,13 @@ func (s *inlineMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.U
 
 	switch command.Type {
 	case usecase.ChooseOfficeMenu:
-		return s.chooseOfficeMenuTap(update.CallbackQuery.From.ID, command.OfficeID, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
+		return s.chooseOfficeMenuTap(ctx, command)
 	case usecase.OfficeMenu:
-		return s.officeMenuTapScript(command, update)
+		return s.officeMenuTapScript(ctx, command)
 	case usecase.ChooseSeatsMenu:
-		return s.chooseSeatsMenuTap(command, update)
+		return s.chooseSeatsMenuTap(ctx, command)
 	case usecase.SeatOwn:
-		return s.chooseSeatOwnTap(ctx, command, update)
+		return s.chooseSeatOwnTap(ctx, command)
 	}
 
 	// TODO
@@ -66,106 +64,60 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 	return &command, nil
 }
 
-func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(telegramID, officeID, chatID int64, messageID int) (*tgbotapi.MessageConfig, error) {
-
-	data := dto2.OfficeChosenDTO{
-		TelegramID: telegramID,
-		OfficeID:   officeID,
-		ChatID:     chatID,
-		MessageID:  messageID,
-	}
-
-	result, err := s.userService.SetOfficeScript(data)
+func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+	result, err := s.userService.SetOfficeScript(ctx, command.OfficeID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.msgFormer.FormOfficeMenuMsg(result)
+	return s.msgFormer.FormOfficeMenuMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) officeMenuTapScript(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:
-		dtoO := dto2.BookSeatDTO{
-			TelegramID: update.CallbackQuery.From.ID,
-			OfficeID:   command.OfficeID,
-			MessageID:  update.CallbackQuery.Message.MessageID,
-			ChatID:     update.CallbackQuery.Message.Chat.ID,
-		}
-
-		result, err := s.userService.CallSeatsMenu(dtoO)
-		if err != nil {
-			return nil, err
-		}
-		return s.msgFormer.FormSeatListMsg(result)
+		return s.callSeatsMenu(ctx)
 
 	case dto.OfficeMenuSubscribe:
 
 	case dto.OfficeMenuChooseAnotherOffice:
-		startDTO := dto2.FirstStartDTO{
-			User: model.User{
-				Name:         update.CallbackQuery.From.FirstName,
-				TelegramID:   update.CallbackQuery.From.ID,
-				TelegramName: update.CallbackQuery.From.UserName,
-			},
-			MessageID: update.CallbackQuery.Message.MessageID,
-			ChatID:    update.CallbackQuery.Message.Chat.ID,
-		}
-
-		result, err := s.userService.CallChooseOfficeMenu(startDTO)
+		result, err := s.userService.CallChooseOfficeMenu(ctx)
 		if err != nil {
 			return nil, err
 		}
-		return s.msgFormer.FormChooseOfficeMenuMsg(result)
+		return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
 	}
 
 	return nil, nil
 }
 
-func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	data := dto2.BookSeatTapDTO{
-		TelegramID: update.CallbackQuery.From.ID,
-		BookSeatID: command.BookSeatID,
-		ChatID:     update.CallbackQuery.Message.Chat.ID,
-		MessageID:  update.CallbackQuery.Message.MessageID,
-	}
+func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
-	result, err := s.userService.BookSeatTap(data)
+	result, err := s.userService.BookSeatTap(ctx, command.BookSeatID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.msgFormer.FormBookSeatMsg(result)
+	return s.msgFormer.FormBookSeatMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) chooseSeatOwnTap(ctx context.Context, command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
+func (s *inlineMessageHandlerImpl) chooseSeatOwnTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:
 
 	case dto.ActionCancelBookNo:
-
-		command.OfficeID = currentUser.OfficeID
-		return s.callSeatsMenu(command, update)
+		return s.callSeatsMenu(ctx)
 	}
 	// TODO
 	return nil, nil
 }
 
-func (s *inlineMessageHandlerImpl) callSeatsMenu(command *dto.CommandResponse, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
-	dtoO := dto2.BookSeatDTO{
-		TelegramID: update.CallbackQuery.From.ID,
-		OfficeID:   command.OfficeID,
-		MessageID:  update.CallbackQuery.Message.MessageID,
-		ChatID:     update.CallbackQuery.Message.Chat.ID,
-	}
-
-	result, err := s.userService.CallSeatsMenu(dtoO)
+func (s *inlineMessageHandlerImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+	result, err := s.userService.CallSeatsMenu(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return s.msgFormer.FormSeatListMsg(result)
+	return s.msgFormer.FormSeatListMsg(ctx, result)
 }

@@ -1,11 +1,11 @@
 package usecase
 
 import (
+	"context"
 	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -19,11 +19,11 @@ const (
 )
 
 type UserService interface {
-	FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error)
-	CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error)
-	SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error)
-	CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, error)
-	BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult, error)
+	FirstCome(ctx context.Context) (*dto.UserResult, error)
+	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
+	SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error)
+	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
+	BookSeatTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -44,101 +44,72 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) FirstCome(data dto.FirstStartDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) FirstCome(ctx context.Context) (*dto.UserResult, error) {
 
-	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
+	currentUser := model.GetCurrentUser(ctx)
 
-	if err == common.ErrUserNotFound {
-		user, err = u.createUser(data)
-		if err != nil {
-			return nil, err
-		}
-	} else if err != nil {
-		return nil, err
-	}
-
-	data.User = *user
-	if user.HaveChosenOffice() {
-		return u.callOfficeMenu(data.User.OfficeID, data.ChatID, data.MessageID)
+	if currentUser.HaveChosenOffice() {
+		return u.callOfficeMenu(ctx)
 	} else {
-		return u.CallChooseOfficeMenu(data)
+		return u.CallChooseOfficeMenu(ctx)
 	}
 }
 
-func (u *userServiceImpl) createUser(data dto.FirstStartDTO) (*model.User, error) {
-	err := u.userRepo.Create(data.User)
-	if err != nil {
-		return nil, err
-	}
+func (u *userServiceImpl) callOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
 
-	user, err := u.userRepo.GetByTelegramID(data.User.TelegramID)
-	if err != nil {
-		return nil, err
-	}
-	return user, nil
-}
+	currentUser := model.GetCurrentUser(ctx)
 
-func (u *userServiceImpl) callOfficeMenu(officeID, chatID int64, MessageID int) (*dto.UserResult, error) {
-
-	office, err := u.officeRepo.FindByID(officeID)
+	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
 	if err != nil {
 		return nil, err
 	}
 	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
 	return &dto.UserResult{
-		Key:       OfficeMenu,
-		Office:    office,
-		Offices:   nil,
-		Message:   message,
-		ChatID:    chatID,
-		MessageID: MessageID,
+		Key:     OfficeMenu,
+		Office:  office,
+		Offices: nil,
+		Message: message,
 	}, nil
 }
 
-func (u *userServiceImpl) CallChooseOfficeMenu(data dto.FirstStartDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
+
+	currentUser := model.GetCurrentUser(ctx)
 
 	offices, err := u.officeRepo.GetAll()
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("%s, давай выберем офис:", data.User.Name)
+	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
 	return &dto.UserResult{
-		Key:       ChooseOfficeMenu,
-		Office:    nil,
-		Offices:   offices,
-		Message:   message,
-		ChatID:    data.ChatID,
-		MessageID: data.MessageID,
+		Key:     ChooseOfficeMenu,
+		Office:  nil,
+		Offices: offices,
+		Message: message,
 	}, nil
 }
 
 //========= Выбрали офис и вызываем его меню
 
-func (u *userServiceImpl) SetOfficeScript(data dto.OfficeChosenDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error) {
 
-	user, err := u.userRepo.GetByTelegramID(data.TelegramID)
-	if err != nil {
-		return nil, err
-	}
-	if user == nil {
-		return nil, common.ErrUserNotFound
-	}
+	currentUser := model.GetCurrentUser(ctx)
 
-	user.OfficeID = data.OfficeID
-
-	err = u.userRepo.SetOffice(user)
+	err := u.userRepo.SetOffice(officeID, currentUser.TelegramID)
 	if err != nil {
 		return nil, err
 	}
 
-	return u.callOfficeMenu(user.OfficeID, data.ChatID, data.MessageID)
+	return u.callOfficeMenu(ctx)
 }
 
 //========= Места в офисе
 
-func (u *userServiceImpl) CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, error) {
 
-	seats, err := u.bookSeatRepo.GetAllByOfficeID(data.OfficeID)
+	currentUser := model.GetCurrentUser(ctx)
+
+	seats, err := u.bookSeatRepo.GetAllByOfficeID(currentUser.OfficeID)
 	if err != nil {
 		return nil, err
 	}
@@ -151,16 +122,16 @@ func (u *userServiceImpl) CallSeatsMenu(data dto.BookSeatDTO) (*dto.UserResult, 
 		Offices:   nil,
 		BookSeats: seats,
 		Message:   message,
-		ChatID:    data.ChatID,
-		MessageID: data.MessageID,
 	}, nil
 }
 
 // ========== Выбрали место в списке
 
-func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult, error) {
+func (u *userServiceImpl) BookSeatTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
 
-	bookSeat, err := u.bookSeatRepo.FindByID(data.BookSeatID)
+	currentUser := model.GetCurrentUser(ctx)
+
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
 		return nil, err
 	}
@@ -168,7 +139,7 @@ func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult,
 	var answerType string
 	var message string
 	if bookSeat.User != nil {
-		if bookSeat.User.TelegramID == data.TelegramID {
+		if bookSeat.User.TelegramID == currentUser.TelegramID {
 			// место уже занято самим же юзером
 			answerType = SeatOwn
 			message = "Вы уже заняли это место, хотите его освободить?"
@@ -190,7 +161,5 @@ func (u *userServiceImpl) BookSeatTap(data dto.BookSeatTapDTO) (*dto.UserResult,
 		BookSeats:  nil,
 		BookSeatID: bookSeat.ID,
 		Message:    message,
-		ChatID:     data.ChatID,
-		MessageID:  data.MessageID,
 	}, nil
 }

@@ -5,7 +5,6 @@ import (
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
@@ -34,7 +33,7 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 	var dtoU dto.User
 	if err = s.db.Get(&dtoU, query, args...); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, common.ErrUserNotFound
+			return nil, nil
 		}
 		return nil, err
 	}
@@ -56,10 +55,10 @@ func (s *userRepositoryImpl) Create(user model.User) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) SetOffice(user *model.User) error {
+func (s *userRepositoryImpl) SetOffice(officeID, tgID int64) error {
 	sqQuery := sq.Update("user").
-		Set("office_id", user.OfficeID).
-		Where(sq.Eq{"telegram_id": user.TelegramID})
+		Set("office_id", officeID).
+		Where(sq.Eq{"telegram_id": tgID})
 
 	query, args, err := sqQuery.ToSql()
 	if err != nil {
