@@ -40,11 +40,11 @@ func (s *inlineMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.U
 
 	switch command.Type {
 	case usecase.ChooseOfficeMenu:
-		return s.chooseOfficeMenuTap(ctx, command)
+		return s.officeListMenuTap(ctx, command)
 	case usecase.OfficeMenu:
 		return s.officeMenuTapScript(ctx, command)
 	case usecase.ChooseSeatsMenu:
-		return s.chooseSeatsMenuTap(ctx, command)
+		return s.seatListTap(ctx, command)
 	case usecase.SeatOwn:
 		return s.chooseSeatOwnTap(ctx, command)
 	}
@@ -64,7 +64,7 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 	return &command, nil
 }
 
-func (s *inlineMessageHandlerImpl) chooseOfficeMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) officeListMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 	result, err := s.userService.SetOfficeScript(ctx, command.OfficeID)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, comm
 	return nil, nil
 }
 
-func (s *inlineMessageHandlerImpl) chooseSeatsMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
 	result, err := s.userService.BookSeatTap(ctx, command.BookSeatID)
 	if err != nil {
