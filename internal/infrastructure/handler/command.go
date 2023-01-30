@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
@@ -10,7 +11,7 @@ import (
 )
 
 type CommandHandler interface {
-	Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
+	Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
 }
 
 type commandHandlerImpl struct {
@@ -27,7 +28,7 @@ func NewCommandHandler(msgFormer MessageFormer, userService usecase.UserService,
 	}
 }
 
-func (s *commandHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (s *commandHandlerImpl) Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "")
 

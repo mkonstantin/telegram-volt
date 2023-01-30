@@ -34,11 +34,11 @@ func NewRouter(userRepo interfaces.UserRepository, customMessageHandler handler.
 func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
 	if update.Message != nil {
-		//ctx := r.setUserContext(update.Message.From.ID)
+		ctx := r.setUserContext(update.Message.From.ID)
 		if update.Message.IsCommand() {
-			return r.commandHandler.Handle(update)
+			return r.commandHandler.Handle(ctx, update)
 		} else {
-			return r.customMessageHandler.Handle(update)
+			return r.customMessageHandler.Handle(ctx, update)
 		}
 	} else if update.CallbackQuery != nil {
 		ctx := r.setUserContext(update.CallbackQuery.From.ID)

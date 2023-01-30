@@ -1,12 +1,13 @@
 package handler
 
 import (
+	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 )
 
 type CustomMessageHandler interface {
-	Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
+	Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error)
 }
 
 type customMessageHandlerImpl struct {
@@ -19,7 +20,7 @@ func NewCustomMessageHandler(logger *zap.Logger) CustomMessageHandler {
 	}
 }
 
-func (s *customMessageHandlerImpl) Handle(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (s *customMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Ничего не могу с этим сделать)")
 	return &msg, nil
 }
