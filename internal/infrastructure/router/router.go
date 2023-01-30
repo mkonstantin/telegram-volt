@@ -34,14 +34,16 @@ func NewRouter(userRepo interfaces.UserRepository, customMessageHandler handler.
 func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
 	if update.Message != nil {
-		ctx := r.setUserContext(update.Message.From.ID)
+		ctx := r.setUserContext(update.Message.From.ID,
+			update.Message.Chat.ID, update.Message.MessageID)
 		if update.Message.IsCommand() {
 			return r.commandHandler.Handle(ctx, update)
 		} else {
 			return r.customMessageHandler.Handle(ctx, update)
 		}
 	} else if update.CallbackQuery != nil {
-		ctx := r.setUserContext(update.CallbackQuery.From.ID)
+		ctx := r.setUserContext(update.CallbackQuery.From.ID,
+			update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID)
 		return r.inlineHandler.Handle(ctx, update)
 	}
 
@@ -49,14 +51,16 @@ func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig
 	return nil, nil
 }
 
-func (r *Router) setUserContext(id int64) context.Context {
+func (r *Router) setUserContext(telegramID, chatID int64, MessageID int) context.Context {
 	ctx := context.Background()
 
-	user, err := r.userRepo.GetByTelegramID(id)
+	ctx = context.WithValue(ctx, model.ContextChatIDKey, chatID)
+	ctx = context.WithValue(ctx, model.ContextMessageIDKey, MessageID)
+
+	user, err := r.userRepo.GetByTelegramID(telegramID)
 	if err != nil || user == nil {
 		return ctx
 	}
-
 	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
 	return ctx
 }
