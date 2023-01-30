@@ -100,6 +100,9 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 		return nil, err
 	}
 
+	currentUser.OfficeID = officeID
+	ctx = context.WithValue(ctx, model.ContextUserKey, currentUser)
+
 	return u.callOfficeMenu(ctx)
 }
 
