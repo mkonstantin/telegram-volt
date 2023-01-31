@@ -70,7 +70,7 @@ func (s *bookSeatRepositoryImpl) GetAllByOfficeID(id int64) ([]*model.BookSeat, 
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) BookSeatWithID(id, userID int64) error {
+func (s *bookSeatRepositoryImpl) BookSeatWithID(userID, id int64) error {
 	sqQuery := sq.Update("book_seat").
 		Set("user_id", userID).
 		Where(sq.Eq{"id": id})
