@@ -16,6 +16,7 @@ const (
 	SeatOwn          = "seat_own"
 	SeatBusy         = "seat_busy"
 	SeatFree         = "seat_free"
+	BookSeat         = "book_seat"
 )
 
 type UserService interface {
@@ -23,7 +24,8 @@ type UserService interface {
 	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
-	BookSeatTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
+	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
+	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -130,7 +132,7 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 
 // ========== Выбрали место в списке
 
-func (u *userServiceImpl) BookSeatTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
+func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -164,6 +166,37 @@ func (u *userServiceImpl) BookSeatTap(ctx context.Context, bookSeatID int64) (*d
 		Offices:    nil,
 		BookSeats:  nil,
 		BookSeatID: bookSeat.ID,
+		Message:    message,
+	}, nil
+}
+
+func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
+
+	currentUser := model.GetCurrentUser(ctx)
+
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return nil, err
+	}
+
+	var message string
+	if bookSeat.User != nil {
+		message = fmt.Sprintf("Место №%d уже занято", bookSeat.Seat.SeatNumber)
+	} else {
+		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID)
+		if err != nil {
+			return nil, err
+		}
+
+		message = fmt.Sprintf("Отлично! Вы заняли место №%d в офисе: %s", bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+	}
+
+	return &dto.UserResult{
+		Key:        BookSeat,
+		Office:     nil,
+		Offices:    nil,
+		BookSeats:  nil,
+		BookSeatID: bookSeatID,
 		Message:    message,
 	}, nil
 }

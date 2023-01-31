@@ -96,7 +96,7 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, comm
 
 func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
-	result, err := s.userService.BookSeatTap(ctx, command.BookSeatID)
+	result, err := s.userService.SeatListTap(ctx, command.BookSeatID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,11 +129,15 @@ func (s *inlineMessageHandlerImpl) seatFreeMenuTap(ctx context.Context, command 
 
 	switch command.Action {
 	case dto.ActionBookYes:
-		
+		result, err := s.userService.BookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		return s.msgFormer.FormBookSeatResult(ctx, result)
+
 	case dto.ActionBookNo:
 		fallthrough
 	default:
 		return s.callSeatsMenu(ctx)
 	}
-	return nil, nil
 }

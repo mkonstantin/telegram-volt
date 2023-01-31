@@ -17,6 +17,7 @@ type MessageFormer interface {
 	FormOfficeMenuMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormSeatListMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormBookSeatMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	FormBookSeatResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 }
 
 type messageFormerImpl struct {
@@ -219,5 +220,16 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 		msg.ReplyMarkup = keyboard
 	}
+	return &msg, nil
+}
+
+func (s *messageFormerImpl) FormBookSeatResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+
+	chatID := model.GetCurrentChatID(ctx)
+
+	msg := tgbotapi.NewMessage(chatID, "")
+
+	msg.Text = result.Message
+
 	return &msg, nil
 }
