@@ -155,8 +155,7 @@ func (u *userServiceImpl) BookSeatTap(ctx context.Context, bookSeatID int64) (*d
 	} else {
 		// место свободно
 		answerType = SeatFree
-		message = fmt.Sprintf("Чтобы занять место №%d, укажите время в свободной форме, "+
-			"но имейте ввиду, что его увидят все коллеги, так что без вольностей):", bookSeat.Seat.SeatNumber)
+		message = fmt.Sprintf("Занять место №%d?", bookSeat.Seat.SeatNumber)
 	}
 
 	return &dto.UserResult{

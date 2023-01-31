@@ -182,7 +182,7 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 			return nil, err
 		}
 
-		button1 := tgbotapi.NewInlineKeyboardButtonData("Да", string(butt1))
+		button1 := tgbotapi.NewInlineKeyboardButtonData("Освободить", string(butt1))
 		button2 := tgbotapi.NewInlineKeyboardButtonData("Нет", string(butt2))
 		row := tgbotapi.NewInlineKeyboardRow(button1, button2)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
@@ -192,6 +192,32 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		msg.Text = result.Message
 	case usecase.SeatFree:
 		msg.Text = result.Message
+
+		b1 := &dto.CommandResponse{
+			Type:       usecase.SeatFree,
+			BookSeatID: result.BookSeatID,
+			Action:     dto.ActionBookYes,
+		}
+		b2 := &dto.CommandResponse{
+			Type:       usecase.SeatFree,
+			BookSeatID: result.BookSeatID,
+			Action:     dto.ActionBookNo,
+		}
+
+		butt1, err := json.Marshal(b1)
+		if err != nil {
+			return nil, err
+		}
+		butt2, err := json.Marshal(b2)
+		if err != nil {
+			return nil, err
+		}
+
+		button1 := tgbotapi.NewInlineKeyboardButtonData("Занять", string(butt1))
+		button2 := tgbotapi.NewInlineKeyboardButtonData("Нет", string(butt2))
+		row := tgbotapi.NewInlineKeyboardRow(button1, button2)
+		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
+		msg.ReplyMarkup = keyboard
 	}
 	return &msg, nil
 }

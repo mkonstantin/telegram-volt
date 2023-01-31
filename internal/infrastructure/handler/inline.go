@@ -46,7 +46,9 @@ func (s *inlineMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.U
 	case usecase.ChooseSeatsMenu:
 		return s.seatListTap(ctx, command)
 	case usecase.SeatOwn:
-		return s.chooseSeatOwnTap(ctx, command)
+		return s.seatOwnMenuTap(ctx, command)
+	case usecase.SeatFree:
+		return s.seatFreeMenuTap(ctx, command)
 	}
 
 	// TODO
@@ -102,15 +104,16 @@ func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto
 	return s.msgFormer.FormBookSeatMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) chooseSeatOwnTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) seatOwnMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:
 
 	case dto.ActionCancelBookNo:
+		fallthrough
+	default:
 		return s.callSeatsMenu(ctx)
 	}
-	// TODO
 	return nil, nil
 }
 
@@ -120,4 +123,17 @@ func (s *inlineMessageHandlerImpl) callSeatsMenu(ctx context.Context) (*tgbotapi
 		return nil, err
 	}
 	return s.msgFormer.FormSeatListMsg(ctx, result)
+}
+
+func (s *inlineMessageHandlerImpl) seatFreeMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+
+	switch command.Action {
+	case dto.ActionBookYes:
+		
+	case dto.ActionBookNo:
+		fallthrough
+	default:
+		return s.callSeatsMenu(ctx)
+	}
+	return nil, nil
 }
