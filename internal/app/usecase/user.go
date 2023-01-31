@@ -149,12 +149,14 @@ func (u *userServiceImpl) BookSeatTap(ctx context.Context, bookSeatID int64) (*d
 		} else {
 			// место занято другим юзером
 			answerType = SeatBusy
-			message = "Место уже занято другим юзером"
+			message = fmt.Sprintf("Место №%d уже занято %s aka @%s",
+				bookSeat.Seat.SeatNumber, bookSeat.User.Name, bookSeat.User.TelegramName)
 		}
 	} else {
 		// место свободно
 		answerType = SeatFree
-		message = fmt.Sprintf("Чтобы занять место №%d, укажите время:", bookSeat.Seat.SeatNumber)
+		message = fmt.Sprintf("Чтобы занять место №%d, укажите время в свободной форме, "+
+			"но имейте ввиду, что его увидят все коллеги, так что без вольностей):", bookSeat.Seat.SeatNumber)
 	}
 
 	return &dto.UserResult{
