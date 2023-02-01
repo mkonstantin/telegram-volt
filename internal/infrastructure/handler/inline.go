@@ -108,7 +108,11 @@ func (s *inlineMessageHandlerImpl) seatOwnMenuTap(ctx context.Context, command *
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:
-
+		result, err := s.userService.CancelBookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		return s.msgFormer.FormCancelBookResult(ctx, result)
 	case dto.ActionCancelBookNo:
 		fallthrough
 	default:
