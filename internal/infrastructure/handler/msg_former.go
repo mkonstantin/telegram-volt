@@ -99,7 +99,7 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *useca
 	}
 
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Показать места", string(butt1))
-	button2 := tgbotapi.NewInlineKeyboardButtonData("Подписаться на свободные места", string(butt2))
+	button2 := tgbotapi.NewInlineKeyboardButtonData(result.SubscribeButtonText, string(butt2))
 	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
 	row1 := tgbotapi.NewInlineKeyboardRow(button1)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)

@@ -68,12 +68,22 @@ func (u *userServiceImpl) callOfficeMenu(ctx context.Context) (*dto.UserResult, 
 	if err != nil {
 		return nil, err
 	}
+
+	var buttonText string
+
+	if currentUser.NotifyFreeSeat {
+		buttonText = "Отписаться"
+	} else {
+		buttonText = "Подписаться на свободные места"
+	}
+
 	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
 	return &dto.UserResult{
-		Key:     OfficeMenu,
-		Office:  office,
-		Offices: nil,
-		Message: message,
+		Key:                 OfficeMenu,
+		Office:              office,
+		Offices:             nil,
+		Message:             message,
+		SubscribeButtonText: buttonText,
 	}, nil
 }
 
@@ -259,6 +269,8 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 		Message:    message,
 	}, nil
 }
+
+// ========== Подписка/отписка на свободные места
 
 func (u *userServiceImpl) SubscribeWork(ctx context.Context) (*dto.UserResult, error) {
 	var message string
