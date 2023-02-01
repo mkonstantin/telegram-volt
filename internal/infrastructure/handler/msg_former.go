@@ -185,7 +185,7 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		}
 
 		button1 := tgbotapi.NewInlineKeyboardButtonData("Освободить", string(butt1))
-		button2 := tgbotapi.NewInlineKeyboardButtonData("Нет", string(butt2))
+		button2 := tgbotapi.NewInlineKeyboardButtonData("К списку мест", string(butt2))
 		row := tgbotapi.NewInlineKeyboardRow(button1, button2)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 		msg.ReplyMarkup = keyboard
@@ -216,7 +216,7 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		}
 
 		button1 := tgbotapi.NewInlineKeyboardButtonData("Занять", string(butt1))
-		button2 := tgbotapi.NewInlineKeyboardButtonData("Нет", string(butt2))
+		button2 := tgbotapi.NewInlineKeyboardButtonData("К списку мест", string(butt2))
 		row := tgbotapi.NewInlineKeyboardRow(button1, button2)
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 		msg.ReplyMarkup = keyboard

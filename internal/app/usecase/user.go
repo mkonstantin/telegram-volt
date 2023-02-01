@@ -246,7 +246,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	if err != nil {
 		return nil, err
 	}
-	message = fmt.Sprintf("Все в порядке,т место №%d в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatNumber, userBookSeat.Office.Name)
+	message = fmt.Sprintf("Место №%d в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatNumber, userBookSeat.Office.Name)
 
 	return &dto.UserResult{
 		Key:        BookSeat,
