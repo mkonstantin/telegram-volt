@@ -6,5 +6,6 @@ type BookSeatRepository interface {
 	FindByID(id int64) (*model.BookSeat, error)
 	GetAllByOfficeID(id int64) ([]*model.BookSeat, error)
 	BookSeatWithID(id, userID int64) error
-	CancelBookSeatWithID(id int64) (*model.BookSeat, error)
+	CancelBookSeatWithID(id int64) error
+	FindByUserID(userID int64) (*model.BookSeat, error)
 }

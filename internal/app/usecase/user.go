@@ -172,14 +172,30 @@ func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*d
 
 func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
 
+	var message string
 	currentUser := model.GetCurrentUser(ctx)
+
+	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
+	if err != nil {
+		return nil, err
+	}
+	if userBookSeat != nil {
+		message = "У вас уже есть бронь в этом офисе на сегодня"
+		return &dto.UserResult{
+			Key:        BookSeat,
+			Office:     nil,
+			Offices:    nil,
+			BookSeats:  nil,
+			BookSeatID: bookSeatID,
+			Message:    message,
+		}, nil
+	}
 
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
 		return nil, err
 	}
 
-	var message string
 	if bookSeat.User != nil {
 		message = fmt.Sprintf("Место №%d уже занято", bookSeat.Seat.SeatNumber)
 	} else {
