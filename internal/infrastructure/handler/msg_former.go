@@ -19,6 +19,7 @@ type MessageFormer interface {
 	FormBookSeatMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormBookSeatResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormCancelBookResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	FormTextMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 }
 
 type messageFormerImpl struct {
@@ -236,6 +237,16 @@ func (s *messageFormerImpl) FormBookSeatResult(ctx context.Context, result *usec
 }
 
 func (s *messageFormerImpl) FormCancelBookResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+	chatID := model.GetCurrentChatID(ctx)
+
+	msg := tgbotapi.NewMessage(chatID, "")
+
+	msg.Text = result.Message
+
+	return &msg, nil
+}
+
+func (s *messageFormerImpl) FormTextMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
 	chatID := model.GetCurrentChatID(ctx)
 
 	msg := tgbotapi.NewMessage(chatID, "")

@@ -68,3 +68,31 @@ func (s *userRepositoryImpl) SetOffice(officeID, tgID int64) error {
 	_, err = s.db.Exec(query, args...)
 	return nil
 }
+
+func (s *userRepositoryImpl) Subscribe(tgID int64) error {
+	sqQuery := sq.Update("user").
+		Set("notify_free_seat", true).
+		Where(sq.Eq{"telegram_id": tgID})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}
+
+func (s *userRepositoryImpl) Unsubscribe(tgID int64) error {
+	sqQuery := sq.Update("user").
+		Set("notify_free_seat", false).
+		Where(sq.Eq{"telegram_id": tgID})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}

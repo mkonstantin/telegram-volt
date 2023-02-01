@@ -17,6 +17,7 @@ const (
 	SeatBusy         = "seat_busy"
 	SeatFree         = "seat_free"
 	BookSeat         = "book_seat"
+	Subscribe        = "subscribe"
 )
 
 type UserService interface {
@@ -27,6 +28,7 @@ type UserService interface {
 	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
+	SubscribeWork(ctx context.Context) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -254,6 +256,52 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 		Offices:    nil,
 		BookSeats:  nil,
 		BookSeatID: bookSeatID,
+		Message:    message,
+	}, nil
+}
+
+func (u *userServiceImpl) SubscribeWork(ctx context.Context) (*dto.UserResult, error) {
+	var message string
+	currentUser := model.GetCurrentUser(ctx)
+
+	if currentUser.OfficeID == 0 {
+		return &dto.UserResult{
+			Key:        Subscribe,
+			Office:     nil,
+			Offices:    nil,
+			BookSeats:  nil,
+			BookSeatID: 0,
+			Message:    "Произошла ошибка: необходимо выбрать офис",
+		}, nil
+	}
+
+	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+
+	if currentUser.NotifyFreeSeat {
+		err := u.userRepo.Unsubscribe(currentUser.TelegramID)
+		if err != nil {
+			return nil, err
+		}
+
+		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
+	} else {
+		err := u.userRepo.Subscribe(currentUser.TelegramID)
+		if err != nil {
+			return nil, err
+		}
+
+		message = fmt.Sprintf("Вы подписались на свободные места в офисе: %s", office.Name)
+	}
+
+	return &dto.UserResult{
+		Key:        Subscribe,
+		Office:     nil,
+		Offices:    nil,
+		BookSeats:  nil,
+		BookSeatID: 0,
 		Message:    message,
 	}, nil
 }

@@ -82,6 +82,11 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, comm
 		return s.callSeatsMenu(ctx)
 
 	case dto.OfficeMenuSubscribe:
+		result, err := s.userService.SubscribeWork(ctx)
+		if err != nil {
+			return nil, err
+		}
+		return s.msgFormer.FormTextMsg(ctx, result)
 
 	case dto.OfficeMenuChooseAnotherOffice:
 		result, err := s.userService.CallChooseOfficeMenu(ctx)

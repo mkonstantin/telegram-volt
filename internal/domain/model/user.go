@@ -6,13 +6,9 @@ type User struct {
 	TelegramID     int64
 	TelegramName   string
 	OfficeID       int64
-	NotifyOfficeID int
+	NotifyFreeSeat bool
 }
 
 func (u *User) HaveChosenOffice() bool {
 	return u.OfficeID != 0
-}
-
-func (u *User) isNeedNotify() bool {
-	return u.NotifyOfficeID > 0
 }
