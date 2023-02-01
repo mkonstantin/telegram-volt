@@ -171,6 +171,8 @@ func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*d
 	}, nil
 }
 
+// ========== Забронировали место
+
 func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
 
 	var message string
@@ -217,6 +219,8 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.
 		Message:    message,
 	}, nil
 }
+
+// ========== Отменили бронирование места
 
 func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
 	var message string
