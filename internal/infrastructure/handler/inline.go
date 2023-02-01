@@ -82,7 +82,7 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, comm
 		return s.callSeatsMenu(ctx)
 
 	case dto.OfficeMenuSubscribe:
-
+		
 	case dto.OfficeMenuChooseAnotherOffice:
 		result, err := s.userService.CallChooseOfficeMenu(ctx)
 		if err != nil {
@@ -118,7 +118,6 @@ func (s *inlineMessageHandlerImpl) seatOwnMenuTap(ctx context.Context, command *
 	default:
 		return s.callSeatsMenu(ctx)
 	}
-	return nil, nil
 }
 
 func (s *inlineMessageHandlerImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
