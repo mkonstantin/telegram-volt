@@ -45,11 +45,11 @@ func (t *TelegramBot) StartAsyncScheduler() {
 			fmt.Println("do work 1")
 			err := t.worker.CleanTables()
 			if err != nil {
-				t.logger.Error("gocron.NewScheduler execution error", zap.Error(err))
+				t.logger.Error("gocron execution error", zap.Error(err))
 			}
 		})
 	if err != nil {
-		t.logger.Error("gocron.NewScheduler create error", zap.Error(err))
+		t.logger.Error("gocron create error", zap.Error(err))
 	}
 	s.StartAsync()
 }
