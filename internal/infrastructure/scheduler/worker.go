@@ -56,11 +56,11 @@ func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
 	_, err = s.Every(1).
 		Week().
 		At("14:30").
+		Weekday(time.Sunday).
 		Weekday(time.Monday).
 		Weekday(time.Tuesday).
 		Weekday(time.Wednesday).
 		Weekday(time.Thursday).
-		Weekday(time.Friday).
 		Do(func() {
 			err = w.officeJobs.BeginJob(office.ID)
 			if err != nil {
