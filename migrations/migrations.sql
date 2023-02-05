@@ -60,3 +60,5 @@ CREATE TABLE `book_seat`
 alter table user add office_id INT(11) default NULL;
 
 ALTER TABLE user add column notify_office_id int(16) default 0;
+
+ALTER TABLE office add column time_zone VARCHAR(255) NOT NULL;

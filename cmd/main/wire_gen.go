@@ -33,7 +33,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
 	officeJob := handler2.NewOfficeJob(logger)
-	jobsScheduler := scheduler.NewJobsScheduler(officeJob, logger)
+	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, officeJob, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter, jobsScheduler, logger)
 	return telegramBot, func() {
 		cleanup()

@@ -7,7 +7,7 @@ type officeJobsImpl struct {
 }
 
 type OfficeJob interface {
-	BeginJob() error
+	BeginJob(officeID int64) error
 }
 
 func NewOfficeJob(logger *zap.Logger) OfficeJob {
@@ -16,7 +16,7 @@ func NewOfficeJob(logger *zap.Logger) OfficeJob {
 	}
 }
 
-func (o officeJobsImpl) BeginJob() error {
+func (o officeJobsImpl) BeginJob(officeID int64) error {
 	//TODO implement me
 	panic("implement me")
 }

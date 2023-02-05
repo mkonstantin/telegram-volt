@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"telegram-api/internal/infrastructure/scheduler/handler"
 	"time"
@@ -19,8 +20,9 @@ type JobsScheduler interface {
 	Start()
 }
 
-func NewJobsScheduler(officeJobs handler.OfficeJob, logger *zap.Logger) JobsScheduler {
+func NewJobsScheduler(officeRepo interfaces.OfficeRepository, officeJobs handler.OfficeJob, logger *zap.Logger) JobsScheduler {
 	return &jobsSchedulerImpl{
+		officeRepo: officeRepo,
 		officeJobs: officeJobs,
 		logger:     logger,
 	}
@@ -29,8 +31,29 @@ func NewJobsScheduler(officeJobs handler.OfficeJob, logger *zap.Logger) JobsSche
 func (w *jobsSchedulerImpl) Start() {
 	w.logger.Info("Starting scheduler jobs")
 
-	s := gocron.NewScheduler(time.FixedZone("UTC+6", 6*60*60))
-	_, err := s.Every(1).
+	offices, err := w.officeRepo.GetAll()
+	if err != nil {
+		w.logger.Error("Scheduler jobs get all offices error", zap.Error(err))
+		return
+	}
+
+	for _, office := range offices {
+		err = w.createForOffice(office)
+		if err != nil {
+			w.logger.Error("Scheduler jobs set office error", zap.Error(err))
+			return
+		}
+	}
+}
+
+func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
+	location, err := time.LoadLocation(office.TimeZone)
+	if err != nil {
+		return err
+	}
+
+	s := gocron.NewScheduler(location)
+	_, err = s.Every(1).
 		Week().
 		At("14:30").
 		Weekday(time.Monday).
@@ -39,8 +62,7 @@ func (w *jobsSchedulerImpl) Start() {
 		Weekday(time.Thursday).
 		Weekday(time.Friday).
 		Do(func() {
-			fmt.Println("do work 1")
-			err := w.officeJobs.BeginJob()
+			err = w.officeJobs.BeginJob(office.ID)
 			if err != nil {
 				w.logger.Error("gocron execution error", zap.Error(err))
 			}
@@ -49,9 +71,7 @@ func (w *jobsSchedulerImpl) Start() {
 		w.logger.Error("gocron create error", zap.Error(err))
 	}
 	s.StartAsync()
-}
 
-func (w *jobsSchedulerImpl) CleanTables() error {
-
+	w.logger.Info(fmt.Sprintf("Success start async scheduled jobs for %s", office.Name))
 	return nil
 }
