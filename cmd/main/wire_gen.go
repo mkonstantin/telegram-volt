@@ -30,7 +30,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
-	telegramBot := telegram.NewTelegramBot(secret, routerRouter)
+	telegramBot := telegram.NewTelegramBot(secret, routerRouter, logger)
 	return telegramBot, func() {
 		cleanup()
 	}, nil
