@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"log"
+	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/infrastructure/router"
 	"time"
 )
@@ -14,9 +15,10 @@ type TelegramBot struct {
 	BotAPI *tgbotapi.BotAPI
 	router router.Router
 	logger *zap.Logger
+	worker scheduler.Worker
 }
 
-func NewTelegramBot(secret string, router router.Router, logger *zap.Logger) TelegramBot {
+func NewTelegramBot(secret string, router router.Router, worker scheduler.Worker, logger *zap.Logger) TelegramBot {
 	bot, err := tgbotapi.NewBotAPI(secret)
 	if err != nil {
 		log.Panic(err)
@@ -24,12 +26,13 @@ func NewTelegramBot(secret string, router router.Router, logger *zap.Logger) Tel
 	return TelegramBot{
 		BotAPI: bot,
 		router: router,
+		worker: worker,
 		logger: logger,
 	}
 }
 
 func (t *TelegramBot) StartAsyncScheduler() {
-	s := gocron.NewScheduler(time.UTC)
+	s := gocron.NewScheduler(time.FixedZone("UTC+6", 6*60*60))
 	_, err := s.Every(1).
 		Week().
 		At("14:30").
@@ -40,9 +43,13 @@ func (t *TelegramBot) StartAsyncScheduler() {
 		Weekday(time.Friday).
 		Do(func() {
 			fmt.Println("do work 1")
+			err := t.worker.CleanTables()
+			if err != nil {
+				t.logger.Error("gocron.NewScheduler execution error", zap.Error(err))
+			}
 		})
 	if err != nil {
-		t.logger.Error("gocron.NewScheduler error", zap.Error(err))
+		t.logger.Error("gocron.NewScheduler create error", zap.Error(err))
 	}
 	s.StartAsync()
 }
