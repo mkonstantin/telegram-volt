@@ -18,6 +18,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 		telegram.NewTelegramBot,
 		handlerSet,
 		servicesSet,
+		jobsSet,
 	)
 	return telegram.TelegramBot{}, nil, nil
 }
