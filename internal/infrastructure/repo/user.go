@@ -69,9 +69,9 @@ func (s *userRepositoryImpl) SetOffice(officeID, tgID int64) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) Subscribe(tgID int64) error {
+func (s *userRepositoryImpl) Subscribe(tgID, officeID int64) error {
 	sqQuery := sq.Update("user").
-		Set("notify_free_seat", true).
+		Set("notify_office_id", officeID).
 		Where(sq.Eq{"telegram_id": tgID})
 
 	query, args, err := sqQuery.ToSql()
@@ -85,7 +85,7 @@ func (s *userRepositoryImpl) Subscribe(tgID int64) error {
 
 func (s *userRepositoryImpl) Unsubscribe(tgID int64) error {
 	sqQuery := sq.Update("user").
-		Set("notify_free_seat", false).
+		Set("notify_office_id", 0).
 		Where(sq.Eq{"telegram_id": tgID})
 
 	query, args, err := sqQuery.ToSql()

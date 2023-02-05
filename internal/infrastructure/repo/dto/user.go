@@ -11,7 +11,7 @@ type User struct {
 	TelegramID     int64     `db:"telegram_id,omitempty"`
 	TelegramName   string    `db:"telegram_name,omitempty"`
 	OfficeID       *int64    `db:"office_id,omitempty"`
-	NotifyFreeSeat bool      `db:"notify_free_seat,omitempty"`
+	NotifyOfficeID int64     `db:"notify_office_id,omitempty"`
 	CreatedAt      time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -22,7 +22,7 @@ func (u *User) ToModel() *model.User {
 		Name:           u.Name,
 		TelegramID:     u.TelegramID,
 		TelegramName:   u.TelegramName,
-		NotifyFreeSeat: u.NotifyFreeSeat,
+		NotifyOfficeID: u.NotifyOfficeID,
 	}
 	if u.OfficeID == nil {
 		user.OfficeID = 0

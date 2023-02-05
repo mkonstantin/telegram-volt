@@ -58,3 +58,5 @@ CREATE TABLE `book_seat`
     COLLATE utf8mb4_unicode_ci;
 
 alter table user add office_id INT(11) default NULL;
+
+ALTER TABLE user add column notify_office_id int(16) default 0;
