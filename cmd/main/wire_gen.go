@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/repo"
@@ -30,7 +31,8 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
-	telegramBot := telegram.NewTelegramBot(secret, routerRouter, logger)
+	worker := scheduler.NewWorker(logger)
+	telegramBot := telegram.NewTelegramBot(secret, routerRouter, worker, logger)
 	return telegramBot, func() {
 		cleanup()
 	}, nil
