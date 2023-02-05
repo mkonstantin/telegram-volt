@@ -71,7 +71,7 @@ func (u *userServiceImpl) callOfficeMenu(ctx context.Context) (*dto.UserResult, 
 
 	var buttonText string
 
-	if currentUser.NotifyFreeSeat {
+	if currentUser.OfficeID == currentUser.NotifyOfficeID {
 		buttonText = "Отписаться"
 	} else {
 		buttonText = "Подписаться на свободные места"
@@ -287,20 +287,25 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (*dto.UserResult, e
 		}, nil
 	}
 
-	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
-	if err != nil {
-		return nil, err
-	}
-
-	if currentUser.NotifyFreeSeat {
+	if currentUser.NotifyOfficeID == currentUser.OfficeID {
 		err := u.userRepo.Unsubscribe(currentUser.TelegramID)
+		if err != nil {
+			return nil, err
+		}
+
+		office, err := u.officeRepo.FindByID(currentUser.NotifyOfficeID)
 		if err != nil {
 			return nil, err
 		}
 
 		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
 	} else {
-		err := u.userRepo.Subscribe(currentUser.TelegramID)
+		err := u.userRepo.Subscribe(currentUser.TelegramID, currentUser.OfficeID)
+		if err != nil {
+			return nil, err
+		}
+
+		office, err := u.officeRepo.FindByID(currentUser.OfficeID)
 		if err != nil {
 			return nil, err
 		}
