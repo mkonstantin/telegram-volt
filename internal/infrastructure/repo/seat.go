@@ -33,7 +33,6 @@ func (s *seatRepositoryImpl) FindByID(id int64) (*model.Seat, error) {
 	var dtoO dto.Seat
 	if err = s.db.Get(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
-			// TODO
 			return nil, nil
 		}
 		return nil, err
@@ -56,7 +55,6 @@ func (s *seatRepositoryImpl) GetAllByOfficeID(id int64) ([]*model.Seat, error) {
 	var dtoO []dto.Seat
 	if err = s.db.Select(&dtoO, query, args...); err != nil {
 		if err == sql.ErrNoRows {
-			// TODO
 			return nil, nil
 		}
 		return nil, err
