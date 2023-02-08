@@ -32,7 +32,8 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
-	officeJob := handler2.NewOfficeJob(logger)
+	seatRepository := repo.NewSeatRepository(connection)
+	officeJob := handler2.NewOfficeJob(bookSeatRepository, seatRepository, logger)
 	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, officeJob, logger)
 	telegramBot := telegram.NewTelegramBot(secret, routerRouter, jobsScheduler, logger)
 	return telegramBot, func() {

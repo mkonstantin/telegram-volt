@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"time"
 )
 
 type bookSeatRepositoryImpl struct {
@@ -120,4 +121,18 @@ func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, er
 	}
 
 	return dtoO.ToModel(), nil
+}
+
+func (s *bookSeatRepositoryImpl) InsertSeat(officeID, seatID int64, dayDate time.Time) error {
+	sqQuery := sq.
+		Insert("book_seat").Columns("office_id", "seat_id", "book_date").
+		Values(officeID, seatID, dayDate)
+	query, args, err := sqQuery.ToSql()
+
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
 }
