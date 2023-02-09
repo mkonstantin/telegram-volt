@@ -26,20 +26,44 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 
 func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Location) error {
 
+	currentTime := time.Now()
+	date := currentTime.AddDate(0, 0, 1)
+	bookDateUTC := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+
+	result, err := o.isExistSeats(officeID, bookDateUTC)
+	if err != nil {
+		o.logger.Error("SetNewSeatList", zap.Error(err))
+		return err
+	}
+	if result {
+		o.logger.Info("SetNewSeatList seats already set")
+		return nil
+	}
+
 	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
 	if err != nil {
 		return err
 	}
 
 	for _, seat := range seats {
-		currentTime := time.Now()
-		date := currentTime.AddDate(0, 0, 1)
-		bookDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, officeLocation)
-
-		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, bookDate)
+		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, bookDateUTC)
 		if err != nil {
+			o.logger.Error("InsertSeat", zap.Error(err))
 			return err
 		}
 	}
 	return nil
+}
+
+func (o *officeJobsImpl) isExistSeats(officeID int64, bookDateUTC time.Time) (bool, error) {
+
+	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeID(officeID, bookDateUTC.String())
+	if err != nil {
+		return false, err
+	}
+
+	if len(bookedSeats) > 0 {
+		return true, nil
+	}
+	return false, nil
 }
