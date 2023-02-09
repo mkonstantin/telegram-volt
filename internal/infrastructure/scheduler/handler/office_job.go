@@ -1,22 +1,45 @@
 package handler
 
-import "go.uber.org/zap"
+import (
+	"go.uber.org/zap"
+	"telegram-api/internal/infrastructure/repo/interfaces"
+	"time"
+)
 
 type officeJobsImpl struct {
-	logger *zap.Logger
+	bookSeatRepo interfaces.BookSeatRepository
+	seatRepo     interfaces.SeatRepository
+	logger       *zap.Logger
 }
 
 type OfficeJob interface {
-	BeginJob(officeID int64) error
+	SetNewSeatList(officeID int64, officeLocation *time.Location) error
 }
 
-func NewOfficeJob(logger *zap.Logger) OfficeJob {
+func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interfaces.SeatRepository, logger *zap.Logger) OfficeJob {
 	return &officeJobsImpl{
-		logger: logger,
+		bookSeatRepo: bookSeatRepo,
+		seatRepo:     seatRepo,
+		logger:       logger,
 	}
 }
 
-func (o officeJobsImpl) BeginJob(officeID int64) error {
-	//TODO implement me
-	panic("implement me")
+func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Location) error {
+
+	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
+	if err != nil {
+		return err
+	}
+
+	for _, seat := range seats {
+		currentTime := time.Now()
+		date := currentTime.AddDate(0, 0, 1)
+		bookDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, officeLocation)
+
+		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, bookDate)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

@@ -62,7 +62,7 @@ func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
 		Weekday(time.Wednesday).
 		Weekday(time.Thursday).
 		Do(func() {
-			err = w.officeJobs.BeginJob(office.ID)
+			err = w.officeJobs.SetNewSeatList(office.ID, location)
 			if err != nil {
 				w.logger.Error("gocron execution error", zap.Error(err))
 			}
