@@ -7,6 +7,7 @@ import (
 	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/internal/infrastructure/service"
 )
 
 const (
@@ -35,16 +36,18 @@ type userServiceImpl struct {
 	userRepo     interfaces.UserRepository
 	officeRepo   interfaces.OfficeRepository
 	bookSeatRepo interfaces.BookSeatRepository
+	timeHelper   service.TimeHelper
 	logger       *zap.Logger
 }
 
 func NewUserService(userRepo interfaces.UserRepository,
 	officeRepo interfaces.OfficeRepository, bookSeatRepo interfaces.BookSeatRepository,
-	logger *zap.Logger) UserService {
+	timeHelper service.TimeHelper, logger *zap.Logger) UserService {
 	return &userServiceImpl{
 		userRepo:     userRepo,
 		officeRepo:   officeRepo,
 		bookSeatRepo: bookSeatRepo,
+		timeHelper:   timeHelper,
 		logger:       logger,
 	}
 }
@@ -127,7 +130,16 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	seats, err := u.bookSeatRepo.GetAllByOfficeID(currentUser.OfficeID)
+	date, err := u.timeHelper.GetTodayZeroTimeWithOfficeID(currentUser.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+
+	if date == nil {
+		return nil, err
+	}
+
+	seats, err := u.bookSeatRepo.GetAllByOfficeID(currentUser.OfficeID, date.String())
 	if err != nil {
 		return nil, err
 	}

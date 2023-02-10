@@ -15,6 +15,7 @@ import (
 	"telegram-api/internal/infrastructure/router"
 	"telegram-api/internal/infrastructure/scheduler"
 	handler2 "telegram-api/internal/infrastructure/scheduler/handler"
+	"telegram-api/internal/infrastructure/service"
 	"telegram-api/internal/infrastructure/telegram"
 )
 
@@ -28,7 +29,8 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	messageFormer := handler.NewMessageFormer(logger)
 	officeRepository := repo.NewOfficeRepository(connection)
 	bookSeatRepository := repo.NewBookSeatRepository(connection)
-	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, logger)
+	timeHelper := service.NewTimeHelper(officeRepository, logger)
+	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, timeHelper, logger)
 	commandHandler := handler.NewCommandHandler(messageFormer, userService, logger)
 	inlineMessageHandler := handler.NewInlineMessageHandler(messageFormer, userService, logger)
 	routerRouter := router.NewRouter(userRepository, customMessageHandler, commandHandler, inlineMessageHandler, logger)
