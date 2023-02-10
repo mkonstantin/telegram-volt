@@ -67,19 +67,6 @@ func (t *timeHelperImpl) GetTomorrowZeroTimeWithOfficeID(officeID int64) (*time.
 	return &bookDate, nil
 }
 
-func TodayZeroTime(location *time.Location) time.Time {
-	date := time.Now()
-	bookDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, location)
-	return bookDate
-}
-
-func TomorrowZeroTime(location *time.Location) time.Time {
-	currentTime := time.Now()
-	date := currentTime.AddDate(0, 0, 1)
-	bookDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, location)
-	return bookDate
-}
-
 func TodayZeroTimeUTC() time.Time {
 	date := time.Now()
 	bookDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)

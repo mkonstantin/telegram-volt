@@ -27,7 +27,7 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 
 func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Location) error {
 
-	bookDate := service.TomorrowZeroTime(officeLocation)
+	bookDate := service.TomorrowZeroTimeUTC()
 	result, err := o.isExistSeats(officeID, bookDate)
 	if err != nil {
 		o.logger.Error("SetNewSeatList", zap.Error(err))
