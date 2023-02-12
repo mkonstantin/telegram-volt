@@ -10,4 +10,10 @@ type UserResult struct {
 	BookSeatID          int64
 	Message             string
 	SubscribeButtonText string
+	SeatByDates         []DaySeat
+}
+
+type DaySeat struct {
+	Date        string
+	SeatsNumber int
 }

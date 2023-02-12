@@ -12,8 +12,10 @@ import (
 
 const (
 	ChooseOfficeMenu = "choose_office"
+	DateMenu         = "date_menu"
 	OfficeMenu       = "office_menu"
 	ChooseSeatsMenu  = "choose_seats_menu"
+	ChooseDateMenu   = "choose_date_menu"
 	SeatOwn          = "seat_own"
 	SeatBusy         = "seat_busy"
 	SeatFree         = "seat_free"
@@ -25,6 +27,7 @@ type UserService interface {
 	FirstCome(ctx context.Context) (*dto.UserResult, error)
 	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error)
+	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
 	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
@@ -122,22 +125,61 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 	return u.callOfficeMenu(ctx)
 }
 
+//=========  Выбираем дату:
+
+func (u *userServiceImpl) CallDateMenu(ctx context.Context) (*dto.UserResult, error) {
+	currentUser := model.GetCurrentUser(ctx)
+
+	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
+	if err != nil {
+		return nil, err
+	}
+
+	today := service.TodayZeroTimeUTC()
+	todaySeats, err := u.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, today.String())
+	if err != nil {
+		return nil, err
+	}
+
+	tomorrow := service.TomorrowZeroTimeUTC()
+	tomorrowSeats, err := u.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, tomorrow.String())
+	if err != nil {
+		return nil, err
+	}
+
+	todayD := dto.DaySeat{
+		Date:        today.String(),
+		SeatsNumber: len(todaySeats),
+	}
+
+	tomorrowD := dto.DaySeat{
+		Date:        tomorrow.String(),
+		SeatsNumber: len(tomorrowSeats),
+	}
+
+	var seatByDates []dto.DaySeat
+	seatByDates = append(seatByDates, todayD)
+	seatByDates = append(seatByDates, tomorrowD)
+
+	message := fmt.Sprintf("Выберите дату:")
+
+	return &dto.UserResult{
+		Key:         DateMenu,
+		Message:     message,
+		Office:      office,
+		SeatByDates: seatByDates,
+	}, nil
+}
+
 //========= Места в офисе
 
 func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	date, err := u.timeHelper.GetTodayZeroTimeWithOfficeID(currentUser.OfficeID)
-	if err != nil {
-		return nil, err
-	}
+	date := service.TodayZeroTimeUTC()
 
-	if date == nil {
-		return nil, err
-	}
-
-	seats, err := u.bookSeatRepo.GetAllByOfficeID(currentUser.OfficeID, date.String())
+	seats, err := u.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.String())
 	if err != nil {
 		return nil, err
 	}
