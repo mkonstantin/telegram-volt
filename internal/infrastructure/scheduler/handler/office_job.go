@@ -55,7 +55,7 @@ func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Loc
 
 func (o *officeJobsImpl) isExistSeats(officeID int64, bookDate time.Time) (bool, error) {
 
-	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeID(officeID, bookDate.String())
+	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
 	if err != nil {
 		return false, err
 	}
