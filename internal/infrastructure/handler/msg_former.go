@@ -39,7 +39,7 @@ func (s *messageFormerImpl) FormChooseOfficeMenuMsg(ctx context.Context, result 
 	msg := tgbotapi.NewMessage(chatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
-		resp := &dto.CommandResponse{
+		resp := &dto.InlineRequest{
 			Type:     usecase.ChooseOfficeMenu,
 			OfficeID: office.ID,
 		}
@@ -69,17 +69,17 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *useca
 
 	msg := tgbotapi.NewMessage(chatID, "")
 
-	b1 := &dto.CommandResponse{
+	b1 := &dto.InlineRequest{
 		Type:     usecase.OfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
-	b2 := &dto.CommandResponse{
+	b2 := &dto.InlineRequest{
 		Type:     usecase.OfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
-	b3 := &dto.CommandResponse{
+	b3 := &dto.InlineRequest{
 		Type:     usecase.OfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
@@ -118,7 +118,7 @@ func (s *messageFormerImpl) FormSeatListMsg(ctx context.Context, result *usecase
 
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, bookSeat := range result.BookSeats {
-		resp := &dto.CommandResponse{
+		resp := &dto.InlineRequest{
 			Type:       usecase.ChooseSeatsMenu,
 			BookSeatID: bookSeat.ID,
 		}
@@ -165,12 +165,12 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 	case usecase.SeatOwn:
 		msg.Text = result.Message
 
-		b1 := &dto.CommandResponse{
+		b1 := &dto.InlineRequest{
 			Type:       usecase.SeatOwn,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookYes,
 		}
-		b2 := &dto.CommandResponse{
+		b2 := &dto.InlineRequest{
 			Type:       usecase.SeatOwn,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookNo,
@@ -196,12 +196,12 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 	case usecase.SeatFree:
 		msg.Text = result.Message
 
-		b1 := &dto.CommandResponse{
+		b1 := &dto.InlineRequest{
 			Type:       usecase.SeatFree,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookYes,
 		}
-		b2 := &dto.CommandResponse{
+		b2 := &dto.InlineRequest{
 			Type:       usecase.SeatFree,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookNo,

@@ -64,8 +64,8 @@ func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, er
 	return r.router.Route(ctx, data)
 }
 
-func extractData(callbackData string) (dto.CommandResponse, error) {
-	command := dto.CommandResponse{}
+func extractData(callbackData string) (dto.InlineRequest, error) {
+	command := dto.InlineRequest{}
 
 	err := json.Unmarshal([]byte(callbackData), &command)
 	if err != nil {

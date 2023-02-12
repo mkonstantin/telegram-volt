@@ -1,6 +1,6 @@
 package dto
 
-type CommandResponse struct {
+type InlineRequest struct {
 	Type       string `json:"type,omitempty"`
 	OfficeID   int64  `json:"office_id,omitempty"`
 	BookSeatID int64  `json:"book_seat_id,omitempty"`

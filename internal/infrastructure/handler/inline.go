@@ -55,9 +55,9 @@ func (s *inlineMessageHandlerImpl) Handle(ctx context.Context, update tgbotapi.U
 	return nil, nil
 }
 
-func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
+func getCommand(update tgbotapi.Update) (*dto.InlineRequest, error) {
 	callbackData := update.CallbackQuery.Data
-	command := dto.CommandResponse{}
+	command := dto.InlineRequest{}
 
 	err := json.Unmarshal([]byte(callbackData), &command)
 	if err != nil {
@@ -66,7 +66,7 @@ func getCommand(update tgbotapi.Update) (*dto.CommandResponse, error) {
 	return &command, nil
 }
 
-func (s *inlineMessageHandlerImpl) officeListMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) officeListMenuTap(ctx context.Context, command *dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 	result, err := s.userService.SetOfficeScript(ctx, command.OfficeID)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (s *inlineMessageHandlerImpl) officeListMenuTap(ctx context.Context, comman
 	return s.msgFormer.FormOfficeMenuMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, command *dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:
@@ -103,7 +103,7 @@ func (s *inlineMessageHandlerImpl) officeMenuTapScript(ctx context.Context, comm
 	return nil, nil
 }
 
-func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	result, err := s.userService.SeatListTap(ctx, command.BookSeatID)
 	if err != nil {
@@ -113,7 +113,7 @@ func (s *inlineMessageHandlerImpl) seatListTap(ctx context.Context, command *dto
 	return s.msgFormer.FormBookSeatMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) seatOwnMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) seatOwnMenuTap(ctx context.Context, command *dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:
@@ -137,7 +137,7 @@ func (s *inlineMessageHandlerImpl) callSeatsMenu(ctx context.Context) (*tgbotapi
 	return s.msgFormer.FormSeatListMsg(ctx, result)
 }
 
-func (s *inlineMessageHandlerImpl) seatFreeMenuTap(ctx context.Context, command *dto.CommandResponse) (*tgbotapi.MessageConfig, error) {
+func (s *inlineMessageHandlerImpl) seatFreeMenuTap(ctx context.Context, command *dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionBookYes:
