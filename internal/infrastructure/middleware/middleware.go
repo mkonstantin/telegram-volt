@@ -1,4 +1,4 @@
-package router
+package middleware
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
-type Router struct {
+type UserMW struct {
 	userRepo             interfaces.UserRepository
 	customMessageHandler handler.CustomMessageHandler
 	commandHandler       handler.CommandHandler
@@ -18,12 +18,12 @@ type Router struct {
 	logger               *zap.Logger
 }
 
-func NewRouter(userRepo interfaces.UserRepository, customMessageHandler handler.CustomMessageHandler,
+func NewUserMW(userRepo interfaces.UserRepository, customMessageHandler handler.CustomMessageHandler,
 	commandHandler handler.CommandHandler,
 	inlineHandler handler.InlineMessageHandler,
-	logger *zap.Logger) Router {
+	logger *zap.Logger) UserMW {
 
-	return Router{
+	return UserMW{
 		userRepo:             userRepo,
 		customMessageHandler: customMessageHandler,
 		commandHandler:       commandHandler,
@@ -32,13 +32,16 @@ func NewRouter(userRepo interfaces.UserRepository, customMessageHandler handler.
 	}
 }
 
-func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
 	if update.Message != nil {
 		fullName := fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
-		ctx := r.setUserContext(update.Message.From.ID,
-			update.Message.Chat.ID, update.Message.MessageID,
-			update.Message.From.UserName, fullName)
+		ctx := r.setUserContext(
+			update.Message.From.ID,
+			update.Message.Chat.ID,
+			update.Message.MessageID,
+			update.Message.From.UserName,
+			fullName)
 
 		if update.Message.IsCommand() {
 			return r.commandHandler.Handle(ctx, update)
@@ -47,9 +50,12 @@ func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig
 		}
 	} else if update.CallbackQuery != nil {
 		fullName := fmt.Sprintf("%s %s", update.CallbackQuery.Message.From.FirstName, update.CallbackQuery.Message.From.LastName)
-		ctx := r.setUserContext(update.CallbackQuery.From.ID,
-			update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID,
-			update.CallbackQuery.From.UserName, fullName)
+		ctx := r.setUserContext(
+			update.CallbackQuery.From.ID,
+			update.CallbackQuery.Message.Chat.ID,
+			update.CallbackQuery.Message.MessageID,
+			update.CallbackQuery.From.UserName,
+			fullName)
 
 		return r.inlineHandler.Handle(ctx, update)
 	}
@@ -58,7 +64,7 @@ func (r *Router) MainEntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig
 	return nil, nil
 }
 
-func (r *Router) setUserContext(tgID, chatID int64, MessageID int, tgUserName, fullName string) context.Context {
+func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, fullName string) context.Context {
 	ctx := context.Background()
 
 	ctx = context.WithValue(ctx, model.ContextChatIDKey, chatID)
@@ -78,7 +84,7 @@ func (r *Router) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 	return ctx
 }
 
-func (r *Router) createUser(tgID int64, tgUserName, fullName string) (*model.User, error) {
+func (r *UserMW) createUser(tgID int64, tgUserName, fullName string) (*model.User, error) {
 	userModel := model.User{
 		Name:         fullName,
 		TelegramID:   tgID,

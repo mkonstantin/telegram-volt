@@ -12,7 +12,6 @@ import (
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/repo"
-	"telegram-api/internal/infrastructure/router"
 	"telegram-api/internal/infrastructure/scheduler"
 	handler2 "telegram-api/internal/infrastructure/scheduler/handler"
 	"telegram-api/internal/infrastructure/telegram"

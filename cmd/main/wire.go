@@ -6,7 +6,7 @@ package main
 import (
 	"github.com/google/wire"
 	"go.uber.org/zap"
-	"telegram-api/internal/infrastructure/router"
+	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/telegram"
 )
 
@@ -14,7 +14,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	wire.Build(
 		dbSet,
 		repositorySet,
-		router.NewRouter,
+		middleware.NewUserMW,
 		telegram.NewTelegramBot,
 		handlerSet,
 		servicesSet,
