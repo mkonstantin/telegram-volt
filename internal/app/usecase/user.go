@@ -36,18 +36,16 @@ type userServiceImpl struct {
 	userRepo     interfaces.UserRepository
 	officeRepo   interfaces.OfficeRepository
 	bookSeatRepo interfaces.BookSeatRepository
-	timeHelper   service.TimeHelper
 	logger       *zap.Logger
 }
 
 func NewUserService(userRepo interfaces.UserRepository,
 	officeRepo interfaces.OfficeRepository, bookSeatRepo interfaces.BookSeatRepository,
-	timeHelper service.TimeHelper, logger *zap.Logger) UserService {
+	logger *zap.Logger) UserService {
 	return &userServiceImpl{
 		userRepo:     userRepo,
 		officeRepo:   officeRepo,
 		bookSeatRepo: bookSeatRepo,
-		timeHelper:   timeHelper,
 		logger:       logger,
 	}
 }

@@ -5,7 +5,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
-	usecasedto "telegram-api/internal/app/usecase/dto"
 )
 
 type CommandHandler interface {
@@ -47,19 +46,11 @@ func (s *commandHandlerImpl) handleStartCommand(ctx context.Context, update tgbo
 
 	switch result.Key {
 	case usecase.OfficeMenu:
-		return s.sendOfficeMenu(ctx, result)
+		return s.msgFormer.FormOfficeMenuMsg(ctx, result)
 	case usecase.ChooseOfficeMenu:
-		return s.sendChooseOfficeMenu(ctx, result)
+		return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
 	}
 
 	msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Неизвестный вызов")
 	return &msg, nil
-}
-
-func (s *commandHandlerImpl) sendOfficeMenu(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
-	return s.msgFormer.FormOfficeMenuMsg(ctx, result)
-}
-
-func (s *commandHandlerImpl) sendChooseOfficeMenu(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
-	return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
 }
