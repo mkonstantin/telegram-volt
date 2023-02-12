@@ -2,41 +2,40 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/handler"
+	"telegram-api/internal/infrastructure/handler/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/internal/infrastructure/router"
 )
 
 type UserMW struct {
-	userRepo             interfaces.UserRepository
-	customMessageHandler handler.CustomMessageHandler
-	commandHandler       handler.CommandHandler
-	inlineHandler        handler.InlineMessageHandler
-	logger               *zap.Logger
+	userRepo interfaces.UserRepository
+	router   router.Router
+	logger   *zap.Logger
 }
 
-func NewUserMW(userRepo interfaces.UserRepository, customMessageHandler handler.CustomMessageHandler,
-	commandHandler handler.CommandHandler,
-	inlineHandler handler.InlineMessageHandler,
+func NewUserMW(userRepo interfaces.UserRepository, router router.Router,
 	logger *zap.Logger) UserMW {
 
 	return UserMW{
-		userRepo:             userRepo,
-		customMessageHandler: customMessageHandler,
-		commandHandler:       commandHandler,
-		inlineHandler:        inlineHandler,
-		logger:               logger,
+		userRepo: userRepo,
+		router:   router,
+		logger:   logger,
 	}
 }
 
 func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
 
+	var ctx context.Context
+	var data router.Data
+
 	if update.Message != nil {
 		fullName := fmt.Sprintf("%s %s", update.Message.From.FirstName, update.Message.From.LastName)
-		ctx := r.setUserContext(
+		ctx = r.setUserContext(
 			update.Message.From.ID,
 			update.Message.Chat.ID,
 			update.Message.MessageID,
@@ -44,24 +43,35 @@ func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, er
 			fullName)
 
 		if update.Message.IsCommand() {
-			return r.commandHandler.Handle(ctx, update)
-		} else {
-			return r.customMessageHandler.Handle(ctx, update)
+			data.Command = update.Message.Command()
 		}
 	} else if update.CallbackQuery != nil {
 		fullName := fmt.Sprintf("%s %s", update.CallbackQuery.Message.From.FirstName, update.CallbackQuery.Message.From.LastName)
-		ctx := r.setUserContext(
+		ctx = r.setUserContext(
 			update.CallbackQuery.From.ID,
 			update.CallbackQuery.Message.Chat.ID,
 			update.CallbackQuery.Message.MessageID,
 			update.CallbackQuery.From.UserName,
 			fullName)
 
-		return r.inlineHandler.Handle(ctx, update)
+		cData, err := extractData(update.CallbackQuery.Data)
+		if err != nil {
+			return nil, err
+		}
+		data.Data = cData
 	}
 
-	// TODO
-	return nil, nil
+	return r.router.Route(ctx, data)
+}
+
+func extractData(callbackData string) (dto.CommandResponse, error) {
+	command := dto.CommandResponse{}
+
+	err := json.Unmarshal([]byte(callbackData), &command)
+	if err != nil {
+		return command, err
+	}
+	return command, nil
 }
 
 func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, fullName string) context.Context {
