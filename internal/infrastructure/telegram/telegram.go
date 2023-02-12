@@ -10,7 +10,7 @@ import (
 
 type TelegramBot struct {
 	BotAPI       *tgbotapi.BotAPI
-	router       middleware.UserMW
+	userSettler  middleware.UserMW
 	jobScheduler scheduler.JobsScheduler
 	logger       *zap.Logger
 }
@@ -22,7 +22,7 @@ func NewTelegramBot(secret string, router middleware.UserMW, jobScheduler schedu
 	}
 	return TelegramBot{
 		BotAPI:       bot,
-		router:       router,
+		userSettler:  router,
 		jobScheduler: jobScheduler,
 		logger:       logger,
 	}
@@ -42,7 +42,7 @@ func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {
 
 	updates := t.BotAPI.GetUpdatesChan(u)
 	for update := range updates {
-		msg, err := t.router.EntryPoint(update)
+		msg, err := t.userSettler.EntryPoint(update)
 		if err != nil {
 			log.Printf("Error handle EntryPoint %d", err)
 			continue
