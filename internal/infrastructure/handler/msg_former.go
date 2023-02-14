@@ -10,6 +10,7 @@ import (
 	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
+	"telegram-api/internal/infrastructure/router"
 )
 
 type MessageFormer interface {
@@ -70,17 +71,17 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *useca
 	msg := tgbotapi.NewMessage(chatID, "")
 
 	b1 := &dto.InlineRequest{
-		Type:     usecase.CallOfficeMenu,
+		Type:     router.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
 	b2 := &dto.InlineRequest{
-		Type:     usecase.CallOfficeMenu,
+		Type:     router.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
 	b3 := &dto.InlineRequest{
-		Type:     usecase.CallOfficeMenu,
+		Type:     router.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
 	}

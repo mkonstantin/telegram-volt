@@ -11,17 +11,17 @@ import (
 )
 
 const (
-	CallOfficeMenu = "office_menu"
-
+	CallOfficeMenu   = "office_menu"
 	ChooseOfficeMenu = "choose_office"
-	DateMenu         = "date_menu"
-	ChooseSeatsMenu  = "choose_seats_menu"
-	ChooseDateMenu   = "choose_date_menu"
-	SeatOwn          = "seat_own"
-	SeatBusy         = "seat_busy"
-	SeatFree         = "seat_free"
-	BookSeat         = "book_seat"
-	Subscribe        = "subscribe"
+
+	DateMenu        = "date_menu"
+	ChooseSeatsMenu = "choose_seats_menu"
+	ChooseDateMenu  = "choose_date_menu"
+	SeatOwn         = "seat_own"
+	SeatBusy        = "seat_busy"
+	SeatFree        = "seat_free"
+	BookSeat        = "book_seat"
+	Subscribe       = "subscribe"
 )
 
 type UserService interface {
