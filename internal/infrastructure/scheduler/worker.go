@@ -54,13 +54,14 @@ func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
 
 	s := gocron.NewScheduler(location)
 	_, err = s.Every(1).
-		Week().
-		At("14:30").
-		Weekday(time.Sunday).
-		Weekday(time.Monday).
-		Weekday(time.Tuesday).
-		Weekday(time.Wednesday).
-		Weekday(time.Thursday).
+		Minute().
+		//Week().
+		//At("14:30").
+		//Weekday(time.Sunday).
+		//Weekday(time.Monday).
+		//Weekday(time.Tuesday).
+		//Weekday(time.Wednesday).
+		//Weekday(time.Thursday).
 		Do(func() {
 			err = w.officeJobs.SetNewSeatList(office.ID, location)
 			if err != nil {

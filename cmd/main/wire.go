@@ -16,7 +16,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 		repositorySet,
 		middleware.NewUserMW,
 		telegram.NewTelegramBot,
-		//handlerSet,
+		handlerSet,
 		servicesSet,
 		jobsSet,
 	)

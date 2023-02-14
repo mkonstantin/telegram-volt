@@ -54,11 +54,11 @@ func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, er
 			update.CallbackQuery.From.UserName,
 			fullName)
 
-		cData, err := extractData(update.CallbackQuery.Data)
+		callbackData, err := extractData(update.CallbackQuery.Data)
 		if err != nil {
 			return nil, err
 		}
-		data.Data = cData
+		data.Request = callbackData
 	}
 
 	return r.router.Route(ctx, data)

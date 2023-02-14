@@ -6,8 +6,11 @@ import (
 )
 
 var handlerSet = wire.NewSet(
+	handler.NewStartHandle,
+	handler.NewOfficeListHandle,
+	handler.NewOfficeMenuHandle,
+	handler.NewSeatListHandle,
+	handler.NewOwnSeatMenuHandle,
+	handler.NewFreeSeatMenuHandle,
 	handler.NewMessageFormer,
-	handler.NewCommandHandler,
-	handler.NewInlineMessageHandler,
-	handler.NewCustomMessageHandler,
 )
