@@ -18,9 +18,14 @@ type seatListImpl struct {
 	logger      *zap.Logger
 }
 
-func NewSeatListHandle(userService usecase.UserService, logger *zap.Logger) SeatList {
+func NewSeatListHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) SeatList {
+
 	return &seatListImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }

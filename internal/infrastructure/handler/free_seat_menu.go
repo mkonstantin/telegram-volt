@@ -18,9 +18,14 @@ type freeSeatMenuImpl struct {
 	logger      *zap.Logger
 }
 
-func NewFreeSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) FreeSeatMenu {
+func NewFreeSeatMenuHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) FreeSeatMenu {
+
 	return &freeSeatMenuImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }

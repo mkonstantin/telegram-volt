@@ -18,9 +18,14 @@ type officeListImpl struct {
 	logger      *zap.Logger
 }
 
-func NewOfficeListHandle(userService usecase.UserService, logger *zap.Logger) OfficeList {
+func NewOfficeListHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) OfficeList {
+
 	return &officeListImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }

@@ -18,9 +18,14 @@ type startImpl struct {
 	logger      *zap.Logger
 }
 
-func NewStartHandle(userService usecase.UserService, logger *zap.Logger) Start {
+func NewStartHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) Start {
+
 	return &startImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }

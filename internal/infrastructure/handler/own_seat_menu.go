@@ -18,9 +18,14 @@ type ownSeatMenuImpl struct {
 	logger      *zap.Logger
 }
 
-func NewOwnSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) OwnSeatMenu {
+func NewOwnSeatMenuHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) OwnSeatMenu {
+
 	return &ownSeatMenuImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }

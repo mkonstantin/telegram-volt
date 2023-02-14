@@ -18,9 +18,14 @@ type officeMenuImpl struct {
 	logger      *zap.Logger
 }
 
-func NewOfficeMenuHandle(userService usecase.UserService, logger *zap.Logger) OfficeMenu {
+func NewOfficeMenuHandle(
+	userService usecase.UserService,
+	msgFormer MessageFormer,
+	logger *zap.Logger) OfficeMenu {
+
 	return &officeMenuImpl{
 		userService: userService,
+		msgFormer:   msgFormer,
 		logger:      logger,
 	}
 }
