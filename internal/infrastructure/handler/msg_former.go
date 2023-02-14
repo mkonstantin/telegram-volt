@@ -194,16 +194,16 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 
 	case usecase.ThisIsSeatBusy:
 		msg.Text = result.Message
-	case usecase.SeatFree:
+	case usecase.ThisIsSeatFree:
 		msg.Text = result.Message
 
 		b1 := &dto.InlineRequest{
-			Type:       usecase.SeatFree,
+			Type:       router.FreeSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookYes,
 		}
 		b2 := &dto.InlineRequest{
-			Type:       usecase.SeatFree,
+			Type:       router.FreeSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookNo,
 		}

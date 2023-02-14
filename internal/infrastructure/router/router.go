@@ -5,17 +5,17 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
-	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
 const (
-	OfficeMenuTap  = "office_menu_tap"
-	OfficeListTap  = "office_list_tap"
-	SeatListTap    = "seat_list_tap"
-	OwnSeatMenuTap = "own_seat_menu_tap"
+	OfficeMenuTap   = "office_menu_tap"
+	OfficeListTap   = "office_list_tap"
+	SeatListTap     = "seat_list_tap"
+	OwnSeatMenuTap  = "own_seat_menu_tap"
+	FreeSeatMenuTap = "free_seat_menu_tap"
 )
 
 type Data struct {
@@ -93,7 +93,7 @@ func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tg
 		return r.seatList.Handle(ctx, request)
 	case OwnSeatMenuTap:
 		return r.ownSeatMenu.Handle(ctx, request)
-	case usecase.SeatFree:
+	case FreeSeatMenuTap:
 		return r.freeSeatMenu.Handle(ctx, request)
 	}
 

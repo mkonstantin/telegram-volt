@@ -18,8 +18,8 @@ const (
 
 	ThisIsYourSeat = "this_is_your_seat"
 	ThisIsSeatBusy = "this_is_seat_busy"
+	ThisIsSeatFree = "this_is_seat_free"
 
-	SeatFree  = "seat_free"
 	BookSeat  = "book_seat"
 	Subscribe = "subscribe"
 )
@@ -222,7 +222,7 @@ func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*d
 		}
 	} else {
 		// место свободно
-		answerType = SeatFree
+		answerType = ThisIsSeatFree
 		message = fmt.Sprintf("Занять место №%d?", bookSeat.Seat.SeatNumber)
 	}
 
