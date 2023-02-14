@@ -16,7 +16,8 @@ const (
 
 	DateMenu = "date_menu"
 
-	SeatOwn   = "seat_own"
+	ThisIsYourSeat = "this_is_your_seat"
+
 	SeatBusy  = "seat_busy"
 	SeatFree  = "seat_free"
 	BookSeat  = "book_seat"
@@ -211,7 +212,7 @@ func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*d
 	if bookSeat.User != nil {
 		if bookSeat.User.TelegramID == currentUser.TelegramID {
 			// место уже занято самим же юзером
-			answerType = SeatOwn
+			answerType = ThisIsYourSeat
 			message = "Вы уже заняли это место, хотите его освободить?"
 		} else {
 			// место занято другим юзером

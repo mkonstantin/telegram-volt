@@ -163,16 +163,16 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 
 	msg := tgbotapi.NewMessage(chatID, "")
 	switch result.Key {
-	case usecase.SeatOwn:
+	case usecase.ThisIsYourSeat:
 		msg.Text = result.Message
 
 		b1 := &dto.InlineRequest{
-			Type:       usecase.SeatOwn,
+			Type:       router.OwnSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookYes,
 		}
 		b2 := &dto.InlineRequest{
-			Type:       usecase.SeatOwn,
+			Type:       router.OwnSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookNo,
 		}

@@ -12,9 +12,10 @@ import (
 )
 
 const (
-	OfficeMenuTap = "office_menu_tap"
-	OfficeListTap = "office_list_tap"
-	SeatListTap   = "seat_list_tap"
+	OfficeMenuTap  = "office_menu_tap"
+	OfficeListTap  = "office_list_tap"
+	SeatListTap    = "seat_list_tap"
+	OwnSeatMenuTap = "own_seat_menu_tap"
 )
 
 type Data struct {
@@ -90,7 +91,7 @@ func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tg
 		return r.officeMenu.Handle(ctx, request)
 	case SeatListTap:
 		return r.seatList.Handle(ctx, request)
-	case usecase.SeatOwn:
+	case OwnSeatMenuTap:
 		return r.ownSeatMenu.Handle(ctx, request)
 	case usecase.SeatFree:
 		return r.freeSeatMenu.Handle(ctx, request)
