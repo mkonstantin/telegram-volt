@@ -192,7 +192,7 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 		msg.ReplyMarkup = keyboard
 
-	case usecase.SeatBusy:
+	case usecase.ThisIsSeatBusy:
 		msg.Text = result.Message
 	case usecase.SeatFree:
 		msg.Text = result.Message
