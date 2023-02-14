@@ -3,6 +3,7 @@ package router
 import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
@@ -59,6 +60,7 @@ func (r *routerImpl) Route(ctx context.Context, data Data) (*tgbotapi.MessageCon
 		return r.inline(ctx, data.Request)
 	}
 
+	r.logger.Error("Route. Unknown data", zap.Error(errors.New("Unknown data")))
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "Ничего не могу с этим сделать)")
 	return &msg, nil
 }
