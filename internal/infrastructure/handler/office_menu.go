@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type OfficeMenuHandle interface {
+type OfficeMenu interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type officeMenuHandleImpl struct {
+type officeMenuImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewOfficeMenuHandle(userService usecase.UserService, logger *zap.Logger) OfficeMenuHandle {
-	return &officeMenuHandleImpl{
+func NewOfficeMenuHandle(userService usecase.UserService, logger *zap.Logger) OfficeMenu {
+	return &officeMenuImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (o *officeMenuHandleImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:

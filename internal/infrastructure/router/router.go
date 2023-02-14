@@ -20,32 +20,32 @@ type Router interface {
 }
 
 type routerImpl struct {
-	startHandle        handler.StartHandle
-	officeListHandle   handler.OfficeListHandle
-	officeMenuHandle   handler.OfficeMenuHandle
-	seatListHandle     handler.SeatListHandle
-	ownSeatMenuHandle  handler.OwnSeatMenuHandle
-	freeSeatMenuHandle handler.FreeSeatMenuHandle
-	logger             *zap.Logger
+	start        handler.Start
+	officeList   handler.OfficeList
+	officeMenu   handler.OfficeMenu
+	seatList     handler.SeatList
+	ownSeatMenu  handler.OwnSeatMenu
+	freeSeatMenu handler.FreeSeatMenu
+	logger       *zap.Logger
 }
 
 func NewRouter(
-	startHandle handler.StartHandle,
-	officeListHandle handler.OfficeListHandle,
-	officeMenuHandle handler.OfficeMenuHandle,
-	seatListHandle handler.SeatListHandle,
-	ownSeatMenuHandle handler.OwnSeatMenuHandle,
-	freeSeatMenuHandle handler.FreeSeatMenuHandle,
+	startHandle handler.Start,
+	officeListHandle handler.OfficeList,
+	officeMenuHandle handler.OfficeMenu,
+	seatListHandle handler.SeatList,
+	ownSeatMenuHandle handler.OwnSeatMenu,
+	freeSeatMenuHandle handler.FreeSeatMenu,
 	logger *zap.Logger) Router {
 
 	return &routerImpl{
-		startHandle:        startHandle,
-		officeListHandle:   officeListHandle,
-		officeMenuHandle:   officeMenuHandle,
-		seatListHandle:     seatListHandle,
-		ownSeatMenuHandle:  ownSeatMenuHandle,
-		freeSeatMenuHandle: freeSeatMenuHandle,
-		logger:             logger,
+		start:        startHandle,
+		officeList:   officeListHandle,
+		officeMenu:   officeMenuHandle,
+		seatList:     seatListHandle,
+		ownSeatMenu:  ownSeatMenuHandle,
+		freeSeatMenu: freeSeatMenuHandle,
+		logger:       logger,
 	}
 }
 
@@ -66,7 +66,7 @@ func (r *routerImpl) Route(ctx context.Context, data Data) (*tgbotapi.MessageCon
 func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.MessageConfig, error) {
 	switch command {
 	case "start":
-		return r.startHandle.Handle(ctx)
+		return r.start.Handle(ctx)
 	}
 
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "Неизвестная команда =(")
@@ -77,15 +77,15 @@ func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tg
 
 	switch request.Type {
 	case usecase.ChooseOfficeMenu:
-		return r.officeListHandle.Handle(ctx, request)
+		return r.officeList.Handle(ctx, request)
 	case usecase.OfficeMenu:
-		return r.officeMenuHandle.Handle(ctx, request)
+		return r.officeMenu.Handle(ctx, request)
 	case usecase.ChooseSeatsMenu:
-		return r.seatListHandle.Handle(ctx, request)
+		return r.seatList.Handle(ctx, request)
 	case usecase.SeatOwn:
-		return r.ownSeatMenuHandle.Handle(ctx, request)
+		return r.ownSeatMenu.Handle(ctx, request)
 	case usecase.SeatFree:
-		return r.freeSeatMenuHandle.Handle(ctx, request)
+		return r.freeSeatMenu.Handle(ctx, request)
 	}
 
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "Неизвестная команда =(")

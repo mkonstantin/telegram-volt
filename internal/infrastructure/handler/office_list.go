@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type OfficeListHandle interface {
+type OfficeList interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type officeListHandleImpl struct {
+type officeListImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewOfficeListHandle(userService usecase.UserService, logger *zap.Logger) OfficeListHandle {
-	return &officeListHandleImpl{
+func NewOfficeListHandle(userService usecase.UserService, logger *zap.Logger) OfficeList {
+	return &officeListImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (o *officeListHandleImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (o *officeListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	result, err := o.userService.SetOfficeScript(ctx, command.OfficeID)
 	if err != nil {

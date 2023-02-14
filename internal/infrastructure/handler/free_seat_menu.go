@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type FreeSeatMenuHandle interface {
+type FreeSeatMenu interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type freeSeatMenuHandleImpl struct {
+type freeSeatMenuImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewFreeSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) FreeSeatMenuHandle {
-	return &freeSeatMenuHandleImpl{
+func NewFreeSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) FreeSeatMenu {
+	return &freeSeatMenuImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (f *freeSeatMenuHandleImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionBookYes:
@@ -42,7 +42,7 @@ func (f *freeSeatMenuHandleImpl) Handle(ctx context.Context, command dto.InlineR
 	}
 }
 
-func (f *freeSeatMenuHandleImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+func (f *freeSeatMenuImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
 	result, err := f.userService.CallSeatsMenu(ctx)
 	if err != nil {
 		return nil, err

@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/domain/model"
 )
 
-type StartHandle interface {
+type Start interface {
 	Handle(ctx context.Context) (*tgbotapi.MessageConfig, error)
 }
 
-type startHandleImpl struct {
+type startImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewStartHandle(userService usecase.UserService, logger *zap.Logger) StartHandle {
-	return &startHandleImpl{
+func NewStartHandle(userService usecase.UserService, logger *zap.Logger) Start {
+	return &startImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (s *startHandleImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error) {
 
 	result, err := s.userService.FirstCome(ctx)
 	if err != nil || result == nil {

@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type SeatListHandle interface {
+type SeatList interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type seatListHandleImpl struct {
+type seatListImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewSeatListHandle(userService usecase.UserService, logger *zap.Logger) SeatListHandle {
-	return &seatListHandleImpl{
+func NewSeatListHandle(userService usecase.UserService, logger *zap.Logger) SeatList {
+	return &seatListImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (s *seatListHandleImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	result, err := s.userService.SeatListTap(ctx, command.BookSeatID)
 	if err != nil {

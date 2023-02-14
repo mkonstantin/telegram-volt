@@ -9,11 +9,13 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo"
 	"telegram-api/internal/infrastructure/router"
 	"telegram-api/internal/infrastructure/scheduler"
-	"telegram-api/internal/infrastructure/scheduler/handler"
+	handler2 "telegram-api/internal/infrastructure/scheduler/handler"
 	"telegram-api/internal/infrastructure/telegram"
 )
 
@@ -23,12 +25,19 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	contextContext := context.Background()
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	userRepository := repo.NewUserRepository(connection)
-	routerRouter := router.NewRouter(logger)
-	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
 	officeRepository := repo.NewOfficeRepository(connection)
 	bookSeatRepository := repo.NewBookSeatRepository(connection)
+	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, logger)
+	start := handler.NewStartHandle(userService, logger)
+	officeList := handler.NewOfficeListHandle(userService, logger)
+	officeMenu := handler.NewOfficeMenuHandle(userService, logger)
+	seatList := handler.NewSeatListHandle(userService, logger)
+	ownSeatMenu := handler.NewOwnSeatMenuHandle(userService, logger)
+	freeSeatMenu := handler.NewFreeSeatMenuHandle(userService, logger)
+	routerRouter := router.NewRouter(start, officeList, officeMenu, seatList, ownSeatMenu, freeSeatMenu, logger)
+	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
 	seatRepository := repo.NewSeatRepository(connection)
-	officeJob := handler.NewOfficeJob(bookSeatRepository, seatRepository, logger)
+	officeJob := handler2.NewOfficeJob(bookSeatRepository, seatRepository, logger)
 	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, officeJob, logger)
 	telegramBot := telegram.NewTelegramBot(secret, userMW, jobsScheduler, logger)
 	return telegramBot, func() {

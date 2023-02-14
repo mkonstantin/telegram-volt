@@ -8,24 +8,24 @@ import (
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type OwnSeatMenuHandle interface {
+type OwnSeatMenu interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type ownSeatMenuHandleImpl struct {
+type ownSeatMenuImpl struct {
 	userService usecase.UserService
 	msgFormer   MessageFormer
 	logger      *zap.Logger
 }
 
-func NewOwnSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) OwnSeatMenuHandle {
-	return &ownSeatMenuHandleImpl{
+func NewOwnSeatMenuHandle(userService usecase.UserService, logger *zap.Logger) OwnSeatMenu {
+	return &ownSeatMenuImpl{
 		userService: userService,
 		logger:      logger,
 	}
 }
 
-func (o *ownSeatMenuHandleImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:
@@ -41,7 +41,7 @@ func (o *ownSeatMenuHandleImpl) Handle(ctx context.Context, command dto.InlineRe
 	}
 }
 
-func (o *ownSeatMenuHandleImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+func (o *ownSeatMenuImpl) callSeatsMenu(ctx context.Context) (*tgbotapi.MessageConfig, error) {
 	result, err := o.userService.CallSeatsMenu(ctx)
 	if err != nil {
 		return nil, err
