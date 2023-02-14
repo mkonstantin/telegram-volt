@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	CallOfficeMenu   = "office_menu"
-	ChooseOfficeMenu = "choose_office"
+	CallOfficeMenu     = "call_office_menu"
+	CallOfficeListMenu = "call_office_list"
 
 	DateMenu        = "date_menu"
 	ChooseSeatsMenu = "choose_seats_menu"
@@ -102,7 +102,7 @@ func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserRe
 	}
 	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
 	return &dto.UserResult{
-		Key:     ChooseOfficeMenu,
+		Key:     CallOfficeListMenu,
 		Office:  nil,
 		Offices: offices,
 		Message: message,
@@ -188,7 +188,7 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 	message := fmt.Sprintf("Выберите место:")
 
 	return &dto.UserResult{
-		Key:       ChooseOfficeMenu,
+		Key:       CallOfficeListMenu,
 		Office:    nil,
 		Offices:   nil,
 		BookSeats: seats,

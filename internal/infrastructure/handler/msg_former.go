@@ -41,7 +41,7 @@ func (s *messageFormerImpl) FormChooseOfficeMenuMsg(ctx context.Context, result 
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
 		resp := &dto.InlineRequest{
-			Type:     usecase.ChooseOfficeMenu,
+			Type:     router.OfficeListTap,
 			OfficeID: office.ID,
 		}
 		responseData, err := json.Marshal(resp)

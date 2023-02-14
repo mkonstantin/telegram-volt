@@ -13,6 +13,7 @@ import (
 
 const (
 	OfficeMenuTap = "office_menu_tap"
+	OfficeListTap = "office_list_tap"
 )
 
 type Data struct {
@@ -82,7 +83,7 @@ func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.Mes
 func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch request.Type {
-	case usecase.ChooseOfficeMenu:
+	case OfficeListTap:
 		return r.officeList.Handle(ctx, request)
 	case OfficeMenuTap:
 		return r.officeMenu.Handle(ctx, request)
