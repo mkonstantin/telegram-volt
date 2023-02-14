@@ -120,7 +120,7 @@ func (s *messageFormerImpl) FormSeatListMsg(ctx context.Context, result *usecase
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, bookSeat := range result.BookSeats {
 		resp := &dto.InlineRequest{
-			Type:       usecase.ChooseSeatsMenu,
+			Type:       router.SeatListTap,
 			BookSeatID: bookSeat.ID,
 		}
 		responseData, err := json.Marshal(resp)
