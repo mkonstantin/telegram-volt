@@ -80,7 +80,7 @@ func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tg
 	switch request.Type {
 	case usecase.ChooseOfficeMenu:
 		return r.officeList.Handle(ctx, request)
-	case usecase.OfficeMenu:
+	case usecase.CallOfficeMenu:
 		return r.officeMenu.Handle(ctx, request)
 	case usecase.ChooseSeatsMenu:
 		return r.seatList.Handle(ctx, request)

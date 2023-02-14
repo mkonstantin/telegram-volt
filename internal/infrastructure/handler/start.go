@@ -38,7 +38,7 @@ func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error)
 	}
 
 	switch result.Key {
-	case usecase.OfficeMenu:
+	case usecase.CallOfficeMenu:
 		return s.msgFormer.FormOfficeMenuMsg(ctx, result)
 	case usecase.ChooseOfficeMenu:
 		return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)

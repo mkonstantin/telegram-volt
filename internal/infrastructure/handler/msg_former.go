@@ -70,17 +70,17 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *useca
 	msg := tgbotapi.NewMessage(chatID, "")
 
 	b1 := &dto.InlineRequest{
-		Type:     usecase.OfficeMenu,
+		Type:     usecase.CallOfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
 	b2 := &dto.InlineRequest{
-		Type:     usecase.OfficeMenu,
+		Type:     usecase.CallOfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
 	b3 := &dto.InlineRequest{
-		Type:     usecase.OfficeMenu,
+		Type:     usecase.CallOfficeMenu,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
 	}
