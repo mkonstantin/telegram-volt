@@ -13,20 +13,20 @@ import (
 )
 
 type officeMenuImpl struct {
-	officeRepo repo.OfficeRepository
-	form       form.OfficeMenuForm
-	logger     *zap.Logger
+	officeRepo     repo.OfficeRepository
+	officeMenuForm form.OfficeMenuForm
+	logger         *zap.Logger
 }
 
 func NewOfficeMenu(
 	officeRepo repo.OfficeRepository,
-	form form.OfficeMenuForm,
+	officeMenuForm form.OfficeMenuForm,
 	logger *zap.Logger) interfaces.OfficeMenu {
 
 	return &officeMenuImpl{
-		officeRepo: officeRepo,
-		form:       form,
-		logger:     logger,
+		officeRepo:     officeRepo,
+		officeMenuForm: officeMenuForm,
+		logger:         logger,
 	}
 }
 
@@ -55,5 +55,5 @@ func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, err
 		Message:             message,
 		SubscribeButtonText: buttonText,
 	}
-	return o.form.Build(ctx, result)
+	return o.officeMenuForm.Build(ctx, result)
 }
