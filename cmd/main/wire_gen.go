@@ -38,7 +38,7 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, logger)
 	officeList := handler.NewOfficeListHandle(userService, officeMenu, logger)
 	messageFormer := former.NewMessageFormer(logger)
-	handlerOfficeMenu := handler.NewOfficeMenuHandle(userService, messageFormer, logger)
+	handlerOfficeMenu := handler.NewOfficeMenuHandle(userService, officeListMenu, messageFormer, logger)
 	seatList := handler.NewSeatListHandle(userService, messageFormer, logger)
 	ownSeatMenu := handler.NewOwnSeatMenuHandle(userService, messageFormer, logger)
 	freeSeatMenu := handler.NewFreeSeatMenuHandle(userService, messageFormer, logger)

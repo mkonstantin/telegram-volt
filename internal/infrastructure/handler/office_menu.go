@@ -4,7 +4,9 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/former"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
@@ -14,20 +16,23 @@ type OfficeMenu interface {
 }
 
 type officeMenuImpl struct {
-	userService usecase.UserService
-	msgFormer   former.MessageFormer
-	logger      *zap.Logger
+	userService    usecase.UserService
+	officeListMenu interfaces.OfficeListMenu
+	msgFormer      former.MessageFormer
+	logger         *zap.Logger
 }
 
 func NewOfficeMenuHandle(
 	userService usecase.UserService,
+	officeListMenu interfaces.OfficeListMenu,
 	msgFormer former.MessageFormer,
 	logger *zap.Logger) OfficeMenu {
 
 	return &officeMenuImpl{
-		userService: userService,
-		msgFormer:   msgFormer,
-		logger:      logger,
+		userService:    userService,
+		officeListMenu: officeListMenu,
+		msgFormer:      msgFormer,
+		logger:         logger,
 	}
 }
 
@@ -46,14 +51,15 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		if err != nil {
 			return nil, err
 		}
-		return o.msgFormer.FormTextMsg(ctx, result)
+
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, "")
+		msg.Text = result.Message
+
+		return &msg, nil
 
 	case dto.OfficeMenuChooseAnotherOffice:
-		result, err := o.userService.CallChooseOfficeMenu(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return o.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
+		return o.officeListMenu.Call(ctx)
 	}
 
 	return nil, nil

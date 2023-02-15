@@ -21,8 +21,8 @@ const (
 )
 
 type UserService interface {
-	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
+
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
 	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
@@ -47,23 +47,6 @@ func NewUserService(userRepo interfaces.UserRepository,
 		bookSeatRepo: bookSeatRepo,
 		logger:       logger,
 	}
-}
-
-func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
-
-	offices, err := u.officeRepo.GetAll()
-	if err != nil {
-		return nil, err
-	}
-	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
-	return &dto.UserResult{
-		Key:     "",
-		Office:  nil,
-		Offices: offices,
-		Message: message,
-	}, nil
 }
 
 //========= Выбрали офис и вызываем его меню

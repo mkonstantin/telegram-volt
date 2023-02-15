@@ -14,8 +14,6 @@ import (
 )
 
 type MessageFormer interface {
-	FormChooseOfficeMenuMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
-	FormOfficeMenuMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormSeatListMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormBookSeatMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 	FormBookSeatResult(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
@@ -31,86 +29,6 @@ func NewMessageFormer(logger *zap.Logger) MessageFormer {
 	return &messageFormerImpl{
 		logger: logger,
 	}
-}
-
-func (s *messageFormerImpl) FormChooseOfficeMenuMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
-
-	chatID := model.GetCurrentChatID(ctx)
-
-	msg := tgbotapi.NewMessage(chatID, "")
-	var rows [][]tgbotapi.InlineKeyboardButton
-	for _, office := range result.Offices {
-		resp := &dto.InlineRequest{
-			Type:     constants.OfficeListTap,
-			OfficeID: office.ID,
-		}
-		responseData, err := json.Marshal(resp)
-		if err != nil {
-			return nil, err
-		}
-
-		button := tgbotapi.NewInlineKeyboardButtonData(office.Name, string(responseData))
-		row := tgbotapi.NewInlineKeyboardRow(button)
-		rows = append(rows, row)
-	}
-
-	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-		rows...,
-	)
-
-	msg.Text = result.Message
-	msg.ReplyMarkup = chooseOfficeKeyboard
-	//msg.ReplyToMessageID = result.MessageID
-	return &msg, nil
-}
-
-func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
-
-	chatID := model.GetCurrentChatID(ctx)
-
-	msg := tgbotapi.NewMessage(chatID, "")
-
-	b1 := &dto.InlineRequest{
-		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
-		Action:   dto.OfficeMenuFreeSeats,
-	}
-	b2 := &dto.InlineRequest{
-		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
-		Action:   dto.OfficeMenuSubscribe,
-	}
-	b3 := &dto.InlineRequest{
-		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
-		Action:   dto.OfficeMenuChooseAnotherOffice,
-	}
-
-	butt1, err := json.Marshal(b1)
-	if err != nil {
-		return nil, err
-	}
-	butt2, err := json.Marshal(b2)
-	if err != nil {
-		return nil, err
-	}
-	butt3, err := json.Marshal(b3)
-	if err != nil {
-		return nil, err
-	}
-
-	button1 := tgbotapi.NewInlineKeyboardButtonData("Показать места", string(butt1))
-	button2 := tgbotapi.NewInlineKeyboardButtonData(result.SubscribeButtonText, string(butt2))
-	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
-	row1 := tgbotapi.NewInlineKeyboardRow(button1)
-	row2 := tgbotapi.NewInlineKeyboardRow(button2)
-	row3 := tgbotapi.NewInlineKeyboardRow(button3)
-	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row1, row2, row3)
-
-	msg.Text = result.Message
-	msg.ReplyMarkup = confirmOfficeKeyboard
-	//msg.ReplyToMessageID = result.MessageID
-	return &msg, nil
 }
 
 func (s *messageFormerImpl) FormSeatListMsg(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
