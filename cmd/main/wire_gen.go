@@ -9,7 +9,10 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/form"
+	"telegram-api/internal/app/menu"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/infrastructure/former"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo"
@@ -26,16 +29,20 @@ func InitializeApplication(secret string, logger *zap.Logger) (telegram.Telegram
 	connection, cleanup := provideDBConnection(contextContext, logger)
 	userRepository := repo.NewUserRepository(connection)
 	officeRepository := repo.NewOfficeRepository(connection)
+	officeMenuForm := form.NewOfficeMenuForm(logger)
+	officeMenu := menu.NewOfficeMenu(officeRepository, officeMenuForm, logger)
+	officeListMenuForm := form.NewOfficeListMenuForm(logger)
+	officeListMenu := menu.NewOfficeListMenu(officeRepository, officeListMenuForm, logger)
+	start := handler.NewStartHandle(officeMenu, officeListMenu, logger)
 	bookSeatRepository := repo.NewBookSeatRepository(connection)
 	userService := usecase.NewUserService(userRepository, officeRepository, bookSeatRepository, logger)
-	messageFormer := handler.NewMessageFormer(logger)
-	start := handler.NewStartHandle(userService, messageFormer, logger)
+	messageFormer := former.NewMessageFormer(logger)
 	officeList := handler.NewOfficeListHandle(userService, messageFormer, logger)
-	officeMenu := handler.NewOfficeMenuHandle(userService, messageFormer, logger)
+	handlerOfficeMenu := handler.NewOfficeMenuHandle(userService, messageFormer, logger)
 	seatList := handler.NewSeatListHandle(userService, messageFormer, logger)
 	ownSeatMenu := handler.NewOwnSeatMenuHandle(userService, messageFormer, logger)
 	freeSeatMenu := handler.NewFreeSeatMenuHandle(userService, messageFormer, logger)
-	routerRouter := router.NewRouter(start, officeList, officeMenu, seatList, ownSeatMenu, freeSeatMenu, logger)
+	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, ownSeatMenu, freeSeatMenu, logger)
 	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
 	seatRepository := repo.NewSeatRepository(connection)
 	officeJob := handler2.NewOfficeJob(bookSeatRepository, seatRepository, logger)
