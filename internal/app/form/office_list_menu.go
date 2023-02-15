@@ -11,7 +11,7 @@ import (
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
-type OfficeListMenuForm interface {
+type OfficeListForm interface {
 	Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
 }
 
@@ -19,7 +19,7 @@ type officeListMenuFormImpl struct {
 	logger *zap.Logger
 }
 
-func NewOfficeListMenuForm(logger *zap.Logger) OfficeListMenuForm {
+func NewOfficeListForm(logger *zap.Logger) OfficeListForm {
 	return &officeListMenuFormImpl{
 		logger: logger,
 	}
