@@ -11,10 +11,6 @@ import (
 )
 
 const (
-	ThisIsYourSeat = "this_is_your_seat"
-	ThisIsSeatBusy = "this_is_seat_busy"
-	ThisIsSeatFree = "this_is_seat_free"
-
 	DateMenu = "date_menu"
 	BookSeat = "book_seat"
 )

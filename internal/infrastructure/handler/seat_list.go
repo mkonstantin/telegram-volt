@@ -23,17 +23,20 @@ type SeatList interface {
 
 type seatListImpl struct {
 	bookSeatRepo repo.BookSeatRepository
+	ownSeatMenu  interfaces.OwnSeatMenu
 	freeSeatMenu interfaces.FreeSeatMenu
 	logger       *zap.Logger
 }
 
 func NewSeatListHandle(
 	bookSeatRepo repo.BookSeatRepository,
+	ownSeatMenu interfaces.OwnSeatMenu,
 	freeSeatMenu interfaces.FreeSeatMenu,
 	logger *zap.Logger) SeatList {
 
 	return &seatListImpl{
 		bookSeatRepo: bookSeatRepo,
+		ownSeatMenu:  ownSeatMenu,
 		freeSeatMenu: freeSeatMenu,
 		logger:       logger,
 	}
@@ -50,7 +53,7 @@ func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 	case ThisIsSeatFree:
 		return s.freeSeatMenu.Call(ctx, command.BookSeatID)
 	case ThisIsYourSeat:
-		fallthrough
+		return s.ownSeatMenu.Call(ctx, command.BookSeatID)
 	case ThisIsSeatBusy:
 		fallthrough
 	default:
@@ -77,5 +80,3 @@ func getStatus(ctx context.Context, bookSeat *model.BookSeat) string {
 		return ThisIsSeatFree
 	}
 }
-
-//message = "Вы уже заняли это место, хотите его освободить?"

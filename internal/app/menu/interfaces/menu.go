@@ -20,3 +20,7 @@ type SeatListMenu interface {
 type FreeSeatMenu interface {
 	Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error)
 }
+
+type OwnSeatMenu interface {
+	Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error)
+}
