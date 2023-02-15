@@ -7,13 +7,17 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
-	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
+type SeatListFormData struct {
+	Message   string
+	BookSeats []*model.BookSeat
+}
+
 type SeatListForm interface {
-	Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	Build(ctx context.Context, data SeatListFormData) (*tgbotapi.MessageConfig, error)
 }
 
 type seatListFormImpl struct {
@@ -26,12 +30,12 @@ func NewSeatListForm(logger *zap.Logger) SeatListForm {
 	}
 }
 
-func (o seatListFormImpl) Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+func (o seatListFormImpl) Build(ctx context.Context, data SeatListFormData) (*tgbotapi.MessageConfig, error) {
 
 	chatID := model.GetCurrentChatID(ctx)
 
 	var rows [][]tgbotapi.InlineKeyboardButton
-	for _, bookSeat := range result.BookSeats {
+	for _, bookSeat := range data.BookSeats {
 		resp := &dto.InlineRequest{
 			Type:       constants.SeatListTap,
 			BookSeatID: bookSeat.ID,
@@ -56,12 +60,12 @@ func (o seatListFormImpl) Build(ctx context.Context, result *usecasedto.UserResu
 
 	var msg tgbotapi.MessageConfig
 
-	if len(result.BookSeats) > 0 {
+	if len(data.BookSeats) > 0 {
 		msg = tgbotapi.NewMessage(chatID, "")
 		var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 			rows...,
 		)
-		msg.Text = result.Message
+		msg.Text = data.Message
 		msg.ReplyMarkup = chooseOfficeKeyboard
 	} else {
 		msg = tgbotapi.NewMessage(chatID, "Мест не найдено")

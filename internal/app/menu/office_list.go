@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
-	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
 )
@@ -39,12 +38,10 @@ func (o *officeListMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig,
 		return nil, err
 	}
 	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
-	result := &dto.UserResult{
-		Key:     "",
-		Office:  nil,
+	data := form.OfficeListFormData{
 		Offices: offices,
 		Message: message,
 	}
 
-	return o.officeListForm.Build(ctx, result)
+	return o.officeListForm.Build(ctx, data)
 }

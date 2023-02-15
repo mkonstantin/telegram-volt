@@ -6,13 +6,17 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
-	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
+type OfficeListFormData struct {
+	Message string
+	Offices []*model.Office
+}
+
 type OfficeListForm interface {
-	Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	Build(ctx context.Context, data OfficeListFormData) (*tgbotapi.MessageConfig, error)
 }
 
 type officeListMenuFormImpl struct {
@@ -25,13 +29,13 @@ func NewOfficeListForm(logger *zap.Logger) OfficeListForm {
 	}
 }
 
-func (o officeListMenuFormImpl) Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+func (o officeListMenuFormImpl) Build(ctx context.Context, data OfficeListFormData) (*tgbotapi.MessageConfig, error) {
 
 	chatID := model.GetCurrentChatID(ctx)
 
 	msg := tgbotapi.NewMessage(chatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
-	for _, office := range result.Offices {
+	for _, office := range data.Offices {
 		resp := &dto.InlineRequest{
 			Type:     constants.OfficeListTap,
 			OfficeID: office.ID,
@@ -50,8 +54,8 @@ func (o officeListMenuFormImpl) Build(ctx context.Context, result *usecasedto.Us
 		rows...,
 	)
 
-	msg.Text = result.Message
+	msg.Text = data.Message
 	msg.ReplyMarkup = chooseOfficeKeyboard
-	//msg.ReplyToMessageID = result.MessageID
+
 	return &msg, nil
 }

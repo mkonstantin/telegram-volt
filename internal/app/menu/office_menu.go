@@ -7,7 +7,6 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
-	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
 )
@@ -48,12 +47,10 @@ func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, err
 
 	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
 
-	result := &dto.UserResult{
-		Key:                 "",
+	data := form.OfficeMenuFormData{
 		Office:              office,
-		Offices:             nil,
 		Message:             message,
 		SubscribeButtonText: buttonText,
 	}
-	return o.officeMenuForm.Build(ctx, result)
+	return o.officeMenuForm.Build(ctx, data)
 }

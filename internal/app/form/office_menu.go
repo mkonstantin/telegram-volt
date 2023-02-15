@@ -6,13 +6,18 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
-	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
+type OfficeMenuFormData struct {
+	Message             string
+	SubscribeButtonText string
+	Office              *model.Office
+}
+
 type OfficeMenuForm interface {
-	Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error)
+	Build(ctx context.Context, data OfficeMenuFormData) (*tgbotapi.MessageConfig, error)
 }
 
 type officeMenuFormImpl struct {
@@ -25,7 +30,7 @@ func NewOfficeMenuForm(logger *zap.Logger) OfficeMenuForm {
 	}
 }
 
-func (o *officeMenuFormImpl) Build(ctx context.Context, result *usecasedto.UserResult) (*tgbotapi.MessageConfig, error) {
+func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData) (*tgbotapi.MessageConfig, error) {
 
 	chatID := model.GetCurrentChatID(ctx)
 
@@ -33,17 +38,17 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, result *usecasedto.UserR
 
 	b1 := &dto.InlineRequest{
 		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
+		OfficeID: data.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
 	b2 := &dto.InlineRequest{
 		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
+		OfficeID: data.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
 	b3 := &dto.InlineRequest{
 		Type:     constants.OfficeMenuTap,
-		OfficeID: result.Office.ID,
+		OfficeID: data.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
 	}
 
@@ -61,15 +66,15 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, result *usecasedto.UserR
 	}
 
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Показать места", string(butt1))
-	button2 := tgbotapi.NewInlineKeyboardButtonData(result.SubscribeButtonText, string(butt2))
+	button2 := tgbotapi.NewInlineKeyboardButtonData(data.SubscribeButtonText, string(butt2))
 	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
 	row1 := tgbotapi.NewInlineKeyboardRow(button1)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)
 	row3 := tgbotapi.NewInlineKeyboardRow(button3)
 	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row1, row2, row3)
 
-	msg.Text = result.Message
+	msg.Text = data.Message
 	msg.ReplyMarkup = confirmOfficeKeyboard
-	//msg.ReplyToMessageID = result.MessageID
+
 	return &msg, nil
 }
