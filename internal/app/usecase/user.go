@@ -11,21 +11,17 @@ import (
 )
 
 const (
-	CallOfficeMenu     = "call_office_menu"
-	CallOfficeListMenu = "call_office_list"
-
-	DateMenu = "date_menu"
-
 	ThisIsYourSeat = "this_is_your_seat"
 	ThisIsSeatBusy = "this_is_seat_busy"
 	ThisIsSeatFree = "this_is_seat_free"
 
+	DateMenu  = "date_menu"
 	BookSeat  = "book_seat"
 	Subscribe = "subscribe"
 )
 
 type UserService interface {
-	FirstCome(ctx context.Context) (*dto.UserResult, error)
+	CallOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error)
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
@@ -54,18 +50,7 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) FirstCome(ctx context.Context) (*dto.UserResult, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
-
-	if currentUser.HaveChosenOffice() {
-		return u.callOfficeMenu(ctx)
-	} else {
-		return u.CallChooseOfficeMenu(ctx)
-	}
-}
-
-func (u *userServiceImpl) callOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
+func (u *userServiceImpl) CallOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -84,7 +69,7 @@ func (u *userServiceImpl) callOfficeMenu(ctx context.Context) (*dto.UserResult, 
 
 	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
 	return &dto.UserResult{
-		Key:                 CallOfficeMenu,
+		Key:                 "",
 		Office:              office,
 		Offices:             nil,
 		Message:             message,
@@ -102,7 +87,7 @@ func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserRe
 	}
 	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
 	return &dto.UserResult{
-		Key:     CallOfficeListMenu,
+		Key:     "",
 		Office:  nil,
 		Offices: offices,
 		Message: message,
@@ -123,7 +108,7 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 	currentUser.OfficeID = officeID
 	ctx = context.WithValue(ctx, model.ContextUserKey, currentUser)
 
-	return u.callOfficeMenu(ctx)
+	return u.CallOfficeMenu(ctx)
 }
 
 //=========  Выбираем дату:
@@ -188,7 +173,7 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 	message := fmt.Sprintf("Выберите место:")
 
 	return &dto.UserResult{
-		Key:       CallOfficeListMenu,
+		Key:       "",
 		Office:    nil,
 		Offices:   nil,
 		BookSeats: seats,

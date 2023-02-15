@@ -2,10 +2,10 @@ package handler
 
 import (
 	"context"
-	"errors"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/domain/model"
 )
 
 type Start interface {
@@ -32,18 +32,19 @@ func NewStartHandle(
 
 func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error) {
 
-	result, err := s.userService.FirstCome(ctx)
-	if err != nil || result == nil {
-		return nil, err
-	}
+	currentUser := model.GetCurrentUser(ctx)
 
-	switch result.Key {
-	case usecase.CallOfficeMenu:
+	if currentUser.HaveChosenOffice() {
+		result, err := s.userService.CallOfficeMenu(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return s.msgFormer.FormOfficeMenuMsg(ctx, result)
-	case usecase.CallOfficeListMenu:
+	} else {
+		result, err := s.userService.CallChooseOfficeMenu(ctx)
+		if err != nil {
+			return nil, err
+		}
 		return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
 	}
-
-	s.logger.Error("Route. Unknown data", zap.Error(errors.New("unknown data")))
-	return nil, nil
 }
