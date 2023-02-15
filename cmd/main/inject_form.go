@@ -6,6 +6,7 @@ import (
 )
 
 var formSet = wire.NewSet(
-	form.NewOfficeMenuForm,
 	form.NewOfficeListForm,
+	form.NewOfficeMenuForm,
+	form.NewSeatListForm,
 )

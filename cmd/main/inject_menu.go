@@ -6,6 +6,7 @@ import (
 )
 
 var menuSet = wire.NewSet(
-	menu.NewOfficeMenu,
 	menu.NewOfficeListMenu,
+	menu.NewOfficeMenu,
+	menu.NewSeatListMenu,
 )
