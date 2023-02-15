@@ -5,6 +5,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/infrastructure/former"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
@@ -14,13 +15,13 @@ type FreeSeatMenu interface {
 
 type freeSeatMenuImpl struct {
 	userService usecase.UserService
-	msgFormer   MessageFormer
+	msgFormer   former.MessageFormer
 	logger      *zap.Logger
 }
 
 func NewFreeSeatMenuHandle(
 	userService usecase.UserService,
-	msgFormer MessageFormer,
+	msgFormer former.MessageFormer,
 	logger *zap.Logger) FreeSeatMenu {
 
 	return &freeSeatMenuImpl{
