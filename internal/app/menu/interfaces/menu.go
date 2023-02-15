@@ -12,3 +12,7 @@ type OfficeMenu interface {
 type OfficeListMenu interface {
 	Call(ctx context.Context) (*tgbotapi.MessageConfig, error)
 }
+
+type SeatListMenu interface {
+	Call(ctx context.Context) (*tgbotapi.MessageConfig, error)
+}

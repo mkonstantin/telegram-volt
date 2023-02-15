@@ -17,6 +17,7 @@ type OfficeMenu interface {
 
 type officeMenuImpl struct {
 	userService    usecase.UserService
+	seatListMenu   interfaces.SeatListMenu
 	officeListMenu interfaces.OfficeListMenu
 	msgFormer      former.MessageFormer
 	logger         *zap.Logger
@@ -24,12 +25,14 @@ type officeMenuImpl struct {
 
 func NewOfficeMenuHandle(
 	userService usecase.UserService,
+	seatListMenu interfaces.SeatListMenu,
 	officeListMenu interfaces.OfficeListMenu,
 	msgFormer former.MessageFormer,
 	logger *zap.Logger) OfficeMenu {
 
 	return &officeMenuImpl{
 		userService:    userService,
+		seatListMenu:   seatListMenu,
 		officeListMenu: officeListMenu,
 		msgFormer:      msgFormer,
 		logger:         logger,
@@ -40,11 +43,7 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:
-		result, err := o.userService.CallDateMenu(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return o.msgFormer.FormSeatListMsg(ctx, result)
+		return o.seatListMenu.Call(ctx)
 
 	case dto.OfficeMenuSubscribe:
 		message, err := o.userService.SubscribeWork(ctx)
@@ -55,7 +54,6 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		chatID := model.GetCurrentChatID(ctx)
 		msg := tgbotapi.NewMessage(chatID, "")
 		msg.Text = message
-
 		return &msg, nil
 
 	case dto.OfficeMenuChooseAnotherOffice:
