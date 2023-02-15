@@ -12,16 +12,15 @@ import (
 
 const (
 	DateMenu = "date_menu"
-	BookSeat = "book_seat"
 )
 
 type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
 	SubscribeWork(ctx context.Context) (string, error)
+	BookSeat(ctx context.Context, bookSeatID int64) (string, error)
+	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, error)
 
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
-	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
-	CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -107,30 +106,23 @@ func (u *userServiceImpl) CallDateMenu(ctx context.Context) (*dto.UserResult, er
 
 // ========== Забронировали место
 
-func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
+func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (string, error) {
 
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
 	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if userBookSeat != nil {
 		message = "У вас уже есть бронь в этом офисе на сегодня"
-		return &dto.UserResult{
-			Key:        BookSeat,
-			Office:     nil,
-			Offices:    nil,
-			BookSeats:  nil,
-			BookSeatID: bookSeatID,
-			Message:    message,
-		}, nil
+		return message, nil
 	}
 
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if bookSeat.User != nil {
@@ -138,58 +130,37 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (*dto.
 	} else {
 		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		message = fmt.Sprintf("Отлично! Вы заняли место №%d в офисе: %s", bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
 	}
 
-	return &dto.UserResult{
-		Key:        BookSeat,
-		Office:     nil,
-		Offices:    nil,
-		BookSeats:  nil,
-		BookSeatID: bookSeatID,
-		Message:    message,
-	}, nil
+	return message, nil
 }
 
 // ========== Отменили бронирование места
 
-func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
+func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
 	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if userBookSeat == nil || (userBookSeat != nil && userBookSeat.User.ID != currentUser.ID) {
 		message = "У вас нет брони на сегодня"
-		return &dto.UserResult{
-			Key:        BookSeat,
-			Office:     nil,
-			Offices:    nil,
-			BookSeats:  nil,
-			BookSeatID: bookSeatID,
-			Message:    message,
-		}, nil
+		return message, nil
 	}
 
 	err = u.bookSeatRepo.CancelBookSeatWithID(bookSeatID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	message = fmt.Sprintf("Место №%d в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatNumber, userBookSeat.Office.Name)
 
-	return &dto.UserResult{
-		Key:        BookSeat,
-		Office:     nil,
-		Offices:    nil,
-		BookSeats:  nil,
-		BookSeatID: bookSeatID,
-		Message:    message,
-	}, nil
+	return message, nil
 }
 
 // ========== Подписка/отписка на свободные места

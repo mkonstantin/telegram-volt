@@ -7,7 +7,6 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/former"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
@@ -19,7 +18,6 @@ type officeMenuImpl struct {
 	userService    usecase.UserService
 	seatListMenu   interfaces.SeatListMenu
 	officeListMenu interfaces.OfficeListMenu
-	msgFormer      former.MessageFormer
 	logger         *zap.Logger
 }
 
@@ -27,14 +25,12 @@ func NewOfficeMenuHandle(
 	userService usecase.UserService,
 	seatListMenu interfaces.SeatListMenu,
 	officeListMenu interfaces.OfficeListMenu,
-	msgFormer former.MessageFormer,
 	logger *zap.Logger) OfficeMenu {
 
 	return &officeMenuImpl{
 		userService:    userService,
 		seatListMenu:   seatListMenu,
 		officeListMenu: officeListMenu,
-		msgFormer:      msgFormer,
 		logger:         logger,
 	}
 }
