@@ -22,10 +22,10 @@ const (
 type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
 	SubscribeWork(ctx context.Context) (string, error)
+	SeatListTap(ctx context.Context, bookSeatID int64) (SeatListTapResult, error)
 
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
-	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 }
@@ -137,41 +137,43 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 
 // ========== Выбрали место в списке
 
-func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error) {
+type SeatListTapResult struct {
+	Code    string
+	Message string
+}
+
+func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (SeatListTapResult, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
-		return nil, err
+		return SeatListTapResult{}, err
 	}
 
-	var answerType string
+	var code string
 	var message string
+
 	if bookSeat.User != nil {
 		if bookSeat.User.TelegramID == currentUser.TelegramID {
 			// место уже занято самим же юзером
-			answerType = ThisIsYourSeat
+			code = ThisIsYourSeat
 			message = "Вы уже заняли это место, хотите его освободить?"
 		} else {
 			// место занято другим юзером
-			answerType = ThisIsSeatBusy
+			code = ThisIsSeatBusy
 			message = fmt.Sprintf("Место №%d уже занято %s aka @%s",
 				bookSeat.Seat.SeatNumber, bookSeat.User.Name, bookSeat.User.TelegramName)
 		}
 	} else {
 		// место свободно
-		answerType = ThisIsSeatFree
+		code = ThisIsSeatFree
 		message = fmt.Sprintf("Занять место №%d?", bookSeat.Seat.SeatNumber)
 	}
 
-	return &dto.UserResult{
-		Key:        answerType,
-		Office:     nil,
-		Offices:    nil,
-		BookSeats:  nil,
-		BookSeatID: bookSeat.ID,
-		Message:    message,
+	return SeatListTapResult{
+		Code:    code,
+		Message: message,
 	}, nil
 }
 
