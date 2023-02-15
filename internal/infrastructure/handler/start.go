@@ -4,7 +4,7 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/app/menu/interface"
+	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 )
 
@@ -13,14 +13,14 @@ type Start interface {
 }
 
 type startImpl struct {
-	officeMenu     _interface.OfficeMenu
-	officeListMenu _interface.OfficeListMenu
+	officeMenu     interfaces.OfficeMenu
+	officeListMenu interfaces.OfficeListMenu
 	logger         *zap.Logger
 }
 
 func NewStartHandle(
-	officeMenu _interface.OfficeMenu,
-	officeListMenu _interface.OfficeListMenu,
+	officeMenu interfaces.OfficeMenu,
+	officeListMenu interfaces.OfficeListMenu,
 	logger *zap.Logger) Start {
 
 	return &startImpl{

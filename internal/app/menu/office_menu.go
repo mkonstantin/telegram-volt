@@ -6,7 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
-	"telegram-api/internal/app/menu/interface"
+	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -21,7 +21,7 @@ type officeMenuImpl struct {
 func NewOfficeMenu(
 	officeRepo interfaces.OfficeRepository,
 	form form.OfficeMenuForm,
-	logger *zap.Logger) _interface.OfficeMenu {
+	logger *zap.Logger) interfaces.OfficeMenu {
 
 	return &officeMenuImpl{
 		officeRepo: officeRepo,
