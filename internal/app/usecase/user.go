@@ -20,7 +20,6 @@ type UserService interface {
 	SubscribeWork(ctx context.Context) (string, error)
 
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
-	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 }
@@ -103,30 +102,6 @@ func (u *userServiceImpl) CallDateMenu(ctx context.Context) (*dto.UserResult, er
 		Message:     message,
 		Office:      office,
 		SeatByDates: seatByDates,
-	}, nil
-}
-
-//========= Места в офисе
-
-func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
-
-	date := service.TodayZeroTimeUTC()
-
-	seats, err := u.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.String())
-	if err != nil {
-		return nil, err
-	}
-
-	message := fmt.Sprintf("Выберите место:")
-
-	return &dto.UserResult{
-		Key:       "",
-		Office:    nil,
-		Offices:   nil,
-		BookSeats: seats,
-		Message:   message,
 	}, nil
 }
 
