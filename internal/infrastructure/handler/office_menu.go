@@ -47,14 +47,14 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		return o.msgFormer.FormSeatListMsg(ctx, result)
 
 	case dto.OfficeMenuSubscribe:
-		result, err := o.userService.SubscribeWork(ctx)
+		message, err := o.userService.SubscribeWork(ctx)
 		if err != nil {
 			return nil, err
 		}
 
 		chatID := model.GetCurrentChatID(ctx)
 		msg := tgbotapi.NewMessage(chatID, "")
-		msg.Text = result.Message
+		msg.Text = message
 
 		return &msg, nil
 

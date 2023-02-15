@@ -15,20 +15,19 @@ const (
 	ThisIsSeatBusy = "this_is_seat_busy"
 	ThisIsSeatFree = "this_is_seat_free"
 
-	DateMenu  = "date_menu"
-	BookSeat  = "book_seat"
-	Subscribe = "subscribe"
+	DateMenu = "date_menu"
+	BookSeat = "book_seat"
 )
 
 type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
+	SubscribeWork(ctx context.Context) (string, error)
 
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
 	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
-	SubscribeWork(ctx context.Context) (*dto.UserResult, error)
 }
 
 type userServiceImpl struct {
@@ -265,53 +264,39 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 
 // ========== Подписка/отписка на свободные места
 
-func (u *userServiceImpl) SubscribeWork(ctx context.Context) (*dto.UserResult, error) {
+func (u *userServiceImpl) SubscribeWork(ctx context.Context) (string, error) {
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
 	if currentUser.OfficeID == 0 {
-		return &dto.UserResult{
-			Key:        Subscribe,
-			Office:     nil,
-			Offices:    nil,
-			BookSeats:  nil,
-			BookSeatID: 0,
-			Message:    "Произошла ошибка: необходимо выбрать офис",
-		}, nil
+		return "Произошла ошибка: необходимо выбрать офис", nil
 	}
 
 	if currentUser.NotifyOfficeID == currentUser.OfficeID {
 		err := u.userRepo.Unsubscribe(currentUser.TelegramID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		office, err := u.officeRepo.FindByID(currentUser.NotifyOfficeID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
 	} else {
 		err := u.userRepo.Subscribe(currentUser.TelegramID, currentUser.OfficeID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		office, err := u.officeRepo.FindByID(currentUser.OfficeID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		message = fmt.Sprintf("Вы подписались на свободные места в офисе: %s", office.Name)
 	}
 
-	return &dto.UserResult{
-		Key:        Subscribe,
-		Office:     nil,
-		Offices:    nil,
-		BookSeats:  nil,
-		BookSeatID: 0,
-		Message:    message,
-	}, nil
+	return message, nil
 }
