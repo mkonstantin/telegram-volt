@@ -22,7 +22,6 @@ const (
 type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
 	SubscribeWork(ctx context.Context) (string, error)
-	SeatListTap(ctx context.Context, bookSeatID int64) (SeatListTapResult, error)
 
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
@@ -132,48 +131,6 @@ func (u *userServiceImpl) CallSeatsMenu(ctx context.Context) (*dto.UserResult, e
 		Offices:   nil,
 		BookSeats: seats,
 		Message:   message,
-	}, nil
-}
-
-// ========== Выбрали место в списке
-
-type SeatListTapResult struct {
-	Code    string
-	Message string
-}
-
-func (u *userServiceImpl) SeatListTap(ctx context.Context, bookSeatID int64) (SeatListTapResult, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
-
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
-	if err != nil {
-		return SeatListTapResult{}, err
-	}
-
-	var code string
-	var message string
-
-	if bookSeat.User != nil {
-		if bookSeat.User.TelegramID == currentUser.TelegramID {
-			// место уже занято самим же юзером
-			code = ThisIsYourSeat
-			message = "Вы уже заняли это место, хотите его освободить?"
-		} else {
-			// место занято другим юзером
-			code = ThisIsSeatBusy
-			message = fmt.Sprintf("Место №%d уже занято %s aka @%s",
-				bookSeat.Seat.SeatNumber, bookSeat.User.Name, bookSeat.User.TelegramName)
-		}
-	} else {
-		// место свободно
-		code = ThisIsSeatFree
-		message = fmt.Sprintf("Занять место №%d?", bookSeat.Seat.SeatNumber)
-	}
-
-	return SeatListTapResult{
-		Code:    code,
-		Message: message,
 	}, nil
 }
 

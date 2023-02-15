@@ -9,4 +9,5 @@ var menuSet = wire.NewSet(
 	menu.NewOfficeListMenu,
 	menu.NewOfficeMenu,
 	menu.NewSeatListMenu,
+	menu.NewFreeSeatMenu,
 )

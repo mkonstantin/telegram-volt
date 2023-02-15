@@ -16,3 +16,7 @@ type OfficeListMenu interface {
 type SeatListMenu interface {
 	Call(ctx context.Context) (*tgbotapi.MessageConfig, error)
 }
+
+type FreeSeatMenu interface {
+	Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error)
+}

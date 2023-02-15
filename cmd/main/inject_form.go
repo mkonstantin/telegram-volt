@@ -9,4 +9,5 @@ var formSet = wire.NewSet(
 	form.NewOfficeListForm,
 	form.NewOfficeMenuForm,
 	form.NewSeatListForm,
+	form.NewFreeSeatForm,
 )

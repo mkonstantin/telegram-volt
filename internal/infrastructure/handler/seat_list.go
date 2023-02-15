@@ -2,11 +2,19 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/app/usecase"
-	"telegram-api/internal/infrastructure/former"
+	"telegram-api/internal/app/menu/interfaces"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
+	repo "telegram-api/internal/infrastructure/repo/interfaces"
+)
+
+const (
+	ThisIsYourSeat = "this_is_your_seat"
+	ThisIsSeatBusy = "this_is_seat_busy"
+	ThisIsSeatFree = "this_is_seat_free"
 )
 
 type SeatList interface {
@@ -14,29 +22,60 @@ type SeatList interface {
 }
 
 type seatListImpl struct {
-	userService usecase.UserService
-	msgFormer   former.MessageFormer
-	logger      *zap.Logger
+	bookSeatRepo repo.BookSeatRepository
+	freeSeatMenu interfaces.FreeSeatMenu
+	logger       *zap.Logger
 }
 
 func NewSeatListHandle(
-	userService usecase.UserService,
-	msgFormer former.MessageFormer,
+	bookSeatRepo repo.BookSeatRepository,
+	freeSeatMenu interfaces.FreeSeatMenu,
 	logger *zap.Logger) SeatList {
 
 	return &seatListImpl{
-		userService: userService,
-		msgFormer:   msgFormer,
-		logger:      logger,
+		bookSeatRepo: bookSeatRepo,
+		freeSeatMenu: freeSeatMenu,
+		logger:       logger,
 	}
 }
 
 func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
-	result, err := s.userService.SeatListTap(ctx, command.BookSeatID)
+	bookSeat, err := s.bookSeatRepo.FindByID(command.BookSeatID)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.msgFormer.FormBookSeatMsg(ctx, result)
+	switch getStatus(ctx, bookSeat) {
+	case ThisIsSeatFree:
+		return s.freeSeatMenu.Call(ctx, command.BookSeatID)
+	case ThisIsYourSeat:
+		fallthrough
+	case ThisIsSeatBusy:
+		fallthrough
+	default:
+		message := fmt.Sprintf("Место №%d уже занято %s aka @%s",
+			bookSeat.Seat.SeatNumber, bookSeat.User.Name, bookSeat.User.TelegramName)
+
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, "")
+		msg.Text = message
+		return &msg, nil
+	}
 }
+
+func getStatus(ctx context.Context, bookSeat *model.BookSeat) string {
+	currentUser := model.GetCurrentUser(ctx)
+
+	if bookSeat.User != nil {
+		if bookSeat.User.TelegramID == currentUser.TelegramID {
+			return ThisIsYourSeat
+		} else {
+			return ThisIsSeatBusy
+		}
+	} else {
+		return ThisIsSeatFree
+	}
+}
+
+//message = "Вы уже заняли это место, хотите его освободить?"
