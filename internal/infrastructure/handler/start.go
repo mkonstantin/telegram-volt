@@ -4,7 +4,7 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/app/menu/interface"
 	"telegram-api/internal/domain/model"
 )
 
@@ -13,20 +13,20 @@ type Start interface {
 }
 
 type startImpl struct {
-	userService usecase.UserService
-	msgFormer   MessageFormer
-	logger      *zap.Logger
+	officeMenu     _interface.OfficeMenu
+	officeListMenu _interface.OfficeListMenu
+	logger         *zap.Logger
 }
 
 func NewStartHandle(
-	userService usecase.UserService,
-	msgFormer MessageFormer,
+	officeMenu _interface.OfficeMenu,
+	officeListMenu _interface.OfficeListMenu,
 	logger *zap.Logger) Start {
 
 	return &startImpl{
-		userService: userService,
-		msgFormer:   msgFormer,
-		logger:      logger,
+		officeMenu:     officeMenu,
+		officeListMenu: officeListMenu,
+		logger:         logger,
 	}
 }
 
@@ -35,16 +35,8 @@ func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error)
 	currentUser := model.GetCurrentUser(ctx)
 
 	if currentUser.HaveChosenOffice() {
-		result, err := s.userService.CallOfficeMenu(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return s.msgFormer.FormOfficeMenuMsg(ctx, result)
+		return s.officeMenu.Call(ctx)
 	} else {
-		result, err := s.userService.CallChooseOfficeMenu(ctx)
-		if err != nil {
-			return nil, err
-		}
-		return s.msgFormer.FormChooseOfficeMenuMsg(ctx, result)
+		return s.officeListMenu.Call(ctx)
 	}
 }
