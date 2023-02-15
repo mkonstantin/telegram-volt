@@ -6,9 +6,9 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/handler/dto"
 	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/handler/dto"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 

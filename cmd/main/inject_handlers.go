@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/google/wire"
-	"telegram-api/internal/infrastructure/handler"
+	handler2 "telegram-api/internal/app/handler"
 )
 
 var handlerSet = wire.NewSet(
-	handler.NewStartHandle,
-	handler.NewOfficeListHandle,
-	handler.NewOfficeMenuHandle,
-	handler.NewSeatListHandle,
-	handler.NewOwnSeatMenuHandle,
-	handler.NewFreeSeatMenuHandle,
+	handler2.NewStartHandle,
+	handler2.NewOfficeListHandle,
+	handler2.NewOfficeMenuHandle,
+	handler2.NewSeatListHandle,
+	handler2.NewOwnSeatMenuHandle,
+	handler2.NewFreeSeatMenuHandle,
 )

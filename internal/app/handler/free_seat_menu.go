@@ -4,39 +4,39 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/handler/dto"
 )
 
-type OwnSeatMenu interface {
+type FreeSeatMenu interface {
 	Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error)
 }
 
-type ownSeatMenuImpl struct {
+type freeSeatMenuImpl struct {
 	userService  usecase.UserService
 	seatListMenu interfaces.SeatListMenu
 	logger       *zap.Logger
 }
 
-func NewOwnSeatMenuHandle(
+func NewFreeSeatMenuHandle(
 	userService usecase.UserService,
 	seatListMenu interfaces.SeatListMenu,
-	logger *zap.Logger) OwnSeatMenu {
+	logger *zap.Logger) FreeSeatMenu {
 
-	return &ownSeatMenuImpl{
+	return &freeSeatMenuImpl{
 		userService:  userService,
 		seatListMenu: seatListMenu,
 		logger:       logger,
 	}
 }
 
-func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch command.Action {
-	case dto.ActionCancelBookYes:
-		message, err := o.userService.CancelBookSeat(ctx, command.BookSeatID)
+	case dto.ActionBookYes:
+		message, err := f.userService.BookSeat(ctx, command.BookSeatID)
 		if err != nil {
 			return nil, err
 		}
@@ -46,9 +46,9 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 		msg.Text = message
 		return &msg, nil
 
-	case dto.ActionCancelBookNo:
+	case dto.ActionBookNo:
 		fallthrough
 	default:
-		return o.seatListMenu.Call(ctx)
+		return f.seatListMenu.Call(ctx)
 	}
 }

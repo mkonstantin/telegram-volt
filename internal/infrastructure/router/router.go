@@ -5,9 +5,9 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	handler2 "telegram-api/internal/app/handler"
+	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/handler"
-	"telegram-api/internal/infrastructure/handler/dto"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
@@ -21,22 +21,22 @@ type Router interface {
 }
 
 type routerImpl struct {
-	start        handler.Start
-	officeList   handler.OfficeList
-	officeMenu   handler.OfficeMenu
-	seatList     handler.SeatList
-	ownSeatMenu  handler.OwnSeatMenu
-	freeSeatMenu handler.FreeSeatMenu
+	start        handler2.Start
+	officeList   handler2.OfficeList
+	officeMenu   handler2.OfficeMenu
+	seatList     handler2.SeatList
+	ownSeatMenu  handler2.OwnSeatMenu
+	freeSeatMenu handler2.FreeSeatMenu
 	logger       *zap.Logger
 }
 
 func NewRouter(
-	startHandle handler.Start,
-	officeListHandle handler.OfficeList,
-	officeMenuHandle handler.OfficeMenu,
-	seatListHandle handler.SeatList,
-	ownSeatMenuHandle handler.OwnSeatMenu,
-	freeSeatMenuHandle handler.FreeSeatMenu,
+	startHandle handler2.Start,
+	officeListHandle handler2.OfficeList,
+	officeMenuHandle handler2.OfficeMenu,
+	seatListHandle handler2.SeatList,
+	ownSeatMenuHandle handler2.OwnSeatMenu,
+	freeSeatMenuHandle handler2.FreeSeatMenu,
 	logger *zap.Logger) Router {
 
 	return &routerImpl{
