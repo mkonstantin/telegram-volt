@@ -8,7 +8,7 @@ import (
 	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
-	"telegram-api/internal/infrastructure/router"
+	"telegram-api/internal/infrastructure/router/constants"
 )
 
 type OfficeMenuForm interface {
@@ -32,17 +32,17 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, result *usecasedto.UserR
 	msg := tgbotapi.NewMessage(chatID, "")
 
 	b1 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
 	b2 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
 	b3 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
 	}

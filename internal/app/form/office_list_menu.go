@@ -8,7 +8,7 @@ import (
 	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
-	"telegram-api/internal/infrastructure/router"
+	"telegram-api/internal/infrastructure/router/constants"
 )
 
 type OfficeListMenuForm interface {
@@ -33,7 +33,7 @@ func (o officeListMenuFormImpl) Build(ctx context.Context, result *usecasedto.Us
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
 		resp := &dto.InlineRequest{
-			Type:     router.OfficeListTap,
+			Type:     constants.OfficeListTap,
 			OfficeID: office.ID,
 		}
 		responseData, err := json.Marshal(resp)

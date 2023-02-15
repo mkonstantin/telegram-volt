@@ -8,14 +8,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler"
 	"telegram-api/internal/infrastructure/handler/dto"
-)
-
-const (
-	OfficeMenuTap   = "office_menu_tap"
-	OfficeListTap   = "office_list_tap"
-	SeatListTap     = "seat_list_tap"
-	OwnSeatMenuTap  = "own_seat_menu_tap"
-	FreeSeatMenuTap = "free_seat_menu_tap"
+	"telegram-api/internal/infrastructure/router/constants"
 )
 
 type Data struct {
@@ -85,15 +78,15 @@ func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.Mes
 func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	switch request.Type {
-	case OfficeListTap:
+	case constants.OfficeListTap:
 		return r.officeList.Handle(ctx, request)
-	case OfficeMenuTap:
+	case constants.OfficeMenuTap:
 		return r.officeMenu.Handle(ctx, request)
-	case SeatListTap:
+	case constants.SeatListTap:
 		return r.seatList.Handle(ctx, request)
-	case OwnSeatMenuTap:
+	case constants.OwnSeatMenuTap:
 		return r.ownSeatMenu.Handle(ctx, request)
-	case FreeSeatMenuTap:
+	case constants.FreeSeatMenuTap:
 		return r.freeSeatMenu.Handle(ctx, request)
 	}
 

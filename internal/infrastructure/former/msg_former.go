@@ -10,7 +10,7 @@ import (
 	usecasedto "telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/handler/dto"
-	"telegram-api/internal/infrastructure/router"
+	"telegram-api/internal/infrastructure/router/constants"
 )
 
 type MessageFormer interface {
@@ -41,7 +41,7 @@ func (s *messageFormerImpl) FormChooseOfficeMenuMsg(ctx context.Context, result 
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, office := range result.Offices {
 		resp := &dto.InlineRequest{
-			Type:     router.OfficeListTap,
+			Type:     constants.OfficeListTap,
 			OfficeID: office.ID,
 		}
 		responseData, err := json.Marshal(resp)
@@ -71,17 +71,17 @@ func (s *messageFormerImpl) FormOfficeMenuMsg(ctx context.Context, result *useca
 	msg := tgbotapi.NewMessage(chatID, "")
 
 	b1 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuFreeSeats,
 	}
 	b2 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuSubscribe,
 	}
 	b3 := &dto.InlineRequest{
-		Type:     router.OfficeMenuTap,
+		Type:     constants.OfficeMenuTap,
 		OfficeID: result.Office.ID,
 		Action:   dto.OfficeMenuChooseAnotherOffice,
 	}
@@ -120,7 +120,7 @@ func (s *messageFormerImpl) FormSeatListMsg(ctx context.Context, result *usecase
 	var rows [][]tgbotapi.InlineKeyboardButton
 	for _, bookSeat := range result.BookSeats {
 		resp := &dto.InlineRequest{
-			Type:       router.SeatListTap,
+			Type:       constants.SeatListTap,
 			BookSeatID: bookSeat.ID,
 		}
 		responseData, err := json.Marshal(resp)
@@ -167,12 +167,12 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		msg.Text = result.Message
 
 		b1 := &dto.InlineRequest{
-			Type:       router.OwnSeatMenuTap,
+			Type:       constants.OwnSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookYes,
 		}
 		b2 := &dto.InlineRequest{
-			Type:       router.OwnSeatMenuTap,
+			Type:       constants.OwnSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionCancelBookNo,
 		}
@@ -198,12 +198,12 @@ func (s *messageFormerImpl) FormBookSeatMsg(ctx context.Context, result *usecase
 		msg.Text = result.Message
 
 		b1 := &dto.InlineRequest{
-			Type:       router.FreeSeatMenuTap,
+			Type:       constants.FreeSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookYes,
 		}
 		b2 := &dto.InlineRequest{
-			Type:       router.FreeSeatMenuTap,
+			Type:       constants.FreeSeatMenuTap,
 			BookSeatID: result.BookSeatID,
 			Action:     dto.ActionBookNo,
 		}

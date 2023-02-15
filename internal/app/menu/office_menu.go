@@ -9,17 +9,17 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase/dto"
 	"telegram-api/internal/domain/model"
-	"telegram-api/internal/infrastructure/repo/interfaces"
+	repo "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
 type officeMenuImpl struct {
-	officeRepo interfaces.OfficeRepository
+	officeRepo repo.OfficeRepository
 	form       form.OfficeMenuForm
 	logger     *zap.Logger
 }
 
 func NewOfficeMenu(
-	officeRepo interfaces.OfficeRepository,
+	officeRepo repo.OfficeRepository,
 	form form.OfficeMenuForm,
 	logger *zap.Logger) interfaces.OfficeMenu {
 
