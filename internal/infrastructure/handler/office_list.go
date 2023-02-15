@@ -4,8 +4,8 @@ import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
-	"telegram-api/internal/infrastructure/former"
 	"telegram-api/internal/infrastructure/handler/dto"
 )
 
@@ -15,28 +15,28 @@ type OfficeList interface {
 
 type officeListImpl struct {
 	userService usecase.UserService
-	msgFormer   former.MessageFormer
+	officeMenu  interfaces.OfficeMenu
 	logger      *zap.Logger
 }
 
 func NewOfficeListHandle(
 	userService usecase.UserService,
-	msgFormer former.MessageFormer,
+	officeMenu interfaces.OfficeMenu,
 	logger *zap.Logger) OfficeList {
 
 	return &officeListImpl{
 		userService: userService,
-		msgFormer:   msgFormer,
+		officeMenu:  officeMenu,
 		logger:      logger,
 	}
 }
 
 func (o *officeListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
-	result, err := o.userService.SetOfficeScript(ctx, command.OfficeID)
+	ctx, err := o.userService.SetOfficeScript(ctx, command.OfficeID)
 	if err != nil {
 		return nil, err
 	}
 
-	return o.msgFormer.FormOfficeMenuMsg(ctx, result)
+	return o.officeMenu.Call(ctx)
 }

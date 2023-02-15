@@ -21,9 +21,8 @@ const (
 )
 
 type UserService interface {
-	CallOfficeMenu(ctx context.Context) (*dto.UserResult, error)
 	CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error)
-	SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error)
+	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
 	CallDateMenu(ctx context.Context) (*dto.UserResult, error)
 	CallSeatsMenu(ctx context.Context) (*dto.UserResult, error)
 	SeatListTap(ctx context.Context, bookSeatID int64) (*dto.UserResult, error)
@@ -50,33 +49,6 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-func (u *userServiceImpl) CallOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
-
-	currentUser := model.GetCurrentUser(ctx)
-
-	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
-	if err != nil {
-		return nil, err
-	}
-
-	var buttonText string
-
-	if currentUser.OfficeID == currentUser.NotifyOfficeID {
-		buttonText = "Отписаться"
-	} else {
-		buttonText = "Подписаться на свободные места"
-	}
-
-	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
-	return &dto.UserResult{
-		Key:                 "",
-		Office:              office,
-		Offices:             nil,
-		Message:             message,
-		SubscribeButtonText: buttonText,
-	}, nil
-}
-
 func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserResult, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
@@ -96,19 +68,19 @@ func (u *userServiceImpl) CallChooseOfficeMenu(ctx context.Context) (*dto.UserRe
 
 //========= Выбрали офис и вызываем его меню
 
-func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (*dto.UserResult, error) {
+func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
 	err := u.userRepo.SetOffice(officeID, currentUser.TelegramID)
 	if err != nil {
-		return nil, err
+		return ctx, err
 	}
 
 	currentUser.OfficeID = officeID
 	ctx = context.WithValue(ctx, model.ContextUserKey, currentUser)
 
-	return u.CallOfficeMenu(ctx)
+	return ctx, nil
 }
 
 //=========  Выбираем дату:
