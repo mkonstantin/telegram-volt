@@ -47,7 +47,7 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	for _, seatByDate := range data.SeatByDates {
 		resp := &dto.InlineRequest{
 			Type:     constants.DateMenuTap,
-			BookDate: "d",
+			BookDate: seatByDate.Date,
 		}
 		responseData, err := json.Marshal(resp)
 		if err != nil {
