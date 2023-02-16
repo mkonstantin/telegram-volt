@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
+	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
 type FreeSeatMenu interface {
@@ -16,17 +17,20 @@ type FreeSeatMenu interface {
 
 type freeSeatMenuImpl struct {
 	userService  usecase.UserService
+	bookSeatRepo interfaces2.BookSeatRepository
 	seatListMenu interfaces.SeatListMenu
 	logger       *zap.Logger
 }
 
 func NewFreeSeatMenuHandle(
 	userService usecase.UserService,
+	bookSeatRepo interfaces2.BookSeatRepository,
 	seatListMenu interfaces.SeatListMenu,
 	logger *zap.Logger) FreeSeatMenu {
 
 	return &freeSeatMenuImpl{
 		userService:  userService,
+		bookSeatRepo: bookSeatRepo,
 		seatListMenu: seatListMenu,
 		logger:       logger,
 	}
@@ -49,6 +53,10 @@ func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 	case dto.ActionBookNo:
 		fallthrough
 	default:
-		return f.seatListMenu.Call(ctx)
+		bookSeat, err := f.bookSeatRepo.FindByID(command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		return f.seatListMenu.Call(ctx, bookSeat.BookDate)
 	}
 }

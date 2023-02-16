@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
+	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
 type OwnSeatMenu interface {
@@ -16,17 +17,20 @@ type OwnSeatMenu interface {
 
 type ownSeatMenuImpl struct {
 	userService  usecase.UserService
+	bookSeatRepo interfaces2.BookSeatRepository
 	seatListMenu interfaces.SeatListMenu
 	logger       *zap.Logger
 }
 
 func NewOwnSeatMenuHandle(
 	userService usecase.UserService,
+	bookSeatRepo interfaces2.BookSeatRepository,
 	seatListMenu interfaces.SeatListMenu,
 	logger *zap.Logger) OwnSeatMenu {
 
 	return &ownSeatMenuImpl{
 		userService:  userService,
+		bookSeatRepo: bookSeatRepo,
 		seatListMenu: seatListMenu,
 		logger:       logger,
 	}
@@ -49,6 +53,10 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 	case dto.ActionCancelBookNo:
 		fallthrough
 	default:
-		return o.seatListMenu.Call(ctx)
+		bookSeat, err := o.bookSeatRepo.FindByID(command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		return o.seatListMenu.Call(ctx, bookSeat.BookDate)
 	}
 }
