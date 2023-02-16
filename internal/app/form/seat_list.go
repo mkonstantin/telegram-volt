@@ -61,6 +61,18 @@ func (o seatListFormImpl) Build(ctx context.Context, data SeatListFormData) (*tg
 	var msg tgbotapi.MessageConfig
 
 	if len(data.BookSeats) > 0 {
+		respBack := &dto.InlineRequest{
+			Type:   constants.SeatListTap,
+			Action: dto.Back,
+		}
+		backData, err := json.Marshal(respBack)
+		if err != nil {
+			return nil, err
+		}
+		button := tgbotapi.NewInlineKeyboardButtonData("Назад", string(backData))
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		rows = append(rows, row)
+
 		msg = tgbotapi.NewMessage(chatID, "")
 		var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 			rows...,

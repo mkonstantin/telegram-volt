@@ -23,6 +23,7 @@ type SeatList interface {
 
 type seatListImpl struct {
 	bookSeatRepo repo.BookSeatRepository
+	dateMenu     interfaces.DateMenu
 	ownSeatMenu  interfaces.OwnSeatMenu
 	freeSeatMenu interfaces.FreeSeatMenu
 	logger       *zap.Logger
@@ -30,12 +31,14 @@ type seatListImpl struct {
 
 func NewSeatListHandle(
 	bookSeatRepo repo.BookSeatRepository,
+	dateMenu interfaces.DateMenu,
 	ownSeatMenu interfaces.OwnSeatMenu,
 	freeSeatMenu interfaces.FreeSeatMenu,
 	logger *zap.Logger) SeatList {
 
 	return &seatListImpl{
 		bookSeatRepo: bookSeatRepo,
+		dateMenu:     dateMenu,
 		ownSeatMenu:  ownSeatMenu,
 		freeSeatMenu: freeSeatMenu,
 		logger:       logger,
@@ -43,6 +46,10 @@ func NewSeatListHandle(
 }
 
 func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+
+	if command.Action == dto.Back {
+		return s.dateMenu.Call(ctx)
+	}
 
 	bookSeat, err := s.bookSeatRepo.FindByID(command.BookSeatID)
 	if err != nil {
