@@ -6,7 +6,6 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
-	"telegram-api/internal/app/usecase"
 )
 
 type DateMenu interface {
@@ -14,28 +13,32 @@ type DateMenu interface {
 }
 
 type dateMenuImpl struct {
-	userService usecase.UserService
-	officeMenu  interfaces.OfficeMenu
-	logger      *zap.Logger
+	seatList   interfaces.SeatListMenu
+	officeMenu interfaces.OfficeMenu
+	logger     *zap.Logger
 }
 
 func NewDateMenuHandle(
-	userService usecase.UserService,
+	seatList interfaces.SeatListMenu,
 	officeMenu interfaces.OfficeMenu,
 	logger *zap.Logger) DateMenu {
 
 	return &dateMenuImpl{
-		userService: userService,
-		officeMenu:  officeMenu,
-		logger:      logger,
+		seatList:   seatList,
+		officeMenu: officeMenu,
+		logger:     logger,
 	}
 }
 
 func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
+	if command.Action == dto.Back {
+		return o.officeMenu.Call(ctx)
+	}
+
 	if command.BookDate == nil {
 		return o.officeMenu.Call(ctx)
 	}
 
-	return nil, nil
+	return o.seatList.Call(ctx, *command.BookDate)
 }

@@ -63,7 +63,8 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	}
 
 	respBack := &dto.InlineRequest{
-		Type: constants.DateMenuTap,
+		Type:   constants.DateMenuTap,
+		Action: dto.Back,
 	}
 	backData, err := json.Marshal(respBack)
 	if err != nil {
