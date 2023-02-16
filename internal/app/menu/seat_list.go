@@ -9,7 +9,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
-	"telegram-api/internal/infrastructure/service"
+	"time"
 )
 
 type seatListMenuImpl struct {
@@ -30,11 +30,9 @@ func NewSeatListMenu(
 	}
 }
 
-func (s *seatListMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time) (*tgbotapi.MessageConfig, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
-
-	date := service.TodayZeroTimeUTC()
 
 	seats, err := s.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.String())
 	if err != nil {

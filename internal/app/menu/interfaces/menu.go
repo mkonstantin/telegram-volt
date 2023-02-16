@@ -3,6 +3,7 @@ package interfaces
 import (
 	"context"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"time"
 )
 
 type OfficeMenu interface {
@@ -14,7 +15,7 @@ type OfficeListMenu interface {
 }
 
 type SeatListMenu interface {
-	Call(ctx context.Context) (*tgbotapi.MessageConfig, error)
+	Call(ctx context.Context, date time.Time) (*tgbotapi.MessageConfig, error)
 }
 
 type FreeSeatMenu interface {
