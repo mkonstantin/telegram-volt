@@ -11,4 +11,5 @@ var formSet = wire.NewSet(
 	form.NewSeatListForm,
 	form.NewFreeSeatForm,
 	form.NewOwnSeatForm,
+	form.NewDateMenutForm,
 )
