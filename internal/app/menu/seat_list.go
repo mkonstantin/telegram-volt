@@ -18,6 +18,8 @@ type seatListMenuImpl struct {
 	logger       *zap.Logger
 }
 
+const dateFormat = "02 January 2006"
+
 func NewSeatListMenu(
 	bookSeatRepo repo.BookSeatRepository,
 	seatListForm form.SeatListForm,
@@ -39,7 +41,8 @@ func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time) (*tgbotapi.
 		return nil, err
 	}
 
-	message := fmt.Sprintf("Выберите место:")
+	formattedDate := date.Format(dateFormat)
+	message := fmt.Sprintf("Выберите место на %s:", formattedDate)
 
 	data := form.SeatListFormData{
 		BookSeats: seats,
