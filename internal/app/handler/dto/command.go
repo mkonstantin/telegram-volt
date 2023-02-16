@@ -20,4 +20,6 @@ const (
 
 	ActionBookYes = 21
 	ActionBookNo  = 22
+
+	Back = 100
 )
