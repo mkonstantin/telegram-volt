@@ -43,24 +43,24 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 	}
 
 	today := service.TodayZeroTimeUTC()
-	todaySeats, err := f.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, today.String())
+	todaySeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, today.String())
 	if err != nil {
 		return nil, err
 	}
 
 	tomorrow := service.TomorrowZeroTimeUTC()
-	tomorrowSeats, err := f.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, tomorrow.String())
+	tomorrowSeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, tomorrow.String())
 	if err != nil {
 		return nil, err
 	}
 
 	todayD := form.DaySeat{
-		Date:        today.String(),
+		Date:        today,
 		SeatsNumber: len(todaySeats),
 	}
 
 	tomorrowD := form.DaySeat{
-		Date:        tomorrow.String(),
+		Date:        tomorrow,
 		SeatsNumber: len(tomorrowSeats),
 	}
 

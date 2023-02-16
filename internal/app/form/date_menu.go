@@ -9,12 +9,15 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
+	"time"
 )
 
 type DaySeat struct {
-	Date        string
+	Date        time.Time
 	SeatsNumber int
 }
+
+const dateFormat = "02 January 2006"
 
 type DateMenuFormData struct {
 	Message     string
@@ -44,15 +47,16 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	for _, seatByDate := range data.SeatByDates {
 		resp := &dto.InlineRequest{
 			Type:     constants.DateMenuTap,
-			OfficeID: data.Office.ID,
-			BookDate: seatByDate.Date,
+			BookDate: "d",
 		}
 		responseData, err := json.Marshal(resp)
 		if err != nil {
 			return nil, err
 		}
 
-		text := fmt.Sprintf("%s : %d мест", seatByDate.Date, seatByDate.SeatsNumber)
+		formattedDate := seatByDate.Date.Format(dateFormat)
+
+		text := fmt.Sprintf("%s : %d свободных мест", formattedDate, seatByDate.SeatsNumber)
 		button := tgbotapi.NewInlineKeyboardButtonData(text, string(responseData))
 		row := tgbotapi.NewInlineKeyboardRow(button)
 		rows = append(rows, row)
