@@ -47,7 +47,7 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	for _, seatByDate := range data.SeatByDates {
 		resp := &dto.InlineRequest{
 			Type:     constants.DateMenuTap,
-			BookDate: seatByDate.Date,
+			BookDate: &seatByDate.Date,
 		}
 		responseData, err := json.Marshal(resp)
 		if err != nil {
@@ -61,6 +61,17 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 		row := tgbotapi.NewInlineKeyboardRow(button)
 		rows = append(rows, row)
 	}
+
+	respBack := &dto.InlineRequest{
+		Type: constants.DateMenuTap,
+	}
+	backData, err := json.Marshal(respBack)
+	if err != nil {
+		return nil, err
+	}
+	button := tgbotapi.NewInlineKeyboardButtonData("Назад", string(backData))
+	row := tgbotapi.NewInlineKeyboardRow(button)
+	rows = append(rows, row)
 
 	var chooseOfficeKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		rows...,
