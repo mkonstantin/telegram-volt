@@ -16,20 +16,20 @@ type OfficeMenu interface {
 
 type officeMenuImpl struct {
 	userService    usecase.UserService
-	seatListMenu   interfaces.SeatListMenu
+	dateMenu       interfaces.DateMenu
 	officeListMenu interfaces.OfficeListMenu
 	logger         *zap.Logger
 }
 
 func NewOfficeMenuHandle(
 	userService usecase.UserService,
-	seatListMenu interfaces.SeatListMenu,
+	dateMenu interfaces.DateMenu,
 	officeListMenu interfaces.OfficeListMenu,
 	logger *zap.Logger) OfficeMenu {
 
 	return &officeMenuImpl{
 		userService:    userService,
-		seatListMenu:   seatListMenu,
+		dateMenu:       dateMenu,
 		officeListMenu: officeListMenu,
 		logger:         logger,
 	}
@@ -39,7 +39,7 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:
-		return o.seatListMenu.Call(ctx)
+		return o.dateMenu.Call(ctx)
 
 	case dto.OfficeMenuSubscribe:
 		message, err := o.userService.SubscribeWork(ctx)

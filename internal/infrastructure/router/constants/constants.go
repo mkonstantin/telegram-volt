@@ -6,4 +6,5 @@ const (
 	SeatListTap     = "seat_list_tap"
 	OwnSeatMenuTap  = "own_seat_menu_tap"
 	FreeSeatMenuTap = "free_seat_menu_tap"
+	DateMenuTap     = "date_menu_tap"
 )
