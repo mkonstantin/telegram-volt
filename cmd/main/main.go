@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	logger, err := log.NewLogger(true, "info", "truck-api")
+	logger, err := log.NewLogger(true, "info", "telegram-api")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "cannot init log %s", err)
 		return
