@@ -72,11 +72,11 @@ func InitMainConnection(ctx context.Context, cfg config.AppConfig, logger *zap.L
 
 func connect(ctx context.Context, cfg config.AppConfig) (*sqlx.DB, error) {
 	uri := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?parseTime=true&charset=utf8mb4",
-		cfg.DBUsername,
-		cfg.DBPassword,
-		cfg.DBHost,
-		cfg.DBPort,
-		cfg.DBDatabase)
+		cfg.Username,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		cfg.Database)
 	db, err := sqlx.ConnectContext(ctx, "mysql", uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connect to db: ")
