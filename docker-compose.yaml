@@ -4,9 +4,23 @@ volumes:
   volt_volumes:
 
 services:
-#  volt:
-#    build: ./
-#    restart: always
+  inhotdesk:
+    build: ./
+    command: ./telegram-api
+    restart: always
+    ports:
+      - "3012:3012"
+    depends_on:
+      - db
+    environment:
+      - USERNAME=root
+      - PASSWORD=root
+      - HOST=db
+      - PORT=3306
+      - DATABASE=volt
+      - MAXOPENCONN=60
+      - MAXIDLECONN=30
+      - CONNLIFETIME=2
 
   db:
     image: mysql:8.0
