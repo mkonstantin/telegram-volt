@@ -2,13 +2,15 @@ FROM golang:1.18.2
 
 WORKDIR /app
 
-COPY ../../go.mod ./
-COPY ../../go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 
 RUN go mod download
 
-COPY ./cmd/main/main.go .
+COPY . .
 
-RUN go build -o /telegram-api
+RUN go build -o telegram-api telegram-api/cmd/main
 
-CMD [ "/telegram-api" ]
+RUN chmod +x telegram-api
+
+CMD ["./telegram-api"]
