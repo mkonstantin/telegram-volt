@@ -9,6 +9,7 @@ package main
 import (
 	"context"
 	"go.uber.org/zap"
+	"telegram-api/config"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
 	"telegram-api/internal/app/menu"
@@ -23,9 +24,9 @@ import (
 
 // Injectors from wire.go:
 
-func InitializeApplication(secret string, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
+func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
 	contextContext := context.Background()
-	connection, cleanup := provideDBConnection(contextContext, logger)
+	connection, cleanup := provideDBConnection(contextContext, cfg, logger)
 	userRepository := repo.NewUserRepository(connection)
 	officeRepository := repo.NewOfficeRepository(connection)
 	officeMenuForm := form.NewOfficeMenuForm(logger)

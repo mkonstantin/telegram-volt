@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"telegram-api/config"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver
@@ -12,8 +13,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )
-
-const ConnectionMaxLifeTimeMinutes = 5
 
 type Executor interface {
 	Get(dest interface{}, query string, args ...interface{}) error
@@ -46,8 +45,8 @@ func NewDB(conn Connection) DB {
 	}
 }
 
-func InitConnection(ctx context.Context, l *zap.Logger) (Connection, func(), error) {
-	master, err := InitMainConnection(ctx, l)
+func InitConnection(ctx context.Context, cfg config.AppConfig, l *zap.Logger) (Connection, func(), error) {
+	master, err := InitMainConnection(ctx, cfg, l)
 	if err != nil {
 		l.Error("Can't initialize master database connection", zap.Error(err))
 	}
@@ -63,28 +62,28 @@ func InitConnection(ctx context.Context, l *zap.Logger) (Connection, func(), err
 	return con, cleanup, err
 }
 
-func InitMainConnection(ctx context.Context, logger *zap.Logger) (*MainConnection, error) {
-	db, err := connect(ctx)
+func InitMainConnection(ctx context.Context, cfg config.AppConfig, logger *zap.Logger) (*MainConnection, error) {
+	db, err := connect(ctx, cfg)
 	if err != nil {
 		return nil, err
 	}
 	return (*MainConnection)(db), nil
 }
 
-func connect(ctx context.Context) (*sqlx.DB, error) {
+func connect(ctx context.Context, cfg config.AppConfig) (*sqlx.DB, error) {
 	uri := fmt.Sprintf("%s:%s@tcp(%s:%v)/%s?parseTime=true&charset=utf8mb4",
-		"root",
-		"root",
-		"localhost",
-		3310,
-		"volt")
+		cfg.DBUsername,
+		cfg.DBPassword,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBDatabase)
 	db, err := sqlx.ConnectContext(ctx, "mysql", uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "error connect to db: ")
 	}
-	db.SetMaxOpenConns(50)
-	db.SetMaxIdleConns(10)
-	db.SetConnMaxLifetime(ConnectionMaxLifeTimeMinutes * time.Minute)
+	db.SetMaxOpenConns(cfg.MaxOpenConnections)
+	db.SetMaxIdleConns(cfg.MaxIdleConnections)
+	db.SetConnMaxLifetime(time.Duration(cfg.ConnectionMaxLifeTime) * time.Minute)
 	err = db.Ping()
 	if err != nil {
 		return nil, errors.Wrap(err, "error ping db: ")

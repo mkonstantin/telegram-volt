@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"telegram-api/config"
 	"telegram-api/pkg/log"
 )
 
@@ -14,7 +15,8 @@ func main() {
 	}
 	logger.Info("app starting")
 
-	botAPI, _, _ := InitializeApplication("5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk", logger)
+	cfg := config.GetConfig()
+	botAPI, _, _ := InitializeApplication("5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk", cfg, logger)
 	botAPI.StartAsyncScheduler()
 	botAPI.StartTelegramServer(true, 60)
 
