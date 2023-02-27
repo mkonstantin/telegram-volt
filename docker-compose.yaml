@@ -21,6 +21,7 @@ services:
       - MAXOPENCONN=60
       - MAXIDLECONN=30
       - CONNLIFETIME=2
+      - KEY=5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk
 
   db:
     image: mysql:8.0

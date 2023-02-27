@@ -45,7 +45,7 @@ func main() {
 	}
 
 	logger.Info(fmt.Sprintf("DB host: %s", cfg.Host))
-	botAPI, _, _ := InitializeApplication("5566428356:AAH6_BR_A8O_33VEZTw2PNtHHTtaEwB9Rrk", cfg, logger)
+	botAPI, _, _ := InitializeApplication(os.Getenv("KEY"), cfg, logger)
 	botAPI.StartAsyncScheduler()
 	botAPI.StartTelegramServer(true, 60)
 
