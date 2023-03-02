@@ -84,21 +84,31 @@ func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 	if err != nil {
 		return ctx
 	}
+
 	if user == nil {
-		user, err = r.createUser(tgID, tgUserName, fullName)
+		user, err = r.createUser(tgID, chatID, tgUserName, fullName)
+		if err != nil {
+			return ctx
+		}
 	}
-	if err != nil {
-		return ctx
+
+	if user.ChatID != chatID {
+		err = r.setChatID(tgID, chatID)
+		if err != nil {
+			return ctx
+		}
 	}
+	
 	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
 	return ctx
 }
 
-func (r *UserMW) createUser(tgID int64, tgUserName, fullName string) (*model.User, error) {
+func (r *UserMW) createUser(tgID, chatID int64, tgUserName, fullName string) (*model.User, error) {
 	userModel := model.User{
 		Name:         fullName,
 		TelegramID:   tgID,
 		TelegramName: tgUserName,
+		ChatID:       chatID,
 	}
 	err := r.userRepo.Create(userModel)
 	if err != nil {
@@ -111,4 +121,13 @@ func (r *UserMW) createUser(tgID int64, tgUserName, fullName string) (*model.Use
 	}
 
 	return user, nil
+}
+
+func (r *UserMW) setChatID(tgID, chatID int64) error {
+	err := r.userRepo.SetChatID(chatID, tgID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -7,6 +7,7 @@ type User struct {
 	TelegramName   string
 	OfficeID       int64
 	NotifyOfficeID int64
+	ChatID         int64
 }
 
 func (u *User) HaveChosenOffice() bool {

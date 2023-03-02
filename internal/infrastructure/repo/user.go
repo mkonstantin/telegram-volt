@@ -43,10 +43,24 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 
 func (s *userRepositoryImpl) Create(user model.User) error {
 	sqQuery := sq.
-		Insert("user").Columns("name", "telegram_id", "telegram_name").
-		Values(user.Name, user.TelegramID, user.TelegramName)
+		Insert("user").Columns("name", "telegram_id", "telegram_name", "chat_id").
+		Values(user.Name, user.TelegramID, user.TelegramName, user.ChatID)
 	query, args, err := sqQuery.ToSql()
 
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}
+
+func (s *userRepositoryImpl) SetChatID(chatID, tgID int64) error {
+	sqQuery := sq.Update("user").
+		Set("chat_id", chatID).
+		Where(sq.Eq{"telegram_id": tgID})
+
+	query, args, err := sqQuery.ToSql()
 	if err != nil {
 		return err
 	}
