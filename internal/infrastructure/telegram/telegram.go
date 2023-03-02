@@ -15,13 +15,9 @@ type TelegramBot struct {
 	logger       *zap.Logger
 }
 
-func NewTelegramBot(secret string, router middleware.UserMW, jobScheduler scheduler.JobsScheduler, logger *zap.Logger) TelegramBot {
-	bot, err := tgbotapi.NewBotAPI(secret)
-	if err != nil {
-		log.Panic(err)
-	}
+func NewTelegramBot(botAPI *tgbotapi.BotAPI, router middleware.UserMW, jobScheduler scheduler.JobsScheduler, logger *zap.Logger) TelegramBot {
 	return TelegramBot{
-		BotAPI:       bot,
+		BotAPI:       botAPI,
 		userSettler:  router,
 		jobScheduler: jobScheduler,
 		logger:       logger,

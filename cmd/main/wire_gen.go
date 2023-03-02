@@ -8,6 +8,7 @@ package main
 
 import (
 	"context"
+	"github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/config"
 	"telegram-api/internal/app/form"
@@ -26,6 +27,7 @@ import (
 // Injectors from wire.go:
 
 func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logger) (telegram.TelegramBot, func(), error) {
+	botAPI := provideTelegramAPI(secret, logger)
 	contextContext := context.Background()
 	connection, cleanup := provideDBConnection(contextContext, cfg, logger)
 	userRepository := repo.NewUserRepository(connection)
@@ -46,7 +48,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatForm := form.NewFreeSeatForm(logger)
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
-	informerService := service.NewInformer(bookSeatRepository, logger)
+	informerService := service.NewInformer(userRepository, bookSeatRepository, logger)
 	seatListForm := form.NewSeatListForm(logger)
 	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(informerService, userService, bookSeatRepository, seatListMenu, logger)
@@ -57,8 +59,18 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	seatRepository := repo.NewSeatRepository(connection)
 	officeJob := handler2.NewOfficeJob(bookSeatRepository, seatRepository, logger)
 	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, officeJob, logger)
-	telegramBot := telegram.NewTelegramBot(secret, userMW, jobsScheduler, logger)
+	telegramBot := telegram.NewTelegramBot(botAPI, userMW, jobsScheduler, logger)
 	return telegramBot, func() {
 		cleanup()
 	}, nil
+}
+
+// wire.go:
+
+func provideTelegramAPI(secret string, logger *zap.Logger) *tgbotapi.BotAPI {
+	bot, err := tgbotapi.NewBotAPI(secret)
+	if err != nil {
+		logger.Panic("err telegram api init", zap.Error(err))
+	}
+	return bot
 }
