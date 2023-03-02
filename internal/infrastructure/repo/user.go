@@ -20,6 +20,28 @@ func NewUserRepository(conn repository.Connection) interfaces.UserRepository {
 	}
 }
 
+func (s *userRepositoryImpl) GetUsersToNotify(notifyOfficeID int64) ([]*model.User, error) {
+	sqQuery := sq.Select("*").
+		From("user").
+		Where(sq.And{sq.Eq{"notify_office_id": notifyOfficeID}, sq.NotEq{"chat_id": 0}})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO []dto.User
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			// TODO
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return dto.ToUserModels(dtoO), nil
+}
+
 func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 	sqQuery := sq.Select("*").
 		From("user").

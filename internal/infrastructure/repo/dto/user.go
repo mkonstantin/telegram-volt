@@ -17,6 +17,14 @@ type User struct {
 	UpdatedAt      time.Time `db:"updated_at" json:"updated_at"`
 }
 
+func ToUserModels(array []User) []*model.User {
+	var models []*model.User
+	for _, item := range array {
+		models = append(models, item.ToModel())
+	}
+	return models
+}
+
 func (u *User) ToModel() *model.User {
 	user := model.User{
 		ID:             u.ID,
