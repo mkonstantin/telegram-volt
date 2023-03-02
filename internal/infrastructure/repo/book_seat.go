@@ -47,7 +47,7 @@ func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
 }
 
 func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
-	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
 		InnerJoin("office as o1 ON bs.office_id=o1.id").
@@ -72,7 +72,7 @@ func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr
 }
 
 func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
-	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
 		InnerJoin("office as o1 ON bs.office_id=o1.id").
@@ -125,7 +125,7 @@ func (s *bookSeatRepositoryImpl) CancelBookSeatWithID(id int64) error {
 }
 
 func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, error) {
-	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
 		InnerJoin("office as o1 ON bs.office_id=o1.id").
@@ -149,7 +149,7 @@ func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, er
 }
 
 func (s *bookSeatRepositoryImpl) FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error) {
-	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
 		InnerJoin("office as o1 ON bs.office_id=o1.id").
