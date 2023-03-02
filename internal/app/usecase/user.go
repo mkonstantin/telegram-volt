@@ -12,7 +12,7 @@ type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
 	SubscribeWork(ctx context.Context) (string, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (string, error)
-	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, error)
+	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error)
 }
 
 type userServiceImpl struct {
@@ -87,26 +87,26 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 
 // ========== Отменили бронирование места
 
-func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error) {
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
 	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	if userBookSeat == nil || (userBookSeat != nil && userBookSeat.User.ID != currentUser.ID) {
 		message = "У вас нет брони на сегодня"
-		return message, nil
+		return message, false, nil
 	}
 
 	err = u.bookSeatRepo.CancelBookSeatWithID(bookSeatID)
 	if err != nil {
-		return "", err
+		return "", false, err
 	}
 	message = fmt.Sprintf("Место №%d в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatNumber, userBookSeat.Office.Name)
 
-	return message, nil
+	return message, true, nil
 }
 
 // ========== Подписка/отписка на свободные места

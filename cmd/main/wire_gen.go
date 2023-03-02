@@ -13,6 +13,7 @@ import (
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
 	"telegram-api/internal/app/menu"
+	"telegram-api/internal/app/service"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo"
@@ -45,9 +46,10 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatForm := form.NewFreeSeatForm(logger)
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
+	informerService := service.NewInformer(bookSeatRepository, logger)
 	seatListForm := form.NewSeatListForm(logger)
 	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
-	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(userService, bookSeatRepository, seatListMenu, logger)
+	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(informerService, userService, bookSeatRepository, seatListMenu, logger)
 	handlerFreeSeatMenu := handler.NewFreeSeatMenuHandle(userService, bookSeatRepository, seatListMenu, logger)
 	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, logger)
 	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, logger)
