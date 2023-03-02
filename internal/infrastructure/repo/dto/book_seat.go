@@ -13,6 +13,7 @@ type BookSeat struct {
 	SeatNumber       int        `db:"seat_number,omitempty"`
 	IsHaveMonitor    bool       `db:"have_monitor,omitempty"`
 	OfficeName       string     `db:"office_name,omitempty"`
+	TimeZone         string     `db:"time_zone,omitempty"`
 	UserID           *int64     `db:"user_id,omitempty"`
 	TelegramName     *string    `db:"user_name,omitempty"`
 	TelegramID       *int64     `db:"telegram_id,omitempty"`
@@ -37,8 +38,9 @@ func (o *BookSeat) ToModel() *model.BookSeat {
 	return &model.BookSeat{
 		ID: o.ID,
 		Office: model.Office{
-			ID:   o.OfficeID,
-			Name: o.OfficeName,
+			ID:       o.OfficeID,
+			Name:     o.OfficeName,
+			TimeZone: o.TimeZone,
 		},
 		Seat: model.Seat{
 			ID:            o.SeatID,
