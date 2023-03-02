@@ -48,7 +48,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatForm := form.NewFreeSeatForm(logger)
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
-	informerService := service.NewInformer(userRepository, bookSeatRepository, logger)
+	informerService := service.NewInformer(botAPI, userRepository, bookSeatRepository, logger)
 	seatListForm := form.NewSeatListForm(logger)
 	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(informerService, userService, bookSeatRepository, seatListMenu, logger)
