@@ -65,7 +65,7 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		return "", err
 	}
 	if userBookSeat != nil {
-		message = "У вас уже есть бронь в этом офисе на сегодня"
+		message = "У вас уже есть бронь в этом офисе на эту дату'"
 		return message, nil
 	}
 
@@ -99,7 +99,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 		return "", false, err
 	}
 	if userBookSeat == nil || (userBookSeat != nil && userBookSeat.User.ID != currentUser.ID) {
-		message = "У вас нет брони на сегодня"
+		message = "У вас нет брони на эту дату"
 		return message, false, nil
 	}
 
