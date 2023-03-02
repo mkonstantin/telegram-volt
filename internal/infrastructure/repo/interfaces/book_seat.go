@@ -12,5 +12,6 @@ type BookSeatRepository interface {
 	BookSeatWithID(id, userID int64) error
 	CancelBookSeatWithID(id int64) error
 	FindByUserID(userID int64) (*model.BookSeat, error)
+	FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error)
 	InsertSeat(officeID, seatID int64, dayDate time.Time) error
 }

@@ -36,7 +36,6 @@ func NewUserService(userRepo interfaces.UserRepository,
 //========= Выбрали офис и вызываем его меню
 
 func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error) {
-
 	currentUser := model.GetCurrentUser(ctx)
 
 	err := u.userRepo.SetOffice(officeID, currentUser.TelegramID)
@@ -53,22 +52,21 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 // ========== Забронировали место
 
 func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (string, error) {
-
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
-	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, bookSeat.BookDate.String())
 	if err != nil {
 		return "", err
 	}
 	if userBookSeat != nil {
 		message = "У вас уже есть бронь в этом офисе на сегодня"
 		return message, nil
-	}
-
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
-	if err != nil {
-		return "", err
 	}
 
 	if bookSeat.User != nil {
@@ -91,7 +89,12 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
-	userBookSeat, err := u.bookSeatRepo.FindByUserID(currentUser.ID)
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return "", false, err
+	}
+
+	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, bookSeat.BookDate.String())
 	if err != nil {
 		return "", false, err
 	}

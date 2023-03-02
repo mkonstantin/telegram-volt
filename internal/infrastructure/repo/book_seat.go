@@ -148,6 +148,30 @@ func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, er
 	return dtoO.ToModel(), nil
 }
 
+func (s *bookSeatRepositoryImpl) FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error) {
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name, o1.name as office_name").
+		From("book_seat as bs").
+		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
+		InnerJoin("office as o1 ON bs.office_id=o1.id").
+		LeftJoin("user as u1 ON bs.user_id = u1.id").
+		Where(sq.And{sq.Eq{"bs.user_id": userID}, sq.Eq{"bs.book_date": dateStr}})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO dto.BookSeat
+	if err = s.db.Get(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return dtoO.ToModel(), nil
+}
+
 func (s *bookSeatRepositoryImpl) InsertSeat(officeID, seatID int64, dayDate time.Time) error {
 	sqQuery := sq.
 		Insert("book_seat").Columns("office_id", "seat_id", "book_date").
