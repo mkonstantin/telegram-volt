@@ -4,8 +4,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"log"
+	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/infrastructure/middleware"
-	"telegram-api/internal/infrastructure/scheduler"
 )
 
 type TelegramBot struct {

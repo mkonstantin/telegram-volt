@@ -1,4 +1,4 @@
-package handler
+package job
 
 import (
 	"go.uber.org/zap"

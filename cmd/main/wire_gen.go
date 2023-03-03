@@ -14,13 +14,13 @@ import (
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
 	"telegram-api/internal/app/menu"
+	"telegram-api/internal/app/scheduler"
+	handler2 "telegram-api/internal/app/scheduler/job"
 	"telegram-api/internal/app/service"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo"
 	"telegram-api/internal/infrastructure/router"
-	"telegram-api/internal/infrastructure/scheduler"
-	handler2 "telegram-api/internal/infrastructure/scheduler/handler"
 	"telegram-api/internal/infrastructure/telegram"
 )
 

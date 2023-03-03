@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/scheduler/job"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/repo/interfaces"
-	"telegram-api/internal/infrastructure/scheduler/handler"
 	"time"
 )
 
 type jobsSchedulerImpl struct {
 	officeRepo interfaces.OfficeRepository
-	officeJobs handler.OfficeJob
+	officeJobs job.OfficeJob
 	logger     *zap.Logger
 }
 
@@ -20,7 +20,7 @@ type JobsScheduler interface {
 	Start()
 }
 
-func NewJobsScheduler(officeRepo interfaces.OfficeRepository, officeJobs handler.OfficeJob, logger *zap.Logger) JobsScheduler {
+func NewJobsScheduler(officeRepo interfaces.OfficeRepository, officeJobs job.OfficeJob, logger *zap.Logger) JobsScheduler {
 	return &jobsSchedulerImpl{
 		officeRepo: officeRepo,
 		officeJobs: officeJobs,
