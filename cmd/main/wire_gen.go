@@ -13,10 +13,10 @@ import (
 	"telegram-api/config"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
+	"telegram-api/internal/app/informer"
 	"telegram-api/internal/app/menu"
 	"telegram-api/internal/app/scheduler"
-	handler2 "telegram-api/internal/app/scheduler/job"
-	"telegram-api/internal/app/informer"
+	"telegram-api/internal/app/scheduler/job"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo"
@@ -57,7 +57,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, logger)
 	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
 	seatRepository := repo.NewSeatRepository(connection)
-	officeJob := handler2.NewOfficeJob(bookSeatRepository, seatRepository, logger)
+	officeJob := job.NewOfficeJob(bookSeatRepository, seatRepository, logger)
 	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, officeJob, logger)
 	telegramBot := telegram.NewTelegramBot(botAPI, userMW, jobsScheduler, logger)
 	return telegramBot, func() {
