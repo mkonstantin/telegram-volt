@@ -2,8 +2,8 @@ package job
 
 import (
 	"go.uber.org/zap"
+	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
-	"telegram-api/internal/infrastructure/service"
 	"time"
 )
 
@@ -27,7 +27,7 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 
 func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Location) error {
 
-	bookDate := service.TomorrowZeroTimeUTC()
+	bookDate := helper.TomorrowZeroTimeUTC()
 	result, err := o.isExistSeats(officeID, bookDate)
 	if err != nil {
 		o.logger.Error("SetNewSeatList", zap.Error(err))

@@ -6,8 +6,8 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
-	"telegram-api/internal/infrastructure/service"
 )
 
 type InformerService interface {
@@ -39,9 +39,9 @@ func (i *informerServiceImpl) SeatComeFree(ctx context.Context, bookSeatID int64
 		return err
 	}
 
-	todayUTC := service.TodayZeroTimeUTC()
-	currentTime, err := service.CurrentTimeWithTimeZone(bookSeat.Office.TimeZone)
-	eveningTime, err := service.EveningTimeWithTimeZone(bookSeat.Office.TimeZone)
+	todayUTC := helper.TodayZeroTimeUTC()
+	currentTime, err := helper.CurrentTimeWithTimeZone(bookSeat.Office.TimeZone)
+	eveningTime, err := helper.EveningTimeWithTimeZone(bookSeat.Office.TimeZone)
 
 	if err != nil {
 		i.logger.Error("Error TodayWithTimeZone", zap.Error(err))

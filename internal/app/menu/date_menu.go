@@ -8,8 +8,8 @@ import (
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/helper"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
-	"telegram-api/internal/infrastructure/service"
 )
 
 type dateMenuImpl struct {
@@ -42,13 +42,13 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 		return nil, err
 	}
 
-	today := service.TodayZeroTimeUTC()
+	today := helper.TodayZeroTimeUTC()
 	todaySeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, today.String())
 	if err != nil {
 		return nil, err
 	}
 
-	tomorrow := service.TomorrowZeroTimeUTC()
+	tomorrow := helper.TomorrowZeroTimeUTC()
 	tomorrowSeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, tomorrow.String())
 	if err != nil {
 		return nil, err
