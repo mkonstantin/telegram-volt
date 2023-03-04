@@ -1,6 +1,7 @@
 package job
 
 import (
+	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -83,5 +84,6 @@ func (o *officeJobsImpl) insertSeatsTo(officeID int64, date time.Time) error {
 			return err
 		}
 	}
+	o.logger.Info(fmt.Sprintf("Insert seats for office with ID %d, seats amount: %d, date: %s", officeID, len(seats), date.String()))
 	return nil
 }
