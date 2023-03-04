@@ -4,13 +4,18 @@ import (
 	"time"
 )
 
+// WeekRange Возвращает массив рабочих дней в указанном году и неделе
+
 func WeekRange(year, weekNumber int) []time.Time {
 	var days []time.Time
 	start := weekStart(year, weekNumber)
 
 	for i := 0; i <= 6; i++ {
-		end := start.AddDate(0, 0, i)
-		days = append(days, end)
+		next := start.AddDate(0, 0, i)
+		if next.Weekday() == time.Saturday || next.Weekday() == time.Sunday {
+			continue
+		}
+		days = append(days, next)
 	}
 	return days
 }
