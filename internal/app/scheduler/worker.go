@@ -53,9 +53,8 @@ func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
 	}
 
 	s := gocron.NewScheduler(location)
-	_, err = s.Every(1).
-		Day().
-		At("22:00").
+	_, err = s.Every(12).
+		Hours().
 		Do(func() {
 			year, week := time.Now().ISOWeek()
 

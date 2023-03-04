@@ -25,6 +25,8 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 	}
 }
 
+// Метод сетает места на всю неделю для конкретного офиса
+
 func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
 	weekDays := helper.WeekRange(year, week)
 
@@ -42,6 +44,9 @@ func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
 	return nil
 }
 
+// В этом методе определяются условия при которых мы НЕ можем засетать места на сегодня.
+// Условия: дни суббота, воскресенье, дни раньше текущего дня, день уже заполнен
+
 func (o *officeJobsImpl) canSetSeats(officeID int64, bookDate time.Time) (bool, error) {
 
 	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
@@ -51,10 +56,15 @@ func (o *officeJobsImpl) canSetSeats(officeID int64, bookDate time.Time) (bool, 
 
 	today := helper.TodayZeroTimeUTC()
 
-	if len(bookedSeats) > 0 ||
-		bookDate.Before(today) ||
-		bookDate.Weekday() == time.Saturday ||
-		bookDate.Weekday() == time.Sunday {
+	// Условия не позволяющие засетать места:
+	switch {
+	case len(bookedSeats) > 0:
+		fallthrough
+	case bookDate.Before(today):
+		fallthrough
+	case bookDate.Weekday() == time.Saturday:
+		fallthrough
+	case bookDate.Weekday() == time.Sunday:
 		return false, nil
 	}
 	return true, nil
