@@ -29,12 +29,12 @@ func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
 	weekDays := helper.WeekRange(year, week)
 
 	for _, day := range weekDays {
-		result, err := o.isSeatsExists(officeID, day)
+		result, err := o.canSetSeats(officeID, day)
 		if err != nil {
 			o.logger.Error("SetNewSeatList", zap.Error(err))
 			return err
 		}
-		if !result {
+		if result {
 			return o.insertSeatsTo(officeID, day)
 		}
 	}
@@ -42,17 +42,22 @@ func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
 	return nil
 }
 
-func (o *officeJobsImpl) isSeatsExists(officeID int64, bookDate time.Time) (bool, error) {
+func (o *officeJobsImpl) canSetSeats(officeID int64, bookDate time.Time) (bool, error) {
 
 	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
 	if err != nil {
 		return false, err
 	}
 
-	if len(bookedSeats) > 0 {
-		return true, nil
+	today := helper.TodayZeroTimeUTC()
+
+	if len(bookedSeats) > 0 ||
+		bookDate.Before(today) ||
+		bookDate.Weekday() == time.Saturday ||
+		bookDate.Weekday() == time.Sunday {
+		return false, nil
 	}
-	return false, nil
+	return true, nil
 }
 
 func (o *officeJobsImpl) insertSeatsTo(officeID int64, date time.Time) error {
