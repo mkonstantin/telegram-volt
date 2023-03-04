@@ -14,7 +14,7 @@ type officeJobsImpl struct {
 }
 
 type OfficeJob interface {
-	SetNewSeatList(officeID int64, officeLocation *time.Location) error
+	SetSeatsWeek(officeID int64, year, week int) error
 }
 
 func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interfaces.SeatRepository, logger *zap.Logger) OfficeJob {
@@ -25,35 +25,24 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 	}
 }
 
-func (o *officeJobsImpl) SetNewSeatList(officeID int64, officeLocation *time.Location) error {
+func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
+	weekDays := helper.WeekRange(year, week)
 
-	bookDate := helper.TomorrowZeroTimeUTC()
-	result, err := o.isExistSeats(officeID, bookDate)
-	if err != nil {
-		o.logger.Error("SetNewSeatList", zap.Error(err))
-		return err
-	}
-	if result {
-		o.logger.Info("SetNewSeatList seats already set")
-		return nil
-	}
-
-	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
-	if err != nil {
-		return err
-	}
-
-	for _, seat := range seats {
-		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, bookDate)
+	for _, day := range weekDays {
+		result, err := o.isSeatsExists(officeID, day)
 		if err != nil {
-			o.logger.Error("InsertSeat", zap.Error(err))
+			o.logger.Error("SetNewSeatList", zap.Error(err))
 			return err
 		}
+		if !result {
+			return o.insertSeatsTo(officeID, day)
+		}
 	}
+
 	return nil
 }
 
-func (o *officeJobsImpl) isExistSeats(officeID int64, bookDate time.Time) (bool, error) {
+func (o *officeJobsImpl) isSeatsExists(officeID int64, bookDate time.Time) (bool, error) {
 
 	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
 	if err != nil {
@@ -64,4 +53,20 @@ func (o *officeJobsImpl) isExistSeats(officeID int64, bookDate time.Time) (bool,
 		return true, nil
 	}
 	return false, nil
+}
+
+func (o *officeJobsImpl) insertSeatsTo(officeID int64, date time.Time) error {
+	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
+	if err != nil {
+		return err
+	}
+
+	for _, seat := range seats {
+		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, date)
+		if err != nil {
+			o.logger.Error("InsertSeat", zap.Error(err))
+			return err
+		}
+	}
+	return nil
 }
