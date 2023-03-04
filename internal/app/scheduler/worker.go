@@ -53,12 +53,12 @@ func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
 	}
 
 	s := gocron.NewScheduler(location)
-	_, err = s.Every(12).
+	_, err = s.Every(3).
 		Hours().
 		Do(func() {
 			year, week := time.Now().ISOWeek()
 
-			err = w.officeJobs.SetSeatsWeek(office.ID, year, week)
+			err = w.officeJobs.SetSeatsForAllWeek(office.ID, year, week)
 			if err != nil {
 				w.logger.Error("gocron execution error", zap.Error(err))
 			}

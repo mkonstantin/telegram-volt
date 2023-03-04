@@ -14,7 +14,7 @@ type officeJobsImpl struct {
 }
 
 type OfficeJob interface {
-	SetSeatsWeek(officeID int64, year, week int) error
+	SetSeatsForAllWeek(officeID int64, year, week int) error
 }
 
 func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interfaces.SeatRepository, logger *zap.Logger) OfficeJob {
@@ -27,7 +27,7 @@ func NewOfficeJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interface
 
 // Метод сетает места на всю неделю для конкретного офиса
 
-func (o *officeJobsImpl) SetSeatsWeek(officeID int64, year, week int) error {
+func (o *officeJobsImpl) SetSeatsForAllWeek(officeID int64, year, week int) error {
 	weekDays := helper.WeekRange(year, week)
 
 	for _, day := range weekDays {
