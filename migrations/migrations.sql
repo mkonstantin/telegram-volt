@@ -64,3 +64,16 @@ ALTER TABLE user add column notify_office_id int(16) default 0;
 ALTER TABLE office add column time_zone VARCHAR(255) NOT NULL;
 
 ALTER TABLE user add column chat_id INT(11) default 0;
+
+CREATE TABLE `work_date`
+(
+    `id`                INT(11)          NOT NULL AUTO_INCREMENT,
+    `status`            INT(11)          DEFAULT 0,
+    `work_date`         DATETIME         NOT NULL,
+    `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4
+    COLLATE utf8mb4_unicode_ci;
