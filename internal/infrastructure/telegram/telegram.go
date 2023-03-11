@@ -25,7 +25,8 @@ func NewTelegramBot(botAPI *tgbotapi.BotAPI, router middleware.UserMW, jobSchedu
 }
 
 func (t *TelegramBot) StartAsyncScheduler() {
-	t.jobScheduler.Start()
+	t.jobScheduler.StartFillWorkDates()
+	t.jobScheduler.StartEnableBook()
 }
 
 func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {

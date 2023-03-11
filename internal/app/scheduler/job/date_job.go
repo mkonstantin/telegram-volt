@@ -52,8 +52,8 @@ func (o *dateJobsImpl) CheckAndSetDates() error {
 
 func (o *dateJobsImpl) addDays(startDate time.Time) error {
 	for i := 0; i < addDaysAmount; i++ {
-		asd := startDate.AddDate(0, 0, i)
-		err := o.dateRepo.InsertDate(asd)
+		nextDate := startDate.AddDate(0, 0, i)
+		err := o.dateRepo.InsertDate(nextDate)
 		if err != nil {
 			o.logger.Error("error while add dates", zap.Error(err))
 			return err

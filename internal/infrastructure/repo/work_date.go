@@ -49,7 +49,7 @@ func (s *workDateRepositoryImpl) GetLastByDate() (*model.WorkDate, error) {
 func (s *workDateRepositoryImpl) InsertDate(date time.Time) error {
 	sqQuery := sq.
 		Insert("work_date").Columns("status", "work_date").
-		Values(0, date)
+		Values(model.StatusWait, date)
 	query, args, err := sqQuery.ToSql()
 
 	if err != nil {
