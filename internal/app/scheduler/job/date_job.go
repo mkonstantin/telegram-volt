@@ -1,87 +1,63 @@
 package job
 
 import (
-	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"time"
 )
 
+const (
+	plusDaysAmount = 10
+	addDaysAmount  = 30
+)
+
 type dateJobsImpl struct {
-	bookSeatRepo interfaces.BookSeatRepository
-	seatRepo     interfaces.SeatRepository
-	logger       *zap.Logger
+	dateRepo interfaces.WorkDateRepository
+	logger   *zap.Logger
 }
 
 type DateJob interface {
 	CheckAndSetDates() error
 }
 
-func NewDateJob(bookSeatRepo interfaces.BookSeatRepository, seatRepo interfaces.SeatRepository, logger *zap.Logger) DateJob {
+func NewDateJob(dateRepo interfaces.WorkDateRepository, logger *zap.Logger) DateJob {
 	return &dateJobsImpl{
-		bookSeatRepo: bookSeatRepo,
-		seatRepo:     seatRepo,
-		logger:       logger,
+		dateRepo: dateRepo,
+		logger:   logger,
 	}
 }
 
 func (o *dateJobsImpl) CheckAndSetDates() error {
-	weekDays := helper.WeekRange(year, week)
 
-	for _, day := range weekDays {
-		result, err := o.canSetSeats(officeID, day)
-		if err != nil {
-			o.logger.Error("SetNewSeatList", zap.Error(err))
-			return err
-		}
-		if result {
-			return o.insertSeatsTo(officeID, day)
-		}
+	last, err := o.dateRepo.GetLastByDate()
+	if err != nil {
+		return err
+	}
+
+	todayPlus10Days := helper.TodayPlusUTC(plusDaysAmount)
+
+	if last == nil {
+		return o.addDays(helper.TodayZeroTimeUTC())
+	}
+
+	// добавляем даты за 10 дней до конца текущих
+	if todayPlus10Days.After(last.WorkDate) {
+		date := last.WorkDate.AddDate(0, 0, 1)
+		return o.addDays(date)
 	}
 
 	return nil
 }
 
-// В этом методе определяются условия при которых мы НЕ можем засетать места на сегодня.
-// Условия: дни суббота, воскресенье, дни раньше текущего дня, день уже заполнен
-
-func (o *dateJobsImpl) canSetSeats(officeID int64, bookDate time.Time) (bool, error) {
-
-	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
-	if err != nil {
-		return false, err
-	}
-
-	today := helper.TodayZeroTimeUTC()
-
-	// Условия не позволяющие засетать места:
-	switch {
-	case len(bookedSeats) > 0:
-		fallthrough
-	case bookDate.Before(today):
-		fallthrough
-	case bookDate.Weekday() == time.Saturday:
-		fallthrough
-	case bookDate.Weekday() == time.Sunday:
-		return false, nil
-	}
-	return true, nil
-}
-
-func (o *dateJobsImpl) insertSeatsTo(officeID int64, date time.Time) error {
-	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
-	if err != nil {
-		return err
-	}
-
-	for _, seat := range seats {
-		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, date)
+func (o *dateJobsImpl) addDays(startDate time.Time) error {
+	for i := 0; i < addDaysAmount; i++ {
+		asd := startDate.AddDate(0, 0, i)
+		err := o.dateRepo.InsertDate(asd)
 		if err != nil {
-			o.logger.Error("InsertSeat", zap.Error(err))
+			o.logger.Error("error while add dates", zap.Error(err))
 			return err
 		}
 	}
-	o.logger.Info(fmt.Sprintf("Insert seats for office with ID %d, seats amount: %d, date: %s", officeID, len(seats), date.String()))
 	return nil
 }

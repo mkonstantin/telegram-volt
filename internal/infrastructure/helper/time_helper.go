@@ -32,6 +32,12 @@ func TodayZeroTimeUTC() time.Time {
 	return bookDate
 }
 
+func TodayPlusUTC(days int) time.Time {
+	date := time.Now()
+	zeroDate := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, time.UTC)
+	return zeroDate.AddDate(0, 0, days)
+}
+
 func TomorrowZeroTimeUTC() time.Time {
 	currentTime := time.Now()
 	date := currentTime.AddDate(0, 0, 1)
