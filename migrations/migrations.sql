@@ -68,7 +68,7 @@ ALTER TABLE user add column chat_id INT(11) default 0;
 CREATE TABLE `work_date`
 (
     `id`                INT(11)          NOT NULL AUTO_INCREMENT,
-    `status`            INT(11)          DEFAULT 0,
+    `status`            VARCHAR(255)     NOT NULL,
     `work_date`         DATETIME         NOT NULL,
     `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,

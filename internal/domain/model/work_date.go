@@ -3,9 +3,10 @@ package model
 import "time"
 
 const (
-	StatusWait   = 0
-	StatusAccept = 1
-	StatusDone   = 2
+	StatusWait         = "wait"
+	StatusSetBookSeats = "set_book_seats"
+	StatusAccept       = "accept_to_book"
+	StatusDone         = "done"
 )
 
 type WorkDate struct {
