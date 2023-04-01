@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	checkDays       = 10
-	totalDaysAmount = 15
+	checkDays       = 20
+	totalDaysAmount = 30
 )
 
 type dateJobsImpl struct {
