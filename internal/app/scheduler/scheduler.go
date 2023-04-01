@@ -10,8 +10,8 @@ import (
 
 type jobsSchedulerImpl struct {
 	officeRepo interfaces.OfficeRepository
-	officeJobs job.OfficeJob
 	dateJob    job.DateJob
+	seatJob    job.SeatJob
 	logger     *zap.Logger
 }
 
@@ -20,11 +20,15 @@ type JobsScheduler interface {
 	StartFillSeats()
 }
 
-func NewJobsScheduler(officeRepo interfaces.OfficeRepository, officeJobs job.OfficeJob, dateJob job.DateJob, logger *zap.Logger) JobsScheduler {
+func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
+	dateJob job.DateJob,
+	seatJob job.SeatJob,
+	logger *zap.Logger) JobsScheduler {
+
 	return &jobsSchedulerImpl{
 		officeRepo: officeRepo,
-		officeJobs: officeJobs,
 		dateJob:    dateJob,
+		seatJob:    seatJob,
 		logger:     logger,
 	}
 }
@@ -45,7 +49,7 @@ func (w *jobsSchedulerImpl) startDateJob() error {
 	s := gocron.NewScheduler(time.UTC)
 	_, err := s.Every(1).
 		Day().
-		At("12:30").
+		At("03:00").
 		Do(func() {
 			w.logger.Info("gocron start CheckAndSetDates")
 
@@ -82,24 +86,24 @@ func (w *jobsSchedulerImpl) startSeatsJob() error {
 	s := gocron.NewScheduler(time.UTC)
 	_, err := s.Every(1).
 		Day().
-		At("12:30").
+		At("03:30").
 		Do(func() {
 			w.logger.Info("gocron start CheckAndSetDates")
 
-			err := w.dateJob.CheckAndSetDates()
+			err := w.seatJob.SetSeats()
 			if err != nil {
-				w.logger.Error("gocron execution DateJobs error", zap.Error(err))
+				w.logger.Error("gocron execution SeatsJob error", zap.Error(err))
 			}
 		})
 	if err != nil {
-		w.logger.Error("gocron create DateJobs error", zap.Error(err))
+		w.logger.Error("gocron create SeatsJob error", zap.Error(err))
 		return err
 	}
 
 	s.StartImmediately()
 	s.StartAsync()
 
-	w.logger.Info("Successfully started scheduled job: DateJobs")
+	w.logger.Info("Successfully started scheduled job: SeatsJob")
 	return nil
 }
 
