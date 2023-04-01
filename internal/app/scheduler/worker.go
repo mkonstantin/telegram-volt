@@ -48,6 +48,7 @@ func (w *jobsSchedulerImpl) startDateJob() error {
 		At("12:30").
 		Do(func() {
 			w.logger.Info("gocron start CheckAndSetDates")
+
 			err := w.dateJob.CheckAndSetDates()
 			if err != nil {
 				w.logger.Error("gocron execution DateJobs error", zap.Error(err))
