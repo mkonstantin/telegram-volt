@@ -88,7 +88,7 @@ func (w *jobsSchedulerImpl) startSeatsJob() error {
 		Day().
 		At("03:30").
 		Do(func() {
-			w.logger.Info("gocron start CheckAndSetDates")
+			w.logger.Info("gocron start SetSeats")
 
 			err := w.seatJob.SetSeats()
 			if err != nil {
@@ -106,51 +106,3 @@ func (w *jobsSchedulerImpl) startSeatsJob() error {
 	w.logger.Info("Successfully started scheduled job: SeatsJob")
 	return nil
 }
-
-//func (w *jobsSchedulerImpl) StartEnableBook() {
-//	w.logger.Info("Starting Enable Book scheduled job")
-//
-//	offices, err := w.officeRepo.GetAll()
-//	if err != nil {
-//		w.logger.Error("Scheduler jobs get all offices error", zap.Error(err))
-//		return
-//	}
-//
-//	for _, office := range offices {
-//		err = w.createForOffice(office)
-//		if err != nil {
-//			w.logger.Error("Scheduler jobs set office error", zap.Error(err))
-//			return
-//		}
-//	}
-//}
-//
-//func (w *jobsSchedulerImpl) createForOffice(office *model.Office) error {
-//	location, err := time.LoadLocation(office.TimeZone)
-//	if err != nil {
-//		return err
-//	}
-//
-//	s := gocron.NewScheduler(location)
-//	_, err = s.Every(1).
-//		Day().
-//		At("14:00").
-//		Do(func() {
-//			w.logger.Info("gocron start Seat_book")
-//
-//			year, week := time.Now().ISOWeek()
-//			err = w.officeJobs.SetSeatsForAllWeek(office.ID, year, week)
-//			if err != nil {
-//				w.logger.Error("gocron execution error", zap.Error(err))
-//			}
-//		})
-//
-//	if err != nil {
-//		w.logger.Error("gocron create error", zap.Error(err))
-//	}
-//	s.StartImmediately()
-//	s.StartAsync()
-//
-//	w.logger.Info(fmt.Sprintf("Successfully started async scheduled jobs for %s", office.Name))
-//	return nil
-//}
