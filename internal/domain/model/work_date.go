@@ -11,6 +11,6 @@ const (
 
 type WorkDate struct {
 	ID       int64
-	Status   int64
+	Status   string
 	WorkDate time.Time
 }

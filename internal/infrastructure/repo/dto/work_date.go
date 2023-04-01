@@ -7,7 +7,7 @@ import (
 
 type WorkDate struct {
 	ID        int64     `db:"id,omitempty"`
-	Status    int64     `db:"status,omitempty"`
+	Status    string    `db:"status,omitempty"`
 	WorkDate  time.Time `db:"work_date,omitempty"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`

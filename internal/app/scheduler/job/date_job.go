@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	plusDaysAmount = 10
-	addDaysAmount  = 30
+	checkDays       = 10
+	totalDaysAmount = 15
 )
 
 type dateJobsImpl struct {
@@ -35,23 +35,27 @@ func (o *dateJobsImpl) CheckAndSetDates() error {
 		return err
 	}
 
-	todayPlus10Days := helper.TodayPlusUTC(plusDaysAmount)
-
+	// Если дат нет, то сразу добавляем totalDaysAmount дней
 	if last == nil {
-		return o.addDays(helper.TodayZeroTimeUTC())
+		return o.addDays(helper.TodayZeroTimeUTC(), totalDaysAmount)
 	}
 
-	// добавляем даты за 10 дней до конца текущих
-	if todayPlus10Days.After(last.WorkDate) {
+	// Замеряем сколько дней до лимита даты
+	today := helper.TodayZeroTimeUTC()
+	duration := last.WorkDate.Sub(today)
+	days := int(duration.Hours()/24) + 1
+
+	// Если меньше или равно checkDays, то прибавляем разницу чтобы всегда было + 20-30 дней
+	if days <= checkDays {
 		date := last.WorkDate.AddDate(0, 0, 1)
-		return o.addDays(date)
+		return o.addDays(date, totalDaysAmount-days)
 	}
 
 	return nil
 }
 
-func (o *dateJobsImpl) addDays(startDate time.Time) error {
-	for i := 0; i < addDaysAmount; i++ {
+func (o *dateJobsImpl) addDays(startDate time.Time, daysAmount int) error {
+	for i := 0; i < daysAmount; i++ {
 		nextDate := startDate.AddDate(0, 0, i)
 		err := o.dateRepo.InsertDate(nextDate)
 		if err != nil {
