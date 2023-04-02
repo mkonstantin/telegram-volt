@@ -3,12 +3,18 @@ package job
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"time"
 )
 
+const (
+	daysToSeatsFill = 10
+)
+
 type seatJobImpl struct {
+	officeRepo   interfaces.OfficeRepository
 	dateRepo     interfaces.WorkDateRepository
 	bookSeatRepo interfaces.BookSeatRepository
 	seatRepo     interfaces.SeatRepository
@@ -19,8 +25,14 @@ type SeatJob interface {
 	SetSeats() error
 }
 
-func NewSeatsJob(dateRepo interfaces.WorkDateRepository, bookSeatRepo interfaces.BookSeatRepository, seatRepo interfaces.SeatRepository, logger *zap.Logger) SeatJob {
+func NewSeatsJob(officeRepo interfaces.OfficeRepository,
+	dateRepo interfaces.WorkDateRepository,
+	bookSeatRepo interfaces.BookSeatRepository,
+	seatRepo interfaces.SeatRepository,
+	logger *zap.Logger) SeatJob {
+
 	return &seatJobImpl{
+		officeRepo:   officeRepo,
 		dateRepo:     dateRepo,
 		bookSeatRepo: bookSeatRepo,
 		seatRepo:     seatRepo,
@@ -28,59 +40,69 @@ func NewSeatsJob(dateRepo interfaces.WorkDateRepository, bookSeatRepo interfaces
 	}
 }
 
-func (o *seatJobImpl) SetSeats() error {
-	weekDays := helper.WeekRange(year, week)
+func (w *seatJobImpl) SetSeats() error {
 
-	for _, day := range weekDays {
-		result, err := o.canSetSeats(officeID, day)
+	today := helper.TodayZeroTimeUTC()
+
+	dates, err := w.dateRepo.FindByDateAndStatus(today.String(), model.StatusWait, daysToSeatsFill)
+	if err != nil {
+		return err
+	}
+
+	officeIDs, err := w.getOfficeIDs()
+	if err != nil {
+		return err
+	}
+
+	for _, day := range dates {
+		err = w.fillByOffices(officeIDs, day)
 		if err != nil {
-			o.logger.Error("SetNewSeatList", zap.Error(err))
 			return err
-		}
-		if result {
-			return o.insertSeatsTo(officeID, day)
 		}
 	}
 
 	return nil
 }
 
-func (o *seatJobImpl) canSetSeats(officeID int64, bookDate time.Time) (bool, error) {
-
-	bookedSeats, err := o.bookSeatRepo.GetAllByOfficeIDAndDate(officeID, bookDate.String())
-	if err != nil {
-		return false, err
+func (w *seatJobImpl) fillByOffices(officeIDs []int64, workDate model.WorkDate) error {
+	for _, officeID := range officeIDs {
+		err := w.insertSeatsTo(officeID, workDate.Date)
+		if err != nil {
+			return err
+		}
 	}
-
-	today := helper.TodayZeroTimeUTC()
-
-	// Условия не позволяющие засетать места:
-	switch {
-	case len(bookedSeats) > 0:
-		fallthrough
-	case bookDate.Before(today):
-		fallthrough
-	case bookDate.Weekday() == time.Saturday:
-		fallthrough
-	case bookDate.Weekday() == time.Sunday:
-		return false, nil
-	}
-	return true, nil
+	return nil
 }
 
-func (o *seatJobImpl) insertSeatsTo(officeID int64, date time.Time) error {
-	seats, err := o.seatRepo.GetAllByOfficeID(officeID)
+func (w *seatJobImpl) getOfficeIDs() ([]int64, error) {
+	w.logger.Info("Starting Enable Book scheduled job")
+
+	offices, err := w.officeRepo.GetAll()
+	if err != nil {
+		w.logger.Error("Scheduler jobs get all offices error", zap.Error(err))
+		return []int64{}, err
+	}
+
+	var ids []int64
+	for _, office := range offices {
+		ids = append(ids, office.ID)
+	}
+	return ids, nil
+}
+
+func (w *seatJobImpl) insertSeatsTo(officeID int64, date time.Time) error {
+	seats, err := w.seatRepo.GetAllByOfficeID(officeID)
 	if err != nil {
 		return err
 	}
 
 	for _, seat := range seats {
-		err = o.bookSeatRepo.InsertSeat(officeID, seat.ID, date)
+		err = w.bookSeatRepo.InsertSeat(officeID, seat.ID, date)
 		if err != nil {
-			o.logger.Error("InsertSeat", zap.Error(err))
+			w.logger.Error("InsertSeat", zap.Error(err))
 			return err
 		}
 	}
-	o.logger.Info(fmt.Sprintf("Insert seats for office with ID %d, seats amount: %d, date: %s", officeID, len(seats), date.String()))
+	w.logger.Info(fmt.Sprintf("Insert seats for office with ID %d, seats amount: %d, date: %s", officeID, len(seats), date.String()))
 	return nil
 }
