@@ -38,6 +38,11 @@ func TodayPlusUTC(days int) time.Time {
 	return zeroDate.AddDate(0, 0, days)
 }
 
+func PlusDaysUTC(startDate time.Time, days int) time.Time {
+	zeroDate := time.Date(startDate.Year(), startDate.Month(), startDate.Day(), 0, 0, 0, 0, time.UTC)
+	return zeroDate.AddDate(0, 0, days)
+}
+
 func TomorrowZeroTimeUTC() time.Time {
 	currentTime := time.Now()
 	date := currentTime.AddDate(0, 0, 1)

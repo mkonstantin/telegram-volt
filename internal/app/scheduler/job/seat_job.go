@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	daysToSeatsFill = 10
+	plusDays = 10
 )
 
 type seatJobImpl struct {
@@ -42,9 +42,10 @@ func NewSeatsJob(officeRepo interfaces.OfficeRepository,
 
 func (w *seatJobImpl) SetSeats() error {
 
-	today := helper.TodayZeroTimeUTC()
+	startDate := helper.TodayZeroTimeUTC()
+	endDate := helper.PlusDaysUTC(startDate, plusDays)
 
-	dates, err := w.dateRepo.FindByDateAndStatus(today.String(), model.StatusWait, daysToSeatsFill)
+	dates, err := w.dateRepo.FindByDatesAndStatus(startDate.String(), endDate.String(), model.StatusWait)
 	if err != nil {
 		return err
 	}

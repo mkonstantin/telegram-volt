@@ -21,14 +21,15 @@ func NewWorkDateRepository(conn repository.Connection) interfaces.WorkDateReposi
 	}
 }
 
-func (s *workDateRepositoryImpl) FindByDateAndStatus(dateStr string,
-	status model.DateStatus, limit uint64) ([]model.WorkDate, error) {
+func (s *workDateRepositoryImpl) FindByDatesAndStatus(startDate string, endDate string,
+	status model.DateStatus) ([]model.WorkDate, error) {
 
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
-		Where(sq.And{sq.Eq{"wd.status": status}, sq.GtOrEq{"wd.work_date": dateStr}}).
-		OrderBy("wd.work_date asc").
-		Limit(limit)
+		Where(sq.And{sq.Eq{"wd.status": status},
+			sq.GtOrEq{"wd.work_date": startDate},
+			sq.Lt{"wd.work_date": endDate}}).
+		OrderBy("wd.work_date asc")
 
 	query, args, err := sqQuery.ToSql()
 	if err != nil {
