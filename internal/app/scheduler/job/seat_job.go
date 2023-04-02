@@ -47,17 +47,25 @@ func (w *seatJobImpl) SetSeats() error {
 
 	dates, err := w.dateRepo.FindByDatesAndStatus(startDate.String(), endDate.String(), model.StatusWait)
 	if err != nil {
+		w.logger.Error("Scheduler Seat_jobs: w.dateRepo.FindByDatesAndStatus", zap.Error(err))
 		return err
 	}
 
 	officeIDs, err := w.getOfficeIDs()
 	if err != nil {
+		w.logger.Error("Scheduler Seat_jobs: w.getOfficeIDs", zap.Error(err))
 		return err
 	}
 
 	for _, day := range dates {
 		err = w.fillByOffices(officeIDs, day)
 		if err != nil {
+			w.logger.Error("Scheduler Seat_jobs: w.fillByOffices", zap.Error(err))
+			return err
+		}
+		err = w.dateRepo.UpdateStatusByID(day.ID, model.StatusSetBookSeats)
+		if err != nil {
+			w.logger.Error("Scheduler Seat_jobs: w.dateRepo.UpdateStatusByID", zap.Error(err))
 			return err
 		}
 	}
@@ -76,7 +84,6 @@ func (w *seatJobImpl) fillByOffices(officeIDs []int64, workDate model.WorkDate) 
 }
 
 func (w *seatJobImpl) getOfficeIDs() ([]int64, error) {
-	w.logger.Info("Starting Enable Book scheduled job")
 
 	offices, err := w.officeRepo.GetAll()
 	if err != nil {

@@ -10,4 +10,5 @@ type WorkDateRepository interface {
 	FindByDatesAndStatus(startDate string, endDate string, status model.DateStatus) ([]model.WorkDate, error)
 	InsertDate(dayDate time.Time) error
 	FindByID(id int64) (*model.WorkDate, error)
+	UpdateStatusByID(id int64, status model.DateStatus) error
 }

@@ -109,3 +109,17 @@ func (s *workDateRepositoryImpl) FindByID(id int64) (*model.WorkDate, error) {
 
 	return dtoO.ToModel(), nil
 }
+
+func (s *workDateRepositoryImpl) UpdateStatusByID(id int64, status model.DateStatus) error {
+	sqQuery := sq.Update("work_date").
+		Set("status", status).
+		Where(sq.Eq{"id": id})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}
