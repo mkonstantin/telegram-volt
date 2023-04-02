@@ -15,9 +15,9 @@ type WorkDate struct {
 
 func (o *WorkDate) ToModel() *model.WorkDate {
 	return &model.WorkDate{
-		ID:       o.ID,
-		Status:   o.Status,
-		WorkDate: o.WorkDate,
+		ID:     o.ID,
+		Status: o.Status,
+		Date:   o.WorkDate,
 	}
 }
 

@@ -42,12 +42,12 @@ func (o *dateJobsImpl) CheckAndSetDates() error {
 
 	// Замеряем сколько дней до лимита даты
 	today := helper.TodayZeroTimeUTC()
-	duration := last.WorkDate.Sub(today)
+	duration := last.Date.Sub(today)
 	days := int(duration.Hours()/24) + 1
 
 	// Если меньше или равно checkDays, то прибавляем разницу чтобы всегда было + 20-30 дней
 	if days <= checkDays {
-		date := last.WorkDate.AddDate(0, 0, 1)
+		date := last.Date.AddDate(0, 0, 1)
 		return o.addDays(date, totalDaysAmount-days)
 	}
 
