@@ -1,6 +1,7 @@
 package scheduler
 
 import (
+	"fmt"
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/scheduler/job"
@@ -17,6 +18,7 @@ type jobsSchedulerImpl struct {
 
 type JobsScheduler interface {
 	StartFillWorkDates()
+	StartHourlyJob()
 }
 
 func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
@@ -37,14 +39,6 @@ func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
 func (w *jobsSchedulerImpl) StartFillWorkDates() {
 	w.logger.Info("Starting Fill Work Dates and Seats scheduled job")
 
-	err := w.startDateJob()
-	if err != nil {
-		w.logger.Error("Job scheduler get error when try starting DateJob", zap.Error(err))
-		return
-	}
-}
-
-func (w *jobsSchedulerImpl) startDateJob() error {
 	s := gocron.NewScheduler(time.UTC)
 	_, err := s.Every(1).
 		Day().
@@ -62,14 +56,42 @@ func (w *jobsSchedulerImpl) startDateJob() error {
 				w.logger.Error("gocron execution SeatJob error", zap.Error(err))
 			}
 		})
+
 	if err != nil {
 		w.logger.Error("gocron create Date & Seat Jobs error", zap.Error(err))
-		return err
+		return
 	}
 
 	s.StartImmediately()
 	s.StartAsync()
 
 	w.logger.Info("Successfully started scheduled job: DateJobs, SeatJob")
-	return nil
+	return
+}
+
+func (w *jobsSchedulerImpl) StartHourlyJob() {
+	today := time.Now()
+	startedAt := time.Date(today.Year(), today.Month(), today.Day(), today.Hour()+1, 0, 0, 0, time.UTC)
+	w.logger.Info(fmt.Sprintf("Hourly Job startedAt: %s", startedAt.String()))
+
+	s := gocron.NewScheduler(time.UTC)
+	_, err := s.Every(1).
+		Hour().
+		StartAt(startedAt).
+		Do(func() {
+			w.logger.Info("gocron start Hourly Job")
+
+			err := w.dateJob.CheckAndSetDates()
+			if err != nil {
+				w.logger.Error("gocron execution Hourly Job error", zap.Error(err))
+			}
+		})
+	if err != nil {
+		w.logger.Error("gocron create Hourly Job error", zap.Error(err))
+	}
+
+	s.StartImmediately()
+	s.StartAsync()
+
+	w.logger.Info("Successfully started scheduled job: Hourly Job")
 }
