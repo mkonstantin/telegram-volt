@@ -21,6 +21,31 @@ func NewWorkDateRepository(conn repository.Connection) interfaces.WorkDateReposi
 	}
 }
 
+func (s *workDateRepositoryImpl) FindByDates(startDate string, endDate string) ([]model.WorkDate, error) {
+	sqQuery := sq.Select("*").
+		From("work_date as wd").
+		Where(sq.And{sq.GtOrEq{"wd.work_date": startDate}, sq.Lt{"wd.work_date": endDate}}).
+		OrderBy("wd.work_date asc")
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO []dto.WorkDate
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if len(dtoO) == 0 {
+		return nil, nil
+	}
+	return dto.ToWorkDateModels(dtoO), nil
+}
+
 func (s *workDateRepositoryImpl) FindByDatesAndStatus(startDate string, endDate string,
 	status model.DateStatus) ([]model.WorkDate, error) {
 
