@@ -21,10 +21,10 @@ func (o *WorkDate) ToModel() *model.WorkDate {
 	}
 }
 
-func ToWorkDateModels(array []WorkDate) []*model.WorkDate {
-	var models []*model.WorkDate
+func ToWorkDateModels(array []WorkDate) []model.WorkDate {
+	var models []model.WorkDate
 	for _, item := range array {
-		models = append(models, item.ToModel())
+		models = append(models, *item.ToModel())
 	}
 	return models
 }
