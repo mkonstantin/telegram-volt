@@ -26,7 +26,6 @@ func NewTelegramBot(botAPI *tgbotapi.BotAPI, router middleware.UserMW, jobSchedu
 
 func (t *TelegramBot) StartAsyncScheduler() {
 	t.jobScheduler.StartFillWorkDates()
-	t.jobScheduler.StartFillSeats()
 }
 
 func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {

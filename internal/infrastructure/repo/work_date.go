@@ -27,7 +27,7 @@ func (s *workDateRepositoryImpl) FindByDateAndStatus(dateStr string,
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
 		Where(sq.And{sq.Eq{"wd.status": status}, sq.GtOrEq{"wd.work_date": dateStr}}).
-		OrderBy("wd.work_date desc").
+		OrderBy("wd.work_date asc").
 		Limit(limit)
 
 	query, args, err := sqQuery.ToSql()
