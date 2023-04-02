@@ -4,7 +4,13 @@ import (
 	"time"
 )
 
-const eveningHour = 18
+type TimeStage int
+
+const (
+	Morning     TimeStage = 9
+	OpenBooking           = 14
+	Evening               = 18
+)
 
 func EveningTimeWithTimeZone(timeZone string) (time.Time, error) {
 	loc, err := time.LoadLocation(timeZone)
@@ -12,7 +18,17 @@ func EveningTimeWithTimeZone(timeZone string) (time.Time, error) {
 		return TodayZeroTimeUTC(), err
 	}
 	date := time.Now()
-	bookDate := time.Date(date.Year(), date.Month(), date.Day(), eveningHour, 0, 0, 0, loc)
+	bookDate := time.Date(date.Year(), date.Month(), date.Day(), Evening, 0, 0, 0, loc)
+	return bookDate, nil
+}
+
+func TimeWithTimeZone(hour TimeStage, timeZone string) (time.Time, error) {
+	loc, err := time.LoadLocation(timeZone)
+	if err != nil {
+		return TodayZeroTimeUTC(), err
+	}
+	date := time.Now().In(loc)
+	bookDate := time.Date(date.Year(), date.Month(), date.Day(), int(hour), 0, 0, 0, loc)
 	return bookDate, nil
 }
 
