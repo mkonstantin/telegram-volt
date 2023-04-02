@@ -17,7 +17,6 @@ type jobsSchedulerImpl struct {
 
 type JobsScheduler interface {
 	StartFillWorkDates()
-	StartFillSeats()
 }
 
 func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
@@ -36,7 +35,7 @@ func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
 // StartFillWorkDates Start FillWork Cron Scheduler
 
 func (w *jobsSchedulerImpl) StartFillWorkDates() {
-	w.logger.Info("Starting Fill Work Dates scheduled job")
+	w.logger.Info("Starting Fill Work Dates and Seats scheduled job")
 
 	err := w.startDateJob()
 	if err != nil {
@@ -51,58 +50,26 @@ func (w *jobsSchedulerImpl) startDateJob() error {
 		Day().
 		At("03:00").
 		Do(func() {
-			w.logger.Info("gocron start CheckAndSetDates")
+			w.logger.Info("gocron start Date & Seat Jobs")
 
 			err := w.dateJob.CheckAndSetDates()
 			if err != nil {
 				w.logger.Error("gocron execution DateJobs error", zap.Error(err))
 			}
-		})
-	if err != nil {
-		w.logger.Error("gocron create DateJobs error", zap.Error(err))
-		return err
-	}
 
-	s.StartImmediately()
-	s.StartAsync()
-
-	w.logger.Info("Successfully started scheduled job: DateJobs")
-	return nil
-}
-
-// StartFillSeats Start FillSeats Cron Scheduler
-
-func (w *jobsSchedulerImpl) StartFillSeats() {
-	w.logger.Info("Starting Fill Seats scheduled job")
-
-	err := w.startSeatsJob()
-	if err != nil {
-		w.logger.Error("Job scheduler get error when try starting SeatsJob", zap.Error(err))
-		return
-	}
-}
-
-func (w *jobsSchedulerImpl) startSeatsJob() error {
-	s := gocron.NewScheduler(time.UTC)
-	_, err := s.Every(1).
-		Day().
-		At("03:30").
-		Do(func() {
-			w.logger.Info("gocron start SetSeats")
-
-			err := w.seatJob.SetSeats()
+			err = w.seatJob.SetSeats()
 			if err != nil {
-				w.logger.Error("gocron execution SeatsJob error", zap.Error(err))
+				w.logger.Error("gocron execution SeatJob error", zap.Error(err))
 			}
 		})
 	if err != nil {
-		w.logger.Error("gocron create SeatsJob error", zap.Error(err))
+		w.logger.Error("gocron create Date & Seat Jobs error", zap.Error(err))
 		return err
 	}
 
 	s.StartImmediately()
 	s.StartAsync()
 
-	w.logger.Info("Successfully started scheduled job: SeatsJob")
+	w.logger.Info("Successfully started scheduled job: DateJobs, SeatJob")
 	return nil
 }
