@@ -56,11 +56,12 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, logger)
 	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, logger)
 	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
+	hourlyJob := job.NewHourlyJob(logger)
 	workDateRepository := repo.NewWorkDateRepository(connection)
 	dateJob := job.NewDateJob(workDateRepository, logger)
 	seatRepository := repo.NewSeatRepository(connection)
 	seatJob := job.NewSeatsJob(officeRepository, workDateRepository, bookSeatRepository, seatRepository, logger)
-	jobsScheduler := scheduler.NewJobsScheduler(officeRepository, dateJob, seatJob, logger)
+	jobsScheduler := scheduler.NewJobsScheduler(hourlyJob, dateJob, seatJob, logger)
 	telegramBot := telegram.NewTelegramBot(botAPI, userMW, jobsScheduler, logger)
 	return telegramBot, func() {
 		cleanup()

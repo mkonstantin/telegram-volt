@@ -5,15 +5,14 @@ import (
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/scheduler/job"
-	"telegram-api/internal/infrastructure/repo/interfaces"
 	"time"
 )
 
 type jobsSchedulerImpl struct {
-	officeRepo interfaces.OfficeRepository
-	dateJob    job.DateJob
-	seatJob    job.SeatJob
-	logger     *zap.Logger
+	hourlyJob job.HourlyJob
+	dateJob   job.DateJob
+	seatJob   job.SeatJob
+	logger    *zap.Logger
 }
 
 type JobsScheduler interface {
@@ -21,16 +20,16 @@ type JobsScheduler interface {
 	StartHourlyJob()
 }
 
-func NewJobsScheduler(officeRepo interfaces.OfficeRepository,
+func NewJobsScheduler(hourlyJob job.HourlyJob,
 	dateJob job.DateJob,
 	seatJob job.SeatJob,
 	logger *zap.Logger) JobsScheduler {
 
 	return &jobsSchedulerImpl{
-		officeRepo: officeRepo,
-		dateJob:    dateJob,
-		seatJob:    seatJob,
-		logger:     logger,
+		hourlyJob: hourlyJob,
+		dateJob:   dateJob,
+		seatJob:   seatJob,
+		logger:    logger,
 	}
 }
 
@@ -81,7 +80,7 @@ func (w *jobsSchedulerImpl) StartHourlyJob() {
 		Do(func() {
 			w.logger.Info("gocron start Hourly Job")
 
-			err := w.dateJob.CheckAndSetDates()
+			err := w.hourlyJob.StartSchedule()
 			if err != nil {
 				w.logger.Error("gocron execution Hourly Job error", zap.Error(err))
 			}

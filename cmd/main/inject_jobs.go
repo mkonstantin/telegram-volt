@@ -6,6 +6,7 @@ import (
 )
 
 var jobsSet = wire.NewSet(
+	job.NewHourlyJob,
 	job.NewDateJob,
 	job.NewSeatsJob,
 )
