@@ -1,7 +1,9 @@
 package job
 
 import (
+	"fmt"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/informer"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/helper"
@@ -9,22 +11,25 @@ import (
 )
 
 type hourlyJobImpl struct {
-	officeRepo   interfaces.OfficeRepository
-	workDateRepo interfaces.WorkDateRepository
-	logger       *zap.Logger
+	informerService informer.InformerService
+	officeRepo      interfaces.OfficeRepository
+	workDateRepo    interfaces.WorkDateRepository
+	logger          *zap.Logger
 }
 
 type HourlyJob interface {
 	StartSchedule() error
 }
 
-func NewHourlyJob(officeRepo interfaces.OfficeRepository,
+func NewHourlyJob(informerService informer.InformerService,
+	officeRepo interfaces.OfficeRepository,
 	workDateRepo interfaces.WorkDateRepository,
 	logger *zap.Logger) HourlyJob {
 	return &hourlyJobImpl{
-		officeRepo:   officeRepo,
-		workDateRepo: workDateRepo,
-		logger:       logger,
+		informerService: informerService,
+		officeRepo:      officeRepo,
+		workDateRepo:    workDateRepo,
+		logger:          logger,
 	}
 }
 
@@ -115,8 +120,15 @@ func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*
 		currentTime, err := helper.CurrentTimeWithTimeZone(office.TimeZone)
 		openBooking, err := helper.TimeWithTimeZone(helper.OpenBooking, office.TimeZone)
 
-		if currentTime.After(openBooking) || currentTime.Equal(openBooking) {
+		if (currentTime.After(openBooking) || currentTime.Equal(openBooking)) && tomorrow.Status != model.StatusAccept {
 			err = h.workDateRepo.UpdateStatusByID(tomorrow.ID, model.StatusAccept)
+			if err != nil {
+				return err
+			}
+
+			formattedDate := tomorrow.Date.Format(helper.DateFormat)
+			message := fmt.Sprintf("Открыта запись на %s в офис: %s", formattedDate, office.Name)
+			err = h.informerService.SendNotifiesWithMessage(*office, message)
 			if err != nil {
 				return err
 			}

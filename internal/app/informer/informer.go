@@ -12,6 +12,7 @@ import (
 
 type InformerService interface {
 	SeatComeFree(ctx context.Context, id int64) error
+	SendNotifiesWithMessage(office model.Office, message string) error
 }
 
 type informerServiceImpl struct {
@@ -69,6 +70,19 @@ func (i *informerServiceImpl) sendNotifies(ctx context.Context, office model.Off
 		if currentUserChatID != user.ChatID {
 			i.sendMessage(user.ChatID, text)
 		}
+	}
+
+	return nil
+}
+
+func (i *informerServiceImpl) SendNotifiesWithMessage(office model.Office, message string) error {
+	users, err := i.userRepo.GetUsersToNotify(office.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, user := range users {
+		i.sendMessage(user.ChatID, message)
 	}
 
 	return nil
