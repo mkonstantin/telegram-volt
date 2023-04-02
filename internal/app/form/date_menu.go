@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/router/constants"
 	"time"
 )
@@ -16,8 +17,6 @@ type DaySeat struct {
 	Date        time.Time
 	SeatsNumber int
 }
-
-const dateFormat = "02 January 2006"
 
 type DateMenuFormData struct {
 	Message     string
@@ -54,7 +53,7 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 			return nil, err
 		}
 
-		formattedDate := seatByDate.Date.Format(dateFormat)
+		formattedDate := seatByDate.Date.Format(helper.DateFormat)
 
 		text := fmt.Sprintf("%s : %d свободных мест", formattedDate, seatByDate.SeatsNumber)
 		button := tgbotapi.NewInlineKeyboardButtonData(text, string(responseData))

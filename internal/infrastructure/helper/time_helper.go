@@ -6,6 +6,8 @@ import (
 
 type TimeStage int
 
+const DateFormat = "02 January 2006"
+
 const (
 	Morning     TimeStage = 9
 	OpenBooking           = 14
