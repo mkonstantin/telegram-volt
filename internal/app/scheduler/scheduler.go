@@ -41,7 +41,7 @@ func (w *jobsSchedulerImpl) StartFillWorkDates() {
 	s := gocron.NewScheduler(time.UTC)
 	_, err := s.Every(1).
 		Day().
-		At("03:00").
+		At("03:15").
 		Do(func() {
 			w.logger.Info("gocron start Date & Seat Jobs")
 
