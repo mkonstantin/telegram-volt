@@ -13,6 +13,7 @@ import (
 )
 
 type dateMenuImpl struct {
+	dateRepo     repo.WorkDateRepository
 	officeRepo   repo.OfficeRepository
 	bookSeatRepo repo.BookSeatRepository
 	dateMenuForm form.DateMenuForm
@@ -20,12 +21,14 @@ type dateMenuImpl struct {
 }
 
 func NewDateMenu(
+	dateRepo repo.WorkDateRepository,
 	officeRepo repo.OfficeRepository,
 	bookSeatRepo repo.BookSeatRepository,
 	dateMenuForm form.DateMenuForm,
 	logger *zap.Logger) interfaces.DateMenu {
 
 	return &dateMenuImpl{
+		dateRepo:     dateRepo,
 		officeRepo:   officeRepo,
 		bookSeatRepo: bookSeatRepo,
 		dateMenuForm: dateMenuForm,
@@ -43,32 +46,33 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 	}
 
 	today := helper.TodayZeroTimeUTC()
-	todaySeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, today.String())
+	todayPlus2 := helper.TodayPlusUTC(2)
+
+	// получаем сегодня и завтра
+	dates, err := f.dateRepo.FindByDatesAndStatus(today.String(), todayPlus2.String(), model.StatusAccept)
 	if err != nil {
 		return nil, err
-	}
-
-	tomorrow := helper.TomorrowZeroTimeUTC()
-	tomorrowSeats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, tomorrow.String())
-	if err != nil {
-		return nil, err
-	}
-
-	todayD := form.DaySeat{
-		Date:        today,
-		SeatsNumber: len(todaySeats),
-	}
-
-	tomorrowD := form.DaySeat{
-		Date:        tomorrow,
-		SeatsNumber: len(tomorrowSeats),
 	}
 
 	var seatByDates []form.DaySeat
-	seatByDates = append(seatByDates, todayD)
-	seatByDates = append(seatByDates, tomorrowD)
+	for _, date := range dates {
+		seats, err := f.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.Date.String())
+		if err != nil {
+			return nil, err
+		}
+		daySeats := form.DaySeat{
+			Date:        date.Date,
+			SeatsNumber: len(seats),
+		}
+		seatByDates = append(seatByDates, daySeats)
+	}
 
-	message := fmt.Sprintf("Выберите дату:")
+	var message string
+	if len(seatByDates) > 0 {
+		message = fmt.Sprintf("Выберите дату:")
+	} else {
+		message = fmt.Sprintf("В этом офисе сегодня мест нет или не работает")
+	}
 
 	formData := form.DateMenuFormData{
 		Message:     message,
