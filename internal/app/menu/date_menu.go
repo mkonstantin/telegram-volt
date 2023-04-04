@@ -56,7 +56,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 
 	var seatByDates []form.DaySeat
 	for _, date := range dates {
-		seats, err := f.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.Date.String())
+		seats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, date.Date.String())
 		if err != nil {
 			return nil, err
 		}
