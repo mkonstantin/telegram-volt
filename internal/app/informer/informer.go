@@ -53,20 +53,29 @@ func (i *informerServiceImpl) SeatComeFree(ctx context.Context, bookSeatID int64
 	if bookSeat.BookDate.Before(todayUTC) || (todayUTC == bookSeat.BookDate && currentTime.After(eveningTime)) {
 		return nil
 	}
-	return i.sendNotifies(ctx, bookSeat.Office)
+	return i.sendNotifies(ctx, bookSeat)
 }
 
-func (i *informerServiceImpl) sendNotifies(ctx context.Context, office model.Office) error {
-	text := fmt.Sprintf("Освободилось место в офисе: %s", office.Name)
+func (i *informerServiceImpl) sendNotifies(ctx context.Context, bookSeat *model.BookSeat) error {
+	text := fmt.Sprintf("Освободилось место в офисе: %s", bookSeat.Office.Name)
 
 	currentUserChatID := model.GetCurrentChatID(ctx)
 
-	users, err := i.userRepo.GetUsersToNotify(office.ID)
+	users, err := i.userRepo.GetUsersToNotify(bookSeat.Office.ID)
 	if err != nil {
 		return err
 	}
 
+	seats, err := i.bookSeatRepo.GetUsersByOfficeIDAndDate(bookSeat.Office.ID, bookSeat.BookDate.String())
+	var mapper = make(map[int64]int)
+	for _, seat := range seats {
+		mapper[seat.User.ID]++
+	}
+
 	for _, user := range users {
+		if mapper[user.ID] > 0 {
+			continue
+		}
 		if currentUserChatID != user.ChatID {
 			i.sendMessage(user.ChatID, text)
 		}
