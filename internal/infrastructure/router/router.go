@@ -28,6 +28,7 @@ type routerImpl struct {
 	ownSeatMenu  handler2.OwnSeatMenu
 	freeSeatMenu handler2.FreeSeatMenu
 	dateMenu     handler2.DateMenu
+	infoMenu     handler2.InfoMenu
 	logger       *zap.Logger
 }
 
@@ -39,6 +40,7 @@ func NewRouter(
 	ownSeatMenuHandle handler2.OwnSeatMenu,
 	freeSeatMenuHandle handler2.FreeSeatMenu,
 	dateMenu handler2.DateMenu,
+	infoMenu handler2.InfoMenu,
 	logger *zap.Logger) Router {
 
 	return &routerImpl{
@@ -49,6 +51,7 @@ func NewRouter(
 		ownSeatMenu:  ownSeatMenuHandle,
 		freeSeatMenu: freeSeatMenuHandle,
 		dateMenu:     dateMenu,
+		infoMenu:     infoMenu,
 		logger:       logger,
 	}
 }
@@ -93,6 +96,8 @@ func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tg
 		return r.freeSeatMenu.Handle(ctx, request)
 	case constants.DateMenuTap:
 		return r.dateMenu.Handle(ctx, request)
+	case constants.InformerTap:
+		return r.infoMenu.Handle(ctx, request)
 	}
 
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "Неизвестная команда =(")
