@@ -14,6 +14,7 @@ import (
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
 	"telegram-api/internal/app/informer"
+	form2 "telegram-api/internal/app/informer/form"
 	"telegram-api/internal/app/menu"
 	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/app/scheduler/job"
@@ -49,7 +50,8 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatForm := form.NewFreeSeatForm(logger)
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
-	informerService := informer.NewInformer(botAPI, userRepository, bookSeatRepository, logger)
+	infoMenuForm := form2.NewInfoMenuForm(logger)
+	informerService := informer.NewInformer(botAPI, infoMenuForm, userRepository, bookSeatRepository, logger)
 	seatListForm := form.NewSeatListForm(logger)
 	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(informerService, userService, bookSeatRepository, seatListMenu, logger)

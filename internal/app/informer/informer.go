@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/internal/app/informer/form"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -17,16 +18,17 @@ type InformerService interface {
 
 type informerServiceImpl struct {
 	botAPI       *tgbotapi.BotAPI
-	officeRepo   int
+	infoForm     form.InfoMenuForm
 	userRepo     interfaces.UserRepository
 	bookSeatRepo interfaces.BookSeatRepository
 	logger       *zap.Logger
 }
 
-func NewInformer(botAPI *tgbotapi.BotAPI, userRepo interfaces.UserRepository,
+func NewInformer(botAPI *tgbotapi.BotAPI, infoForm form.InfoMenuForm, userRepo interfaces.UserRepository,
 	bookSeatRepo interfaces.BookSeatRepository, logger *zap.Logger) InformerService {
 	return &informerServiceImpl{
 		botAPI:       botAPI,
+		infoForm:     infoForm,
 		userRepo:     userRepo,
 		bookSeatRepo: bookSeatRepo,
 		logger:       logger,
@@ -53,13 +55,14 @@ func (i *informerServiceImpl) SeatComeFree(ctx context.Context, bookSeatID int64
 	if bookSeat.BookDate.Before(todayUTC) || (todayUTC == bookSeat.BookDate && currentTime.After(eveningTime)) {
 		return nil
 	}
-	return i.sendNotifies(ctx, bookSeat)
+	return i.chooseUsersAndSendNotifies(ctx, bookSeat)
 }
 
-func (i *informerServiceImpl) sendNotifies(ctx context.Context, bookSeat *model.BookSeat) error {
-	text := fmt.Sprintf("Освободилось место в офисе: %s", bookSeat.Office.Name)
+func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bookSeat *model.BookSeat) error {
+	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+	text := fmt.Sprintf("Освободилось место в офисе: %s на %s", bookSeat.Office.Name, formattedDate)
 
-	currentUserChatID := model.GetCurrentChatID(ctx)
+	currentUser := model.GetCurrentUser(ctx)
 
 	users, err := i.userRepo.GetUsersToNotify(bookSeat.Office.ID)
 	if err != nil {
@@ -68,20 +71,39 @@ func (i *informerServiceImpl) sendNotifies(ctx context.Context, bookSeat *model.
 
 	seats, err := i.bookSeatRepo.GetUsersByOfficeIDAndDate(bookSeat.Office.ID, bookSeat.BookDate.String())
 	var mapper = make(map[int64]int)
+	mapper[currentUser.ID]++
 	for _, seat := range seats {
 		mapper[seat.User.ID]++
+	}
+
+	data := form.InfoFormData{
+		Message: text,
+		Office:  &bookSeat.Office,
+		Date:    bookSeat.BookDate,
 	}
 
 	for _, user := range users {
 		if mapper[user.ID] > 0 {
 			continue
 		}
-		if currentUserChatID != user.ChatID {
-			i.sendMessage(user.ChatID, text)
+		if currentUser.ID != user.ID {
+			data.ChatID = user.ChatID
+			i.sendInfoForm(ctx, data)
 		}
 	}
 
 	return nil
+}
+
+func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFormData) {
+	build, err := i.infoForm.Build(ctx, data)
+	if err != nil {
+		i.logger.Error("Error Informer sendInfoForm", zap.Error(err))
+		// Ошибку не возвращаем, show must go on
+	}
+	if _, err = i.botAPI.Send(build); err != nil {
+		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
+	}
 }
 
 func (i *informerServiceImpl) SendNotifiesWithMessage(office model.Office, message string) error {
