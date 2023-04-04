@@ -14,7 +14,6 @@ import (
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/handler"
 	"telegram-api/internal/app/informer"
-	form2 "telegram-api/internal/app/informer/form"
 	"telegram-api/internal/app/menu"
 	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/app/scheduler/job"
@@ -50,14 +49,15 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatForm := form.NewFreeSeatForm(logger)
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
-	infoMenuForm := form2.NewInfoMenuForm(logger)
+	infoMenuForm := form.NewInfoMenuForm(logger)
 	informerService := informer.NewInformer(botAPI, infoMenuForm, userRepository, bookSeatRepository, logger)
 	seatListForm := form.NewSeatListForm(logger)
 	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(informerService, userService, bookSeatRepository, seatListMenu, logger)
 	handlerFreeSeatMenu := handler.NewFreeSeatMenuHandle(userService, bookSeatRepository, seatListMenu, logger)
 	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, logger)
-	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, logger)
+	infoMenu := handler.NewInfoMenuHandle(seatListMenu, officeMenu, logger)
+	routerRouter := router.NewRouter(start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, infoMenu, logger)
 	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
 	hourlyJob := job.NewHourlyJob(informerService, officeRepository, workDateRepository, logger)
 	dateJob := job.NewDateJob(workDateRepository, logger)
