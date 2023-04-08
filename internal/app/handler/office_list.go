@@ -38,5 +38,5 @@ func (o *officeListImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		return nil, err
 	}
 
-	return o.officeMenu.Call(ctx)
+	return o.officeMenu.Call(ctx, "")
 }

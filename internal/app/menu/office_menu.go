@@ -35,7 +35,7 @@ func NewOfficeMenu(
 	}
 }
 
-func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+func (o *officeMenuImpl) Call(ctx context.Context, title string) (*tgbotapi.MessageConfig, error) {
 	currentUser := model.GetCurrentUser(ctx)
 
 	office, err := o.officeRepo.FindByID(currentUser.OfficeID)
@@ -66,7 +66,12 @@ func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, err
 		buttonText = "Подписаться на свободные места"
 	}
 
-	message := fmt.Sprintf("Офис: %s, действия:", office.Name)
+	var message string
+	if title != "" {
+		message = title
+	} else {
+		message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+	}
 
 	data := form.OfficeMenuFormData{
 		Office:              office,

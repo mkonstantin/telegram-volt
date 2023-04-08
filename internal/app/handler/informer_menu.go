@@ -33,7 +33,7 @@ func NewInfoMenuHandle(
 func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	if command.BookDate == nil {
-		return o.officeMenu.Call(ctx)
+		return o.officeMenu.Call(ctx, "")
 	}
 
 	return o.seatList.Call(ctx, *command.BookDate)
