@@ -167,7 +167,7 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 	}
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
-	message = fmt.Sprintf("Отлично! Вы Подтвердили, что придете сегодня %s"+
+	message = fmt.Sprintf("Отлично! Вы подтвердили, что придете сегодня: %s. "+
 		"Ваше место №%d в офисе: %s", formattedDate, bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
 
 	return message, nil
