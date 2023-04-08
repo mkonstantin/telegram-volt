@@ -49,11 +49,11 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		return o.dateMenu.Call(ctx)
 
 	case dto.OfficeMenuSubscribe:
-		message, err := o.userService.SubscribeWork(ctx)
+		contxt, message, err := o.userService.SubscribeWork(ctx)
 		if err != nil {
 			return nil, err
 		}
-		return o.officeMenu.Call(ctx, message)
+		return o.officeMenu.Call(contxt, message)
 
 	case dto.OfficeMenuChooseAnotherOffice:
 		return o.officeListMenu.Call(ctx)

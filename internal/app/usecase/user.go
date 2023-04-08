@@ -11,7 +11,7 @@ import (
 
 type UserService interface {
 	SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error)
-	SubscribeWork(ctx context.Context) (string, error)
+	SubscribeWork(ctx context.Context) (context.Context, string, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (string, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error)
 	ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error)
@@ -116,41 +116,39 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 
 // ========== Подписка/отписка на свободные места
 
-func (u *userServiceImpl) SubscribeWork(ctx context.Context) (string, error) {
+func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, string, error) {
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
 	if currentUser.OfficeID == 0 {
-		return "Произошла ошибка: необходимо выбрать офис", nil
+		return ctx, "Произошла ошибка: необходимо выбрать офис", nil
+	}
+
+	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
+	if err != nil {
+		return ctx, "", err
 	}
 
 	if currentUser.NotifyOfficeID == currentUser.OfficeID {
-		err := u.userRepo.Unsubscribe(currentUser.TelegramID)
+		err = u.userRepo.Unsubscribe(currentUser.TelegramID)
 		if err != nil {
-			return "", err
+			return ctx, "", err
 		}
 
-		office, err := u.officeRepo.FindByID(currentUser.NotifyOfficeID)
-		if err != nil {
-			return "", err
-		}
-
+		currentUser.NotifyOfficeID = 0
 		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
 	} else {
-		err := u.userRepo.Subscribe(currentUser.TelegramID, currentUser.OfficeID)
+		err = u.userRepo.Subscribe(currentUser.TelegramID, currentUser.OfficeID)
 		if err != nil {
-			return "", err
+			return ctx, "", err
 		}
 
-		office, err := u.officeRepo.FindByID(currentUser.OfficeID)
-		if err != nil {
-			return "", err
-		}
-
+		currentUser.NotifyOfficeID = currentUser.OfficeID
 		message = fmt.Sprintf("Вы подписались на свободные места в офисе: %s", office.Name)
 	}
 
-	return message, nil
+	ctx = context.WithValue(ctx, model.ContextUserKey, currentUser)
+	return ctx, message, nil
 }
 
 func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
