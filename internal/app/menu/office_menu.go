@@ -12,17 +12,23 @@ import (
 )
 
 type officeMenuImpl struct {
+	dateRepo       repo.WorkDateRepository
+	bookSeatRepo   repo.BookSeatRepository
 	officeRepo     repo.OfficeRepository
 	officeMenuForm form.OfficeMenuForm
 	logger         *zap.Logger
 }
 
 func NewOfficeMenu(
+	dateRepo repo.WorkDateRepository,
+	bookSeatRepo repo.BookSeatRepository,
 	officeRepo repo.OfficeRepository,
 	officeMenuForm form.OfficeMenuForm,
 	logger *zap.Logger) interfaces.OfficeMenu {
 
 	return &officeMenuImpl{
+		dateRepo:       dateRepo,
+		bookSeatRepo:   bookSeatRepo,
 		officeRepo:     officeRepo,
 		officeMenuForm: officeMenuForm,
 		logger:         logger,
@@ -37,10 +43,25 @@ func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, err
 		return nil, err
 	}
 
-	var buttonText string
+	dates, err := o.dateRepo.FindByStatus(model.StatusAccept)
+	if err != nil {
+		return nil, err
+	}
 
+	var bookSeats []*model.BookSeat
+	for _, date := range dates {
+		bookSeat, err := o.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, date.Date.String())
+		if err != nil {
+			return nil, err
+		}
+		if bookSeat != nil {
+			bookSeats = append(bookSeats, bookSeat)
+		}
+	}
+
+	var buttonText string
 	if currentUser.OfficeID == currentUser.NotifyOfficeID {
-		buttonText = "Отписаться"
+		buttonText = "Отписаться от уведомлений"
 	} else {
 		buttonText = "Подписаться на свободные места"
 	}
@@ -51,6 +72,7 @@ func (o *officeMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, err
 		Office:              office,
 		Message:             message,
 		SubscribeButtonText: buttonText,
+		BookSeats:           bookSeats,
 	}
 	return o.officeMenuForm.Build(ctx, data)
 }

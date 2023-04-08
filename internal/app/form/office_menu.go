@@ -3,10 +3,12 @@ package form
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/router/constants"
 )
 
@@ -14,6 +16,7 @@ type OfficeMenuFormData struct {
 	Message             string
 	SubscribeButtonText string
 	Office              *model.Office
+	BookSeats           []*model.BookSeat
 }
 
 type OfficeMenuForm interface {
@@ -71,8 +74,29 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData)
 	row1 := tgbotapi.NewInlineKeyboardRow(button1)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)
 	row3 := tgbotapi.NewInlineKeyboardRow(button3)
-	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(row1, row2, row3)
 
+	var sum [][]tgbotapi.InlineKeyboardButton
+	sum = append(sum, row1)
+	sum = append(sum, row2)
+	sum = append(sum, row3)
+
+	for _, seat := range data.BookSeats {
+		b := &dto.InlineRequest{
+			Type:   constants.OfficeMenuTap,
+			Action: dto.OfficeMenuCancelBook,
+			BookID: seat.ID,
+		}
+		butt, err := json.Marshal(b)
+		if err != nil {
+			return nil, err
+		}
+		buttonMessage := fmt.Sprintf("Отменить бронь на %s", seat.BookDate.Format(helper.DateFormat))
+		button := tgbotapi.NewInlineKeyboardButtonData(buttonMessage, string(butt))
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		sum = append(sum, row)
+	}
+
+	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(sum...)
 	msg.Text = data.Message
 	msg.ReplyMarkup = confirmOfficeKeyboard
 
