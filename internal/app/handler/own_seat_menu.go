@@ -8,7 +8,6 @@ import (
 	"telegram-api/internal/app/informer"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
-	"telegram-api/internal/domain/model"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -17,6 +16,7 @@ type OwnSeatMenu interface {
 }
 
 type ownSeatMenuImpl struct {
+	officeMenu      interfaces.OfficeMenu
 	informerService informer.InformerService
 	userService     usecase.UserService
 	bookSeatRepo    interfaces2.BookSeatRepository
@@ -25,6 +25,7 @@ type ownSeatMenuImpl struct {
 }
 
 func NewOwnSeatMenuHandle(
+	officeMenu interfaces.OfficeMenu,
 	informerService informer.InformerService,
 	userService usecase.UserService,
 	bookSeatRepo interfaces2.BookSeatRepository,
@@ -32,6 +33,7 @@ func NewOwnSeatMenuHandle(
 	logger *zap.Logger) OwnSeatMenu {
 
 	return &ownSeatMenuImpl{
+		officeMenu:      officeMenu,
 		informerService: informerService,
 		userService:     userService,
 		bookSeatRepo:    bookSeatRepo,
@@ -54,10 +56,7 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 				return nil, err
 			}
 		}
-		chatID := model.GetCurrentChatID(ctx)
-		msg := tgbotapi.NewMessage(chatID, "")
-		msg.Text = message
-		return &msg, nil
+		return o.officeMenu.Call(ctx, message)
 
 	case dto.ActionCancelBookNo:
 		fallthrough

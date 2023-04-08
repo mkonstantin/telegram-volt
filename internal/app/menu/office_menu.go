@@ -85,7 +85,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string) (*tgbotapi.Mess
 
 	var message string
 	if title != "" {
-		message = title
+		message = fmt.Sprintf("%s\nОфис: %s, действия:", title, office.Name)
 	} else {
 		message = fmt.Sprintf("Офис: %s, действия:", office.Name)
 	}
