@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/domain/model"
+	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -165,8 +166,9 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 		return "", err
 	}
 
-	message = fmt.Sprintf("Отлично! Вы Подтвердили, что придете сегодня. "+
-		"Ваше место №%d в офисе: %s", bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+	message = fmt.Sprintf("Отлично! Вы Подтвердили, что придете сегодня %s"+
+		"Ваше место №%d в офисе: %s", formattedDate, bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
 
 	return message, nil
 }
