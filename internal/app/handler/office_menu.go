@@ -5,6 +5,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
+	"telegram-api/internal/app/informer"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
@@ -15,23 +16,26 @@ type OfficeMenu interface {
 }
 
 type officeMenuImpl struct {
-	userService    usecase.UserService
-	dateMenu       interfaces.DateMenu
-	officeListMenu interfaces.OfficeListMenu
-	logger         *zap.Logger
+	informerService informer.InformerService
+	userService     usecase.UserService
+	dateMenu        interfaces.DateMenu
+	officeListMenu  interfaces.OfficeListMenu
+	logger          *zap.Logger
 }
 
 func NewOfficeMenuHandle(
+	informerService informer.InformerService,
 	userService usecase.UserService,
 	dateMenu interfaces.DateMenu,
 	officeListMenu interfaces.OfficeListMenu,
 	logger *zap.Logger) OfficeMenu {
 
 	return &officeMenuImpl{
-		userService:    userService,
-		dateMenu:       dateMenu,
-		officeListMenu: officeListMenu,
-		logger:         logger,
+		informerService: informerService,
+		userService:     userService,
+		dateMenu:        dateMenu,
+		officeListMenu:  officeListMenu,
+		logger:          logger,
 	}
 }
 
@@ -54,6 +58,22 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 
 	case dto.OfficeMenuChooseAnotherOffice:
 		return o.officeListMenu.Call(ctx)
+
+	case dto.OfficeMenuCancelBook:
+		message, isCanceled, err := o.userService.CancelBookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		if isCanceled {
+			err = o.informerService.SeatComeFree(ctx, command.BookSeatID)
+			if err != nil {
+				return nil, err
+			}
+		}
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, "")
+		msg.Text = message
+		return &msg, nil
 	}
 
 	return nil, nil

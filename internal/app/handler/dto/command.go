@@ -8,7 +8,6 @@ type InlineRequest struct {
 	BookSeatID int64      `json:"book_seat_id,omitempty"`
 	Action     int        `json:"action,omitempty"`
 	BookDate   *time.Time `json:"book_date,omitempty"`
-	BookID     int64      `json:"book_id,omitempty"`
 }
 
 const (

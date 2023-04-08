@@ -82,9 +82,9 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData)
 
 	for _, seat := range data.BookSeats {
 		b := &dto.InlineRequest{
-			Type:   constants.OfficeMenuTap,
-			Action: dto.OfficeMenuCancelBook,
-			BookID: seat.ID,
+			Type:       constants.OfficeMenuTap,
+			Action:     dto.OfficeMenuCancelBook,
+			BookSeatID: seat.ID,
 		}
 		butt, err := json.Marshal(b)
 		if err != nil {
