@@ -19,6 +19,7 @@ type officeMenuImpl struct {
 	informerService informer.InformerService
 	userService     usecase.UserService
 	dateMenu        interfaces.DateMenu
+	officeMenu      interfaces.OfficeMenu
 	officeListMenu  interfaces.OfficeListMenu
 	logger          *zap.Logger
 }
@@ -27,6 +28,7 @@ func NewOfficeMenuHandle(
 	informerService informer.InformerService,
 	userService usecase.UserService,
 	dateMenu interfaces.DateMenu,
+	officeMenu interfaces.OfficeMenu,
 	officeListMenu interfaces.OfficeListMenu,
 	logger *zap.Logger) OfficeMenu {
 
@@ -34,6 +36,7 @@ func NewOfficeMenuHandle(
 		informerService: informerService,
 		userService:     userService,
 		dateMenu:        dateMenu,
+		officeMenu:      officeMenu,
 		officeListMenu:  officeListMenu,
 		logger:          logger,
 	}
@@ -69,11 +72,13 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 			if err != nil {
 				return nil, err
 			}
+			return o.officeMenu.Call(ctx, message)
+		} else {
+			chatID := model.GetCurrentChatID(ctx)
+			msg := tgbotapi.NewMessage(chatID, "")
+			msg.Text = message
+			return &msg, nil
 		}
-		chatID := model.GetCurrentChatID(ctx)
-		msg := tgbotapi.NewMessage(chatID, "")
-		msg.Text = message
-		return &msg, nil
 	}
 
 	return nil, nil
