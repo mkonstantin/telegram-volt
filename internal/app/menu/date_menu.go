@@ -54,21 +54,21 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 		return nil, err
 	}
 
-	var seatByDates []form.DaySeat
+	var daySeats []form.DaySeat
 	for _, date := range dates {
 		seats, err := f.bookSeatRepo.GetFreeSeatsByOfficeIDAndDate(currentUser.OfficeID, date.Date.String())
 		if err != nil {
 			return nil, err
 		}
-		daySeats := form.DaySeat{
+		daySeat := form.DaySeat{
 			Date:        date.Date,
 			SeatsNumber: len(seats),
 		}
-		seatByDates = append(seatByDates, daySeats)
+		daySeats = append(daySeats, daySeat)
 	}
 
 	var message string
-	if len(seatByDates) > 0 {
+	if len(daySeats) > 0 {
 		message = fmt.Sprintf("Выберите дату:")
 	} else {
 		message = fmt.Sprintf("В этом офисе сегодня мест нет или не работает")
@@ -77,7 +77,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 	formData := form.DateMenuFormData{
 		Message:     message,
 		Office:      office,
-		SeatByDates: seatByDates,
+		SeatByDates: daySeats,
 	}
 	return f.dateMenuForm.Build(ctx, formData)
 }
