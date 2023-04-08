@@ -42,6 +42,7 @@ func main() {
 		MaxOpenConnections:    mOpenConn,
 		MaxIdleConnections:    mIdleConn,
 		ConnectionMaxLifeTime: lifeTime,
+		Version:               os.Getenv("VERSION"),
 	}
 
 	logger.Info(fmt.Sprintf("DB host: %s", cfg.Host))

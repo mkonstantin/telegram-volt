@@ -9,4 +9,5 @@ type AppConfig struct {
 	MaxOpenConnections    int
 	MaxIdleConnections    int
 	ConnectionMaxLifeTime int
+	Version               string
 }

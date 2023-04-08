@@ -2,9 +2,11 @@ package router
 
 import (
 	"context"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+	"telegram-api/config"
 	handler2 "telegram-api/internal/app/handler"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
@@ -21,6 +23,7 @@ type Router interface {
 }
 
 type routerImpl struct {
+	cfg          config.AppConfig
 	start        handler2.Start
 	officeList   handler2.OfficeList
 	officeMenu   handler2.OfficeMenu
@@ -33,6 +36,7 @@ type routerImpl struct {
 }
 
 func NewRouter(
+	cfg config.AppConfig,
 	startHandle handler2.Start,
 	officeListHandle handler2.OfficeList,
 	officeMenuHandle handler2.OfficeMenu,
@@ -44,6 +48,7 @@ func NewRouter(
 	logger *zap.Logger) Router {
 
 	return &routerImpl{
+		cfg:          cfg,
 		start:        startHandle,
 		officeList:   officeListHandle,
 		officeMenu:   officeMenuHandle,
@@ -75,6 +80,10 @@ func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.Mes
 	switch command {
 	case "start":
 		return r.start.Handle(ctx)
+	case "version":
+		text := fmt.Sprintf("Версия: %s", r.cfg.Version)
+		msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), text)
+		return &msg, nil
 	}
 
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "Неизвестная команда =(")
