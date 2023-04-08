@@ -77,3 +77,5 @@ CREATE TABLE `work_date`
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_unicode_ci;
+
+ALTER TABLE book_seat add column confirm BOOLEAN DEFAULT FALSE;
