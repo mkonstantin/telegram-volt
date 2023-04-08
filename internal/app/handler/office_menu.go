@@ -79,6 +79,17 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 			msg.Text = message
 			return &msg, nil
 		}
+
+	case dto.OfficeMenuConfirm:
+		message, err := o.userService.ConfirmBookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, "")
+		msg.Text = message
+		return &msg, nil
 	}
 
 	return nil, nil

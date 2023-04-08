@@ -17,6 +17,7 @@ type OfficeMenuFormData struct {
 	SubscribeButtonText string
 	Office              *model.Office
 	BookSeats           []*model.BookSeat
+	NeedConfirmBookSeat *model.BookSeat
 }
 
 type OfficeMenuForm interface {
@@ -35,9 +36,55 @@ func NewOfficeMenuForm(logger *zap.Logger) OfficeMenuForm {
 
 func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData) (*tgbotapi.MessageConfig, error) {
 
-	chatID := model.GetCurrentChatID(ctx)
+	var sum [][]tgbotapi.InlineKeyboardButton
 
+	if data.NeedConfirmBookSeat != nil {
+		b := &dto.InlineRequest{
+			Type:       constants.OfficeMenuTap,
+			Action:     dto.OfficeMenuConfirm,
+			BookSeatID: data.NeedConfirmBookSeat.ID,
+		}
+		butt, err := json.Marshal(b)
+		if err != nil {
+			return nil, err
+		}
+		buttonMessage := fmt.Sprintf("Подтвердить бронь на сегодня")
+		button := tgbotapi.NewInlineKeyboardButtonData(buttonMessage, string(butt))
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		sum = append(sum, row)
+	}
+
+	sum, err := addStandartButtons(sum, data)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, seat := range data.BookSeats {
+		b := &dto.InlineRequest{
+			Type:       constants.OfficeMenuTap,
+			Action:     dto.OfficeMenuCancelBook,
+			BookSeatID: seat.ID,
+		}
+		butt, err := json.Marshal(b)
+		if err != nil {
+			return nil, err
+		}
+		buttonMessage := fmt.Sprintf("Отменить бронь на %s", seat.BookDate.Format(helper.DateFormat))
+		button := tgbotapi.NewInlineKeyboardButtonData(buttonMessage, string(butt))
+		row := tgbotapi.NewInlineKeyboardRow(button)
+		sum = append(sum, row)
+	}
+
+	chatID := model.GetCurrentChatID(ctx)
 	msg := tgbotapi.NewMessage(chatID, "")
+	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(sum...)
+	msg.Text = data.Message
+	msg.ReplyMarkup = confirmOfficeKeyboard
+
+	return &msg, nil
+}
+
+func addStandartButtons(sum [][]tgbotapi.InlineKeyboardButton, data OfficeMenuFormData) ([][]tgbotapi.InlineKeyboardButton, error) {
 
 	b1 := &dto.InlineRequest{
 		Type:     constants.OfficeMenuTap,
@@ -75,30 +122,9 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)
 	row3 := tgbotapi.NewInlineKeyboardRow(button3)
 
-	var sum [][]tgbotapi.InlineKeyboardButton
 	sum = append(sum, row1)
 	sum = append(sum, row2)
 	sum = append(sum, row3)
 
-	for _, seat := range data.BookSeats {
-		b := &dto.InlineRequest{
-			Type:       constants.OfficeMenuTap,
-			Action:     dto.OfficeMenuCancelBook,
-			BookSeatID: seat.ID,
-		}
-		butt, err := json.Marshal(b)
-		if err != nil {
-			return nil, err
-		}
-		buttonMessage := fmt.Sprintf("Отменить бронь на %s", seat.BookDate.Format(helper.DateFormat))
-		button := tgbotapi.NewInlineKeyboardButtonData(buttonMessage, string(butt))
-		row := tgbotapi.NewInlineKeyboardRow(button)
-		sum = append(sum, row)
-	}
-
-	confirmOfficeKeyboard := tgbotapi.NewInlineKeyboardMarkup(sum...)
-	msg.Text = data.Message
-	msg.ReplyMarkup = confirmOfficeKeyboard
-
-	return &msg, nil
+	return sum, nil
 }

@@ -208,3 +208,17 @@ func (s *bookSeatRepositoryImpl) InsertSeat(officeID, seatID int64, dayDate time
 	_, err = s.db.Exec(query, args...)
 	return nil
 }
+
+func (s *bookSeatRepositoryImpl) ConfirmBookSeat(seatID int64) error {
+	sqQuery := sq.Update("book_seat").
+		Set("confirm", true).
+		Where(sq.Eq{"id": seatID})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}

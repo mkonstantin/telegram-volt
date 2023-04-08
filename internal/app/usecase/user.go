@@ -13,6 +13,7 @@ type UserService interface {
 	SubscribeWork(ctx context.Context) (string, error)
 	BookSeat(ctx context.Context, bookSeatID int64) (string, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error)
+	ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error)
 }
 
 type userServiceImpl struct {
@@ -147,6 +148,25 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (string, error) {
 
 		message = fmt.Sprintf("Вы подписались на свободные места в офисе: %s", office.Name)
 	}
+
+	return message, nil
+}
+
+func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	var message string
+
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	err = u.bookSeatRepo.ConfirmBookSeat(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	message = fmt.Sprintf("Отлично! Вы Подтвердили, что придете сегодня. "+
+		"Ваше место №%d в офисе: %s", bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
 
 	return message, nil
 }
