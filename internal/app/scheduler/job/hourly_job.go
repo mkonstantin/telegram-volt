@@ -38,6 +38,13 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	today := helper.TodayZeroTimeUTC()
 	todayPlus2 := helper.TodayPlusUTC(2)
 
+	// переводим все прошедшие даты в статус Done
+	err := h.workDateRepo.DoneAllPastByDate(today.String())
+	if err != nil {
+		h.logger.Error("HourlyJob workDateRepo.DoneAllPastByDate error", zap.Error(err))
+		return err
+	}
+
 	// получаем сегодня и завтра
 	dates, err := h.workDateRepo.FindByDates(today.String(), todayPlus2.String())
 	if err != nil {

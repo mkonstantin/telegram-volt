@@ -21,6 +21,21 @@ func NewWorkDateRepository(conn repository.Connection) interfaces.WorkDateReposi
 	}
 }
 
+func (s *workDateRepositoryImpl) DoneAllPastByDate(date string) error {
+
+	sqQuery := sq.Update("work_date as wd").
+		Set("status", model.StatusDone).
+		Where(sq.And{sq.NotEq{"wd.status": model.StatusDone}, sq.Lt{"wd.work_date": date}})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}
+
 func (s *workDateRepositoryImpl) FindByDates(startDate string, endDate string) ([]model.WorkDate, error) {
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
@@ -54,6 +69,32 @@ func (s *workDateRepositoryImpl) FindByDatesAndStatus(startDate string, endDate 
 		Where(sq.And{sq.Eq{"wd.status": status},
 			sq.GtOrEq{"wd.work_date": startDate},
 			sq.Lt{"wd.work_date": endDate}}).
+		OrderBy("wd.work_date asc")
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO []dto.WorkDate
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	if len(dtoO) == 0 {
+		return nil, nil
+	}
+	return dto.ToWorkDateModels(dtoO), nil
+}
+
+func (s *workDateRepositoryImpl) FindByStatus(status model.DateStatus) ([]model.WorkDate, error) {
+
+	sqQuery := sq.Select("*").
+		From("work_date as wd").
+		Where(sq.Eq{"wd.status": status}).
 		OrderBy("wd.work_date asc")
 
 	query, args, err := sqQuery.ToSql()
