@@ -14,6 +14,7 @@ import (
 type InformerService interface {
 	SeatComeFree(ctx context.Context, id int64) error
 	SendNotifiesWithMessage(office model.Office, message string) error
+	SendNotifiesToConfirm(office *model.Office) error
 }
 
 type informerServiceImpl struct {
@@ -34,6 +35,8 @@ func NewInformer(botAPI *tgbotapi.BotAPI, infoForm form.InfoMenuForm, userRepo i
 		logger:       logger,
 	}
 }
+
+// SeatComeFree Сообщение подписавшимся кроме тех кто уже занимает место, что место освободилось
 
 func (i *informerServiceImpl) SeatComeFree(ctx context.Context, bookSeatID int64) error {
 
@@ -69,7 +72,7 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 		return err
 	}
 
-	seats, err := i.bookSeatRepo.GetUsersByOfficeIDAndDate(bookSeat.Office.ID, bookSeat.BookDate.String())
+	seats, err := i.bookSeatRepo.FindByOfficeIDAndDate(bookSeat.Office.ID, bookSeat.BookDate.String())
 	var mapper = make(map[int64]int)
 	mapper[currentUser.ID]++
 	for _, seat := range seats {
@@ -106,6 +109,8 @@ func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFo
 	}
 }
 
+// SendNotifiesWithMessage Сообщение подписавшимся, что открыта запись на завтра
+
 func (i *informerServiceImpl) SendNotifiesWithMessage(office model.Office, message string) error {
 	users, err := i.userRepo.GetUsersToNotify(office.ID)
 	if err != nil {
@@ -124,4 +129,23 @@ func (i *informerServiceImpl) sendMessage(chatID int64, text string) {
 	if _, err := i.botAPI.Send(msg); err != nil {
 		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
 	}
+}
+
+// SendNotifiesToConfirm рассылка уведомлений на подтверждение брони
+
+func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error {
+
+	today := helper.TodayZeroTimeUTC()
+	bookSeats, err := i.bookSeatRepo.FindByOfficeIDAndDate(office.ID, today.String())
+	if err != nil {
+		return err
+	}
+
+	message := fmt.Sprintf("Подтвердите свою бронь на сегодня")
+
+	for _, bookSeat := range bookSeats {
+		i.sendMessage(bookSeat.User.ChatID, message)
+	}
+
+	return nil
 }

@@ -67,9 +67,9 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	}
 
 	// в любом случае открываем запись на сегодня
-	err = h.checkTodayOpened(todayWorkDate)
+	err = h.openTodayAccept(todayWorkDate)
 	if err != nil {
-		h.logger.Error("HourlyJob h.checkTodayOpened error", zap.Error(err))
+		h.logger.Error("HourlyJob h.openTodayAccept error", zap.Error(err))
 		return err
 	}
 
@@ -96,7 +96,7 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	return nil
 }
 
-func (h *hourlyJobImpl) checkTodayOpened(today model.WorkDate) error {
+func (h *hourlyJobImpl) openTodayAccept(today model.WorkDate) error {
 	if today.Status == model.StatusSetBookSeats {
 		err := h.workDateRepo.UpdateStatusByID(today.ID, model.StatusAccept)
 		if err != nil {
@@ -107,10 +107,30 @@ func (h *hourlyJobImpl) checkTodayOpened(today model.WorkDate) error {
 }
 
 func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.Office) error {
+
 	for _, office := range offices {
 		currentTime, err := helper.CurrentTimeWithTimeZone(office.TimeZone)
+		morningNotify, err := helper.TimeWithTimeZone(helper.SendNotifyTime, office.TimeZone)
+		removeBookTime, err := helper.TimeWithTimeZone(helper.RemoveBookTime, office.TimeZone)
 		evening, err := helper.TimeWithTimeZone(helper.Evening, office.TimeZone)
 
+		// Send notify users to confirm
+		if currentTime.After(morningNotify) || currentTime.Equal(morningNotify) {
+			err = h.informerService.SendNotifiesToConfirm(office)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Remove book time
+		if currentTime.After(removeBookTime) || currentTime.Equal(removeBookTime) {
+			//err = h.informerService.SendNotifiesToConfirm(office)
+			//if err != nil {
+			//	return err
+			//}
+		}
+
+		// Update to done status after 18-00 o'clock
 		if currentTime.After(evening) || currentTime.Equal(evening) {
 			err = h.workDateRepo.UpdateStatusByID(today.ID, model.StatusDone)
 			if err != nil {
