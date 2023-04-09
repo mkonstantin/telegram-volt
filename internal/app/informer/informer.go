@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
+	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -80,9 +81,10 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 	}
 
 	data := form.InfoFormData{
+		Action:  dto.ActionShowSeatList,
 		Message: text,
 		Office:  &bookSeat.Office,
-		Date:    bookSeat.BookDate,
+		Date:    &bookSeat.BookDate,
 	}
 
 	for _, user := range users {
@@ -141,10 +143,16 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 		return err
 	}
 
-	message := fmt.Sprintf("Подтвердите свою бронь на сегодня")
-
 	for _, bookSeat := range bookSeats {
-		i.sendMessage(bookSeat.User.ChatID, message)
+		message := fmt.Sprintf("Подтвердите свою бронь на сегодня, иначе мы УДАЛИМ ее через час")
+		data := form.InfoFormData{
+			Action:  dto.ActionShowOfficeMenu,
+			Message: message,
+			Office:  &bookSeat.Office,
+		}
+
+		data.ChatID = bookSeat.User.ChatID
+		i.sendInfoForm(context.Background(), data)
 	}
 
 	return nil

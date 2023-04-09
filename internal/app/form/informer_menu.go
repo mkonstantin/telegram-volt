@@ -12,10 +12,11 @@ import (
 )
 
 type InfoFormData struct {
+	Action  int
 	ChatID  int64
 	Message string
 	Office  *model.Office
-	Date    time.Time
+	Date    *time.Time
 }
 
 type InfoMenuForm interface {
@@ -39,7 +40,9 @@ func (f *infoMenuFormImpl) Build(_ context.Context, data InfoFormData) (*tgbotap
 
 	resp := &dto.InlineRequest{
 		Type:     constants.InformerTap,
-		BookDate: &data.Date,
+		Action:   data.Action,
+		BookDate: data.Date,
+		OfficeID: data.Office.ID,
 	}
 	responseData, err := json.Marshal(resp)
 	if err != nil {

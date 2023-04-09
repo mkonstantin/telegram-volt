@@ -23,5 +23,8 @@ const (
 	ActionBookYes = 21
 	ActionBookNo  = 22
 
+	ActionShowOfficeMenu = 31
+	ActionShowSeatList   = 32
+
 	Back = 100
 )

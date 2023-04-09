@@ -32,9 +32,15 @@ func NewInfoMenuHandle(
 
 func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
-	if command.BookDate == nil {
+	switch command.Action {
+	case dto.ActionShowOfficeMenu:
 		return o.officeMenu.Call(ctx, "")
+	case dto.ActionShowSeatList:
+		fallthrough
+	default:
+		if command.BookDate == nil {
+			return o.officeMenu.Call(ctx, "")
+		}
+		return o.seatList.Call(ctx, *command.BookDate)
 	}
-
-	return o.seatList.Call(ctx, *command.BookDate)
 }
