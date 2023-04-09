@@ -94,6 +94,29 @@ func (s *bookSeatRepositoryImpl) FindByOfficeIDAndDate(id int64, dateStr string)
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
+func (s *bookSeatRepositoryImpl) FindNotConfirmedByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name").
+		From("book_seat as bs").
+		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
+		LeftJoin("user as u1 ON bs.user_id = u1.id").
+		Where(sq.And{sq.Eq{"bs.office_id": id}, sq.Eq{"bs.book_date": dateStr}, sq.NotEq{"bs.user_id": nil}, sq.Eq{"bs.confirm": false}})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return nil, err
+	}
+
+	var dtoO []dto.BookSeat
+	if err = s.db.Select(&dtoO, query, args...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, common.ErrBookSeatsNotFound
+		}
+		return nil, err
+	}
+
+	return dto.ToBookSeatModels(dtoO), nil
+}
+
 func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
 	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").

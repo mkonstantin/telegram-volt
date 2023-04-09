@@ -104,7 +104,7 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error {
 
 	today := helper.TodayZeroTimeUTC()
-	bookSeats, err := i.bookSeatRepo.FindByOfficeIDAndDate(office.ID, today.String())
+	bookSeats, err := i.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(office.ID, today.String())
 	if err != nil {
 		return err
 	}
