@@ -51,7 +51,7 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 			return nil, err
 		}
 		if isCanceled {
-			err = o.informerService.SeatComeFree(ctx, command.BookSeatID)
+			err = o.informerService.SendNotifySeatBecomeFree(ctx, command.BookSeatID)
 			if err != nil {
 				return nil, err
 			}

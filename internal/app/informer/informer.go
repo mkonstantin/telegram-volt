@@ -13,8 +13,8 @@ import (
 )
 
 type InformerService interface {
-	SeatComeFree(ctx context.Context, id int64) error
-	SendNotifiesWithMessage(office model.Office, message string) error
+	SendNotifySeatBecomeFree(ctx context.Context, id int64) error
+	SendNotifyTomorrowBookingOpen(office model.Office, message string) error
 	SendNotifiesToConfirm(office *model.Office) error
 }
 
@@ -37,9 +37,9 @@ func NewInformer(botAPI *tgbotapi.BotAPI, infoForm form.InfoMenuForm, userRepo i
 	}
 }
 
-// SeatComeFree Сообщение подписавшимся кроме тех кто уже занимает место, что место освободилось
+// SendNotifySeatBecomeFree Сообщение подписавшимся кроме тех кто уже занимает место, что место освободилось
 
-func (i *informerServiceImpl) SeatComeFree(ctx context.Context, bookSeatID int64) error {
+func (i *informerServiceImpl) SendNotifySeatBecomeFree(ctx context.Context, bookSeatID int64) error {
 
 	bookSeat, err := i.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
@@ -135,9 +135,9 @@ func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFo
 	}
 }
 
-// SendNotifiesWithMessage Сообщение подписавшимся, что открыта запись на завтра
+// SendNotifyTomorrowBookingOpen Сообщение подписавшимся, что открыта запись на завтра
 
-func (i *informerServiceImpl) SendNotifiesWithMessage(office model.Office, message string) error {
+func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office, message string) error {
 	users, err := i.userRepo.GetUsersToNotify(office.ID)
 	if err != nil {
 		return err

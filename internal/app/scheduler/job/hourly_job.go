@@ -155,7 +155,7 @@ func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*
 
 			formattedDate := tomorrow.Date.Format(helper.DateFormat)
 			message := fmt.Sprintf("Открыта запись на %s в офис: %s", formattedDate, office.Name)
-			err = h.informerService.SendNotifiesWithMessage(*office, message)
+			err = h.informerService.SendNotifyTomorrowBookingOpen(*office, message)
 			if err != nil {
 				return err
 			}
