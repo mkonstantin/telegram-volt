@@ -49,9 +49,6 @@ func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 	case dto.ActionShowSeatList:
 		fallthrough
 	default:
-		if command.BookDate == nil {
-			return o.officeMenu.Call(ctx, "", bookSeat.Office.ID)
-		}
-		return o.seatList.Call(ctx, *command.BookDate, bookSeat.Office.ID)
+		return o.seatList.Call(ctx, bookSeat.BookDate, bookSeat.Office.ID)
 	}
 }

@@ -52,7 +52,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	freeSeatMenu := menu.NewFreeSeatMenu(bookSeatRepository, freeSeatForm, logger)
 	seatList := handler.NewSeatListHandle(bookSeatRepository, dateMenu, ownSeatMenu, freeSeatMenu, logger)
 	seatListForm := form.NewSeatListForm(logger)
-	seatListMenu := menu.NewSeatListMenu(bookSeatRepository, seatListForm, logger)
+	seatListMenu := menu.NewSeatListMenu(userService, bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(officeMenu, informerService, userService, bookSeatRepository, seatListMenu, logger)
 	handlerFreeSeatMenu := handler.NewFreeSeatMenuHandle(officeMenu, userService, bookSeatRepository, seatListMenu, logger)
 	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, logger)
