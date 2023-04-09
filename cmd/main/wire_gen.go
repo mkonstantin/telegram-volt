@@ -59,7 +59,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	infoMenu := handler.NewInfoMenuHandle(bookSeatRepository, seatListMenu, officeMenu, logger)
 	routerRouter := router.NewRouter(cfg, start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, infoMenu, logger)
 	userMW := middleware.NewUserMW(userRepository, routerRouter, logger)
-	hourlyJob := job.NewHourlyJob(informerService, officeRepository, workDateRepository, logger)
+	hourlyJob := job.NewHourlyJob(informerService, officeRepository, workDateRepository, bookSeatRepository, logger)
 	dateJob := job.NewDateJob(workDateRepository, logger)
 	seatRepository := repo.NewSeatRepository(connection)
 	seatJob := job.NewSeatsJob(officeRepository, workDateRepository, bookSeatRepository, seatRepository, logger)

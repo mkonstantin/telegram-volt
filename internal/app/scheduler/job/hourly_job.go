@@ -14,6 +14,7 @@ type hourlyJobImpl struct {
 	informerService informer.InformerService
 	officeRepo      interfaces.OfficeRepository
 	workDateRepo    interfaces.WorkDateRepository
+	bookSeatRepo    interfaces.BookSeatRepository
 	logger          *zap.Logger
 }
 
@@ -21,14 +22,17 @@ type HourlyJob interface {
 	StartSchedule() error
 }
 
-func NewHourlyJob(informerService informer.InformerService,
+func NewHourlyJob(
+	informerService informer.InformerService,
 	officeRepo interfaces.OfficeRepository,
 	workDateRepo interfaces.WorkDateRepository,
+	bookSeatRepo interfaces.BookSeatRepository,
 	logger *zap.Logger) HourlyJob {
 	return &hourlyJobImpl{
 		informerService: informerService,
 		officeRepo:      officeRepo,
 		workDateRepo:    workDateRepo,
+		bookSeatRepo:    bookSeatRepo,
 		logger:          logger,
 	}
 }
@@ -122,12 +126,12 @@ func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.
 			}
 		}
 
-		// Remove book time
+		// Cancel book time
 		if currentTime.After(removeBookTime) || currentTime.Equal(removeBookTime) {
-			//err = h.informerService.SendNotifiesToConfirm(office)
-			//if err != nil {
-			//	return err
-			//}
+			err = h.cancelNotConfirmedBookSeats(today, office)
+			if err != nil {
+				return err
+			}
 		}
 
 		// Update to done status after 18-00 o'clock
@@ -160,6 +164,29 @@ func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*
 				return err
 			}
 		}
+	}
+
+	return nil
+}
+
+func (h *hourlyJobImpl) cancelNotConfirmedBookSeats(today model.WorkDate, office *model.Office) error {
+	if office == nil {
+		return nil
+	}
+
+	bookSeats, err := h.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(office.ID, today.Date.String())
+	if err != nil {
+		return err
+	}
+
+	for _, bookSeat := range bookSeats {
+		err = h.bookSeatRepo.CancelBookSeatWithID(bookSeat.ID)
+		if err != nil {
+			return err
+		}
+
+		bookSeat.Office = *office
+		err = h.informerService.SendNotifyToBookDeletedBySystem(bookSeat)
 	}
 
 	return nil

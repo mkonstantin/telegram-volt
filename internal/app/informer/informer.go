@@ -16,6 +16,7 @@ type InformerService interface {
 	SendNotifySeatBecomeFree(ctx context.Context, id int64) error
 	SendNotifyTomorrowBookingOpen(office model.Office, message string) error
 	SendNotifiesToConfirm(office *model.Office) error
+	SendNotifyToBookDeletedBySystem(bookSeat *model.BookSeat) error
 }
 
 type informerServiceImpl struct {
@@ -141,6 +142,22 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 		}
 		i.sendInfoForm(context.Background(), data)
 	}
+
+	return nil
+}
+
+func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(bookSeat *model.BookSeat) error {
+
+	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+
+	message := fmt.Sprintf("Мы удалили вашю бронь в офисе %s на %s, так как вы ее не подтвердили", bookSeat.Office.Name, formattedDate)
+	data := form.InfoFormData{
+		Action:     dto.ActionShowOfficeMenu,
+		Message:    message,
+		BookSeatID: bookSeat.ID,
+		ChatID:     bookSeat.User.ChatID,
+	}
+	i.sendInfoForm(context.Background(), data)
 
 	return nil
 }
