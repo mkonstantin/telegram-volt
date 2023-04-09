@@ -8,7 +8,7 @@ import (
 type BookSeatRepository interface {
 	FindByID(id int64) (*model.BookSeat, error)
 	GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	GetUsersByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
+	FindByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
 	GetFreeSeatsByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
 	BookSeatWithID(id, userID int64) error
 	CancelBookSeatWithID(id int64) error

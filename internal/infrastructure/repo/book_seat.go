@@ -71,7 +71,7 @@ func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) GetUsersByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
 	sqQuery := sq.Select("bs.*, s1.seat_number, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.telegram_name").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").

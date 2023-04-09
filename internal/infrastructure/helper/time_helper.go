@@ -9,9 +9,11 @@ type TimeStage int
 const DateFormat = "02 January 2006"
 
 const (
-	Morning     TimeStage = 9
-	OpenBooking           = 14
-	Evening               = 18
+	Morning        TimeStage = 9
+	SendNotifyTime TimeStage = 9
+	RemoveBookTime TimeStage = 10
+	OpenBooking              = 14
+	Evening                  = 18
 )
 
 func EveningTimeWithTimeZone(timeZone string) (time.Time, error) {
