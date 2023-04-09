@@ -52,6 +52,6 @@ func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 		if command.BookDate == nil {
 			return o.officeMenu.Call(ctx, "", bookSeat.Office.ID)
 		}
-		return o.seatList.Call(ctx, *command.BookDate)
+		return o.seatList.Call(ctx, *command.BookDate, bookSeat.Office.ID)
 	}
 }

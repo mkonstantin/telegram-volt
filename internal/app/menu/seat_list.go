@@ -32,11 +32,18 @@ func NewSeatListMenu(
 	}
 }
 
-func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time) (*tgbotapi.MessageConfig, error) {
+func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time, officeID int64) (*tgbotapi.MessageConfig, error) {
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	seats, err := s.bookSeatRepo.GetAllByOfficeIDAndDate(currentUser.OfficeID, date.String())
+	var callingOfficeID int64
+	if officeID > 0 {
+		callingOfficeID = officeID
+	} else {
+		callingOfficeID = currentUser.OfficeID
+	}
+
+	seats, err := s.bookSeatRepo.GetAllByOfficeIDAndDate(callingOfficeID, date.String())
 	if err != nil {
 		return nil, err
 	}
