@@ -40,5 +40,5 @@ func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 		return o.officeMenu.Call(ctx, "", 0)
 	}
 
-	return o.seatList.Call(ctx, *command.BookDate)
+	return o.seatList.Call(ctx, *command.BookDate, 0)
 }

@@ -55,6 +55,6 @@ func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 		if err != nil {
 			return nil, err
 		}
-		return f.seatListMenu.Call(ctx, bookSeat.BookDate)
+		return f.seatListMenu.Call(ctx, bookSeat.BookDate, 0)
 	}
 }
