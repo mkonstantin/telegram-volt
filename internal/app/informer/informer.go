@@ -100,6 +100,31 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 	return nil
 }
 
+// SendNotifiesToConfirm рассылка уведомлений на подтверждение брони
+
+func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error {
+
+	today := helper.TodayZeroTimeUTC()
+	bookSeats, err := i.bookSeatRepo.FindByOfficeIDAndDate(office.ID, today.String())
+	if err != nil {
+		return err
+	}
+
+	for _, bookSeat := range bookSeats {
+		message := fmt.Sprintf("Подтвердите свою бронь на сегодня, иначе мы УДАЛИМ ее через час")
+		data := form.InfoFormData{
+			Action:  dto.ActionShowOfficeMenu,
+			Message: message,
+			Office:  &bookSeat.Office,
+		}
+
+		data.ChatID = bookSeat.User.ChatID
+		i.sendInfoForm(context.Background(), data)
+	}
+
+	return nil
+}
+
 func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFormData) {
 	build, err := i.infoForm.Build(ctx, data)
 	if err != nil {
@@ -131,29 +156,4 @@ func (i *informerServiceImpl) sendMessage(chatID int64, text string) {
 	if _, err := i.botAPI.Send(msg); err != nil {
 		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
 	}
-}
-
-// SendNotifiesToConfirm рассылка уведомлений на подтверждение брони
-
-func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error {
-
-	today := helper.TodayZeroTimeUTC()
-	bookSeats, err := i.bookSeatRepo.FindByOfficeIDAndDate(office.ID, today.String())
-	if err != nil {
-		return err
-	}
-
-	for _, bookSeat := range bookSeats {
-		message := fmt.Sprintf("Подтвердите свою бронь на сегодня, иначе мы УДАЛИМ ее через час")
-		data := form.InfoFormData{
-			Action:  dto.ActionShowOfficeMenu,
-			Message: message,
-			Office:  &bookSeat.Office,
-		}
-
-		data.ChatID = bookSeat.User.ChatID
-		i.sendInfoForm(context.Background(), data)
-	}
-
-	return nil
 }
