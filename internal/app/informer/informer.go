@@ -81,10 +81,9 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 	}
 
 	data := form.InfoFormData{
-		Action:  dto.ActionShowSeatList,
-		Message: text,
-		Office:  &bookSeat.Office,
-		Date:    &bookSeat.BookDate,
+		Action:     dto.ActionShowSeatList,
+		Message:    text,
+		BookSeatID: bookSeat.ID,
 	}
 
 	for _, user := range users {
@@ -113,12 +112,12 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 	for _, bookSeat := range bookSeats {
 		message := fmt.Sprintf("Подтвердите свою бронь на сегодня, иначе мы УДАЛИМ ее через час")
 		data := form.InfoFormData{
-			Action:  dto.ActionShowOfficeMenu,
-			Message: message,
-			Office:  &bookSeat.Office,
+			Action:     dto.ActionShowOfficeMenu,
+			Message:    message,
+			BookSeatID: bookSeat.ID,
+			ChatID:     bookSeat.User.ChatID,
 		}
 
-		data.ChatID = bookSeat.User.ChatID
 		i.sendInfoForm(context.Background(), data)
 	}
 

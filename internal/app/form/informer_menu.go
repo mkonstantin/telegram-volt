@@ -6,17 +6,14 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
-	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
-	"time"
 )
 
 type InfoFormData struct {
-	Action  int
-	ChatID  int64
-	Message string
-	Office  *model.Office
-	Date    *time.Time
+	Action     int
+	ChatID     int64
+	Message    string
+	BookSeatID int64
 }
 
 type InfoMenuForm interface {
@@ -39,10 +36,9 @@ func (f *infoMenuFormImpl) Build(_ context.Context, data InfoFormData) (*tgbotap
 	var rows [][]tgbotapi.InlineKeyboardButton
 
 	resp := &dto.InlineRequest{
-		Type:     constants.InformerTap,
-		Action:   data.Action,
-		BookDate: data.Date,
-		OfficeID: data.Office.ID,
+		Type:       constants.InformerTap,
+		Action:     data.Action,
+		BookSeatID: data.BookSeatID,
 	}
 	responseData, err := json.Marshal(resp)
 	if err != nil {
