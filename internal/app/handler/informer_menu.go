@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
+	"telegram-api/internal/domain/model"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -37,6 +38,11 @@ func NewInfoMenuHandle(
 func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	bookSeatID := command.BookSeatID
+
+	if bookSeatID == 0 {
+		currentUser := model.GetCurrentUser(ctx)
+		return o.officeMenu.Call(ctx, "", currentUser.NotifyOfficeID)
+	}
 
 	bookSeat, err := o.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {

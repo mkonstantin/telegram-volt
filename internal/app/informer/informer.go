@@ -124,17 +124,6 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 	return nil
 }
 
-func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFormData) {
-	build, err := i.infoForm.Build(ctx, data)
-	if err != nil {
-		i.logger.Error("Error Informer sendInfoForm", zap.Error(err))
-		// Ошибку не возвращаем, show must go on
-	}
-	if _, err = i.botAPI.Send(build); err != nil {
-		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
-	}
-}
-
 // SendNotifyTomorrowBookingOpen Сообщение подписавшимся, что открыта запись на завтра
 
 func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office, message string) error {
@@ -144,15 +133,25 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 	}
 
 	for _, user := range users {
-		i.sendMessage(user.ChatID, message)
+		data := form.InfoFormData{
+			Action:     dto.ActionShowOfficeMenu,
+			Message:    message,
+			BookSeatID: 0,
+			ChatID:     user.ChatID,
+		}
+		i.sendInfoForm(context.Background(), data)
 	}
 
 	return nil
 }
 
-func (i *informerServiceImpl) sendMessage(chatID int64, text string) {
-	msg := tgbotapi.NewMessage(chatID, text)
-	if _, err := i.botAPI.Send(msg); err != nil {
+func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFormData) {
+	build, err := i.infoForm.Build(ctx, data)
+	if err != nil {
+		i.logger.Error("Error Informer sendInfoForm", zap.Error(err))
+		// Ошибку не возвращаем, show must go on
+	}
+	if _, err = i.botAPI.Send(build); err != nil {
 		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
 	}
 }
