@@ -74,7 +74,12 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 	if bookSeat.User != nil {
 		message = fmt.Sprintf("Место №%d уже занято", bookSeat.Seat.SeatNumber)
 	} else {
-		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID)
+		today := helper.TodayZeroTimeUTC()
+		confirm := false
+		if bookSeat.BookDate.Equal(today) {
+			confirm = true
+		}
+		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID, confirm)
 		if err != nil {
 			return "", err
 		}

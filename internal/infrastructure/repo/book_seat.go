@@ -142,9 +142,10 @@ func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(id int64, dateStr strin
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) BookSeatWithID(userID, id int64) error {
+func (s *bookSeatRepositoryImpl) BookSeatWithID(userID, id int64, confirm bool) error {
 	sqQuery := sq.Update("book_seat").
 		Set("user_id", userID).
+		Set("confirm", confirm).
 		Where(sq.Eq{"id": id})
 
 	query, args, err := sqQuery.ToSql()

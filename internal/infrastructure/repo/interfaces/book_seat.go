@@ -10,7 +10,7 @@ type BookSeatRepository interface {
 	GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
 	FindByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
 	GetFreeSeatsByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	BookSeatWithID(id, userID int64) error
+	BookSeatWithID(id, userID int64, confirm bool) error
 	CancelBookSeatWithID(id int64) error
 	FindByUserID(userID int64) (*model.BookSeat, error)
 	FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error)
