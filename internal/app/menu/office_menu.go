@@ -37,9 +37,17 @@ func NewOfficeMenu(
 }
 
 func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64) (*tgbotapi.MessageConfig, error) {
+
 	currentUser := model.GetCurrentUser(ctx)
 
-	office, err := o.officeRepo.FindByID(currentUser.OfficeID)
+	var callingOfficeID int64
+	if officeID > 0 {
+		callingOfficeID = officeID
+	} else {
+		callingOfficeID = currentUser.OfficeID
+	}
+
+	office, err := o.officeRepo.FindByID(callingOfficeID)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +68,9 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 			return nil, err
 		}
 		if bookSeat != nil {
-			bookSeats = append(bookSeats, bookSeat)
+			if bookSeat.Office.ID == callingOfficeID {
+				bookSeats = append(bookSeats, bookSeat)
+			}
 
 			// Проверяем нужно ли подтверждение места на сегодня
 			if bookSeat.BookDate == today && !bookSeat.Confirm {
@@ -70,14 +80,16 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 					return nil, err
 				}
 				if currentTime.After(morningTime) || currentTime.Equal(morningTime) {
-					needConfirmBookSeat = bookSeat
+					if bookSeat.Office.ID == callingOfficeID {
+						needConfirmBookSeat = bookSeat
+					}
 				}
 			}
 		}
 	}
 
 	var buttonText string
-	if currentUser.OfficeID == currentUser.NotifyOfficeID {
+	if callingOfficeID == currentUser.NotifyOfficeID {
 		buttonText = "Отписаться от уведомлений"
 	} else {
 		buttonText = "Подписаться на свободные места"
