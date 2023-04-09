@@ -17,6 +17,7 @@ type BookSeat struct {
 	UserID           *int64     `db:"user_id,omitempty"`
 	TelegramName     *string    `db:"user_name,omitempty"`
 	TelegramID       *int64     `db:"telegram_id,omitempty"`
+	ChatID           *int64     `db:"chat_id,omitempty"`
 	TelegramUsername *string    `db:"telegram_name,omitempty"`
 	Confirm          bool       `db:"confirm,omitempty"`
 	BookStartTime    *time.Time `db:"book_start_time,omitempty"`
@@ -27,12 +28,13 @@ type BookSeat struct {
 
 func (o *BookSeat) ToModel() *model.BookSeat {
 	var user *model.User
-	if o.UserID != nil && o.TelegramName != nil && o.TelegramID != nil && o.TelegramUsername != nil {
+	if o.UserID != nil && o.TelegramName != nil && o.TelegramID != nil && o.TelegramUsername != nil && o.ChatID != nil {
 		user = &model.User{
 			ID:           *o.UserID,
 			Name:         *o.TelegramName,
 			TelegramID:   *o.TelegramID,
 			TelegramName: *o.TelegramUsername,
+			ChatID:       *o.ChatID,
 		}
 	}
 
