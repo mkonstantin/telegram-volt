@@ -7,7 +7,7 @@ import (
 )
 
 type OfficeMenu interface {
-	Call(ctx context.Context, title string) (*tgbotapi.MessageConfig, error)
+	Call(ctx context.Context, title string, officeID int64) (*tgbotapi.MessageConfig, error)
 }
 
 type OfficeListMenu interface {

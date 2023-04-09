@@ -46,7 +46,7 @@ func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 		if err != nil {
 			return nil, err
 		}
-		return f.officeMenu.Call(ctx, message)
+		return f.officeMenu.Call(ctx, message, 0)
 
 	case dto.ActionBookNo:
 		fallthrough

@@ -53,7 +53,7 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 		if err != nil {
 			return nil, err
 		}
-		return o.officeMenu.Call(contxt, message)
+		return o.officeMenu.Call(contxt, message, 0)
 
 	case dto.OfficeMenuChooseAnotherOffice:
 		return o.officeListMenu.Call(ctx)
@@ -68,7 +68,7 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 			if err != nil {
 				return nil, err
 			}
-			return o.officeMenu.Call(ctx, message)
+			return o.officeMenu.Call(ctx, message, 0)
 		} else {
 			chatID := model.GetCurrentChatID(ctx)
 			msg := tgbotapi.NewMessage(chatID, "")
@@ -82,7 +82,7 @@ func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) 
 			return nil, err
 		}
 
-		return o.officeMenu.Call(ctx, message)
+		return o.officeMenu.Call(ctx, message, 0)
 	}
 
 	return nil, nil

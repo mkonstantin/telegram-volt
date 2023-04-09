@@ -33,11 +33,11 @@ func NewDateMenuHandle(
 func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
 
 	if command.Action == dto.Back {
-		return o.officeMenu.Call(ctx, "")
+		return o.officeMenu.Call(ctx, "", 0)
 	}
 
 	if command.BookDate == nil {
-		return o.officeMenu.Call(ctx, "")
+		return o.officeMenu.Call(ctx, "", 0)
 	}
 
 	return o.seatList.Call(ctx, *command.BookDate)

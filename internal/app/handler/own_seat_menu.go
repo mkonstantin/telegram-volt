@@ -56,7 +56,7 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 				return nil, err
 			}
 		}
-		return o.officeMenu.Call(ctx, message)
+		return o.officeMenu.Call(ctx, message, 0)
 
 	case dto.ActionCancelBookNo:
 		fallthrough

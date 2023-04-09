@@ -35,7 +35,7 @@ func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error)
 	currentUser := model.GetCurrentUser(ctx)
 
 	if currentUser.HaveChosenOffice() {
-		return s.officeMenu.Call(ctx, "")
+		return s.officeMenu.Call(ctx, "", 0)
 	} else {
 		return s.officeListMenu.Call(ctx)
 	}
