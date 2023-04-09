@@ -7,12 +7,14 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
+	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
 type officeMenuImpl struct {
+	userService    usecase.UserService
 	dateRepo       repo.WorkDateRepository
 	bookSeatRepo   repo.BookSeatRepository
 	officeRepo     repo.OfficeRepository
@@ -21,6 +23,7 @@ type officeMenuImpl struct {
 }
 
 func NewOfficeMenu(
+	userService usecase.UserService,
 	dateRepo repo.WorkDateRepository,
 	bookSeatRepo repo.BookSeatRepository,
 	officeRepo repo.OfficeRepository,
@@ -28,6 +31,7 @@ func NewOfficeMenu(
 	logger *zap.Logger) interfaces.OfficeMenu {
 
 	return &officeMenuImpl{
+		userService:    userService,
 		dateRepo:       dateRepo,
 		bookSeatRepo:   bookSeatRepo,
 		officeRepo:     officeRepo,
@@ -45,6 +49,11 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 		callingOfficeID = officeID
 	} else {
 		callingOfficeID = currentUser.OfficeID
+	}
+
+	ctx, err := o.userService.SetOfficeScript(ctx, callingOfficeID)
+	if err != nil {
+		return nil, err
 	}
 
 	office, err := o.officeRepo.FindByID(callingOfficeID)
