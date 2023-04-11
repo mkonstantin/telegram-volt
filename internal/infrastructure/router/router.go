@@ -80,8 +80,17 @@ func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.Mes
 	switch command {
 	case "start":
 		return r.start.Handle(ctx)
-	case "version":
-		text := fmt.Sprintf("Версия: %s", r.cfg.Version)
+	case "how_works":
+		text := "Бот поможет забронировать рабочее место в одном из наших офисов." +
+			"\nДля того чтобы забронировать рабочее место, выбери нужный офис, и номер рабочего стола" +
+			"\nВозможность забронировать открывается каждый будний день в 14:00 автоматически." +
+			"\nЧтобы не пропускать уведомление, подпишитесь на интересующий вас офис, и вы сможете получать напоминание об открытии бронирования." +
+			"\nВ день бронирования, в 9:00 откроется возможность подтвердить бронь, если этого не сделать до 10:00, бронь будет аннулирована"
+		msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), text)
+		return &msg, nil
+	case "about":
+		text := fmt.Sprintf("developed by @km505603"+
+			"\nversion: %s", r.cfg.Version)
 		msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), text)
 		return &msg, nil
 	}
