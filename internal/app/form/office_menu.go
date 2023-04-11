@@ -69,7 +69,7 @@ func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData)
 		if err != nil {
 			return nil, err
 		}
-		buttonMessage := fmt.Sprintf("Отменить бронь на %s", seat.BookDate.Format(helper.DateFormat))
+		buttonMessage := fmt.Sprintf("ОТМЕНИТЬ бронь на %s", seat.BookDate.Format(helper.DateFormat))
 		button := tgbotapi.NewInlineKeyboardButtonData(buttonMessage, string(butt))
 		row := tgbotapi.NewInlineKeyboardRow(button)
 		sum = append(sum, row)

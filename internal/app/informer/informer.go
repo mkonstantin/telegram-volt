@@ -111,7 +111,7 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 	}
 
 	for _, bookSeat := range bookSeats {
-		message := fmt.Sprintf("Подтвердите свою бронь на сегодня, иначе мы УДАЛИМ ее через час")
+		message := fmt.Sprintf("Подтвердите или отмените свое бронирование на сегодня до 10:00")
 		data := form.InfoFormData{
 			Action:     dto.ActionShowOfficeMenu,
 			Message:    message,

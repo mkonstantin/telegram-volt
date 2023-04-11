@@ -84,7 +84,10 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 			return "", err
 		}
 
-		message = fmt.Sprintf("Отлично! Вы заняли место №%d в офисе: %s", bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+		message = fmt.Sprintf("Ваше место №%d в офисе %s забронировано. "+
+			"Завтра в 9:00 откроется возможность подтверждения бронирования, "+
+			"если вы не подтвердите его до 10:00, бронь будет аннулирована",
+			bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
 	}
 
 	return message, nil
