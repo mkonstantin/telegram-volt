@@ -10,4 +10,5 @@ type AppConfig struct {
 	MaxIdleConnections    int
 	ConnectionMaxLifeTime int
 	Version               string
+	Admins                []string
 }

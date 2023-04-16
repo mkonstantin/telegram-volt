@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"os"
 	"strconv"
+	"strings"
 	"telegram-api/config"
 	"telegram-api/pkg/log"
 )
@@ -33,6 +34,9 @@ func main() {
 		return
 	}
 
+	adminsStr := os.Getenv("ADMINS")
+	admins := strings.Split(adminsStr, ",")
+
 	cfg := config.AppConfig{
 		Username:              os.Getenv("USERNAME"),
 		Password:              os.Getenv("PASSWORD"),
@@ -43,6 +47,7 @@ func main() {
 		MaxIdleConnections:    mIdleConn,
 		ConnectionMaxLifeTime: lifeTime,
 		Version:               os.Getenv("VERSION"),
+		Admins:                admins,
 	}
 
 	logger.Info(fmt.Sprintf("DB host: %s", cfg.Host))

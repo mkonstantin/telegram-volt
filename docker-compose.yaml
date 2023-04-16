@@ -23,6 +23,7 @@ services:
       - CONNLIFETIME=2
       - KEY=6257462459:AAGkfP_LpWilOGmB2z3CYwsKCfe9rtv7lJs
       - VERSION=1.0.3
+      - ADMINS=km505603,irs_pro
 
   db:
     image: mysql:8.0
