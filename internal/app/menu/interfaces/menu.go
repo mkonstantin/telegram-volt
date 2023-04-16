@@ -29,3 +29,7 @@ type OwnSeatMenu interface {
 type DateMenu interface {
 	Call(ctx context.Context) (*tgbotapi.MessageConfig, error)
 }
+
+type HoldSeatMenu interface {
+	Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error)
+}
