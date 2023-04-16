@@ -27,6 +27,7 @@ type seatListImpl struct {
 	bookSeatRepo repo.BookSeatRepository
 	dateMenu     interfaces.DateMenu
 	ownSeatMenu  interfaces.OwnSeatMenu
+	holdSeatMenu interfaces.HoldSeatMenu
 	freeSeatMenu interfaces.FreeSeatMenu
 	cfg          config.AppConfig
 	logger       *zap.Logger
@@ -36,6 +37,7 @@ func NewSeatListHandle(
 	bookSeatRepo repo.BookSeatRepository,
 	dateMenu interfaces.DateMenu,
 	ownSeatMenu interfaces.OwnSeatMenu,
+	holdSeatMenu interfaces.HoldSeatMenu,
 	freeSeatMenu interfaces.FreeSeatMenu,
 	cfg config.AppConfig,
 	logger *zap.Logger) SeatList {
@@ -44,6 +46,7 @@ func NewSeatListHandle(
 		bookSeatRepo: bookSeatRepo,
 		dateMenu:     dateMenu,
 		ownSeatMenu:  ownSeatMenu,
+		holdSeatMenu: holdSeatMenu,
 		freeSeatMenu: freeSeatMenu,
 		cfg:          cfg,
 		logger:       logger,
@@ -102,7 +105,7 @@ func (s *seatListImpl) seatHold(ctx context.Context, bookSeat *model.BookSeat) (
 	currentUser := model.GetCurrentUser(ctx)
 
 	if s.cfg.IsAdmin(currentUser.TelegramName) {
-		return s.ownSeatMenu.Call(ctx, bookSeat.ID)
+		return s.holdSeatMenu.Call(ctx, bookSeat.ID)
 	} else {
 		chatID := model.GetCurrentChatID(ctx)
 		message := fmt.Sprintf("Место №%s временно закреплено администратором, его нельзя забронировать", bookSeat.Seat.SeatSign)
