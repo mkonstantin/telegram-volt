@@ -44,7 +44,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	infoMenuForm := form.NewInfoMenuForm(logger)
 	informerService := informer.NewInformer(botAPI, infoMenuForm, userRepository, bookSeatRepository, logger)
 	dateMenuForm := form.NewDateMenutForm(logger)
-	dateMenu := menu.NewDateMenu(workDateRepository, officeRepository, bookSeatRepository, dateMenuForm, logger)
+	dateMenu := menu.NewDateMenu(workDateRepository, officeRepository, bookSeatRepository, dateMenuForm, cfg, logger)
 	handlerOfficeMenu := handler.NewOfficeMenuHandle(informerService, userService, dateMenu, officeMenu, officeListMenu, logger)
 	ownSeatForm := form.NewOwnSeatForm(logger)
 	ownSeatMenu := menu.NewOwnSeatMenu(ownSeatForm, logger)

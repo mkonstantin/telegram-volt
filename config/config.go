@@ -12,3 +12,17 @@ type AppConfig struct {
 	Version               string
 	Admins                []string
 }
+
+func (a *AppConfig) IsAdmin(telegramName string) bool {
+	if len(a.Admins) == 0 {
+		return false
+	}
+
+	for _, admin := range a.Admins {
+		if admin == telegramName {
+			return true
+		}
+	}
+	
+	return false
+}

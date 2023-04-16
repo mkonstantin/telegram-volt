@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/config"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
@@ -17,6 +18,7 @@ type dateMenuImpl struct {
 	officeRepo   repo.OfficeRepository
 	bookSeatRepo repo.BookSeatRepository
 	dateMenuForm form.DateMenuForm
+	cfg          config.AppConfig
 	logger       *zap.Logger
 }
 
@@ -25,6 +27,7 @@ func NewDateMenu(
 	officeRepo repo.OfficeRepository,
 	bookSeatRepo repo.BookSeatRepository,
 	dateMenuForm form.DateMenuForm,
+	cfg config.AppConfig,
 	logger *zap.Logger) interfaces.DateMenu {
 
 	return &dateMenuImpl{
@@ -32,6 +35,7 @@ func NewDateMenu(
 		officeRepo:   officeRepo,
 		bookSeatRepo: bookSeatRepo,
 		dateMenuForm: dateMenuForm,
+		cfg:          cfg,
 		logger:       logger,
 	}
 }
@@ -45,14 +49,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 		return nil, err
 	}
 
-	today := helper.TodayZeroTimeUTC()
-	todayPlus2 := helper.TodayPlusUTC(2)
-
-	// получаем сегодня и завтра
-	dates, err := f.dateRepo.FindByDatesAndStatus(today.String(), todayPlus2.String(), model.StatusAccept)
-	if err != nil {
-		return nil, err
-	}
+	dates, err := f.getDates(f.cfg.IsAdmin(currentUser.TelegramName))
 
 	var daySeats []form.DaySeat
 	for _, date := range dates {
@@ -80,4 +77,27 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 		SeatByDates: daySeats,
 	}
 	return f.dateMenuForm.Build(ctx, formData)
+}
+
+func (f *dateMenuImpl) getDates(isAdmin bool) ([]model.WorkDate, error) {
+	today := helper.TodayZeroTimeUTC()
+
+	var dates []model.WorkDate
+	var err error
+
+	if isAdmin {
+		todayPlus10 := helper.TodayPlusUTC(10)
+		dates, err = f.dateRepo.FindByDates(today.String(), todayPlus10.String())
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		todayPlus2 := helper.TodayPlusUTC(2)
+		dates, err = f.dateRepo.FindByDatesAndStatus(today.String(), todayPlus2.String(), model.StatusAccept)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return dates, nil
 }
