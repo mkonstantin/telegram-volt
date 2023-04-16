@@ -42,8 +42,8 @@ func (s *seatRepositoryImpl) FindByID(id int64) (*model.Seat, error) {
 }
 
 func (s *seatRepositoryImpl) GetAllByOfficeID(id int64) ([]*model.Seat, error) {
-	sqQuery := sq.Select("*").
-		From("seat").
+	sqQuery := sq.Select("s1.id, s1.have_monitor, s1.seat_sign, s1.office_id, s1.created_at, s1.updated_at").
+		From("seat as s1").
 		Where(sq.Eq{"office_id": id}).
 		OrderBy("seat_number asc")
 
