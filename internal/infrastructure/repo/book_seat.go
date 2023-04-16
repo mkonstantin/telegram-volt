@@ -52,7 +52,7 @@ func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
 		InnerJoin("office as o1 ON bs.office_id=o1.id").
 		LeftJoin("user as u1 ON bs.user_id = u1.id").
-		Where(sq.And{sq.Eq{"bs.office_id": id}, sq.Eq{"bs.book_date": dateStr}, sq.Eq{"bs.user_id": nil}}).
+		Where(sq.And{sq.Eq{"bs.office_id": id}, sq.Eq{"bs.book_date": dateStr}, sq.Eq{"bs.user_id": nil}, sq.Eq{"bs.hold": false}}).
 		OrderBy("s1.seat_number asc")
 
 	query, args, err := sqQuery.ToSql()
