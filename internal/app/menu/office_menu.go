@@ -99,9 +99,9 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 
 	var buttonText string
 	if callingOfficeID == currentUser.NotifyOfficeID {
-		buttonText = "Отписаться от уведомлений"
+		buttonText = "🔕 Отписаться от уведомлений"
 	} else {
-		buttonText = "Подписаться на свободные места"
+		buttonText = "🔔 Подписаться на свободные места"
 	}
 
 	var message string

@@ -52,7 +52,7 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	if err != nil {
 		return nil, err
 	}
-	buttonMap := tgbotapi.NewInlineKeyboardButtonData("Карта расположения мест", string(mapData))
+	buttonMap := tgbotapi.NewInlineKeyboardButtonData("📍 Карта расположения мест 📍", string(mapData))
 	rowMap := tgbotapi.NewInlineKeyboardRow(buttonMap)
 	rows = append(rows, rowMap)
 
