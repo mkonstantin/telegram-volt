@@ -14,4 +14,5 @@ var handlerSet = wire.NewSet(
 	handler.NewFreeSeatMenuHandle,
 	handler.NewDateMenuHandle,
 	handler.NewInfoMenuHandle,
+	handler.NewHoldSeatMenuHandle,
 )
