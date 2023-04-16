@@ -19,7 +19,6 @@ const (
 
 	ActionCancelBookYes = 11
 	ActionCancelBookNo  = 12
-	ActionCancelHold    = 14
 
 	ActionBookYes  = 21
 	ActionBookNo   = 22
@@ -30,4 +29,7 @@ const (
 
 	DateListShowMap = 41
 	Back            = 100
+
+	ActionCancelHoldYes = 51
+	ActionCancelHoldNo  = 52
 )
