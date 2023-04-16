@@ -7,6 +7,7 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/domain/model"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -47,6 +48,15 @@ func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 			return nil, err
 		}
 		return f.officeMenu.Call(ctx, message, 0)
+
+	case dto.ActionBookHold:
+		message, err := f.userService.HoldBookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, message)
+		return &msg, nil
 
 	case dto.ActionBookNo:
 		fallthrough

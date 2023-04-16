@@ -15,6 +15,8 @@ type UserService interface {
 	BookSeat(ctx context.Context, bookSeatID int64) (string, error)
 	CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error)
 	ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error)
+	HoldBookSeat(ctx context.Context, bookSeatID int64) (string, error)
+	CancelHoldBookSeat(ctx context.Context, bookSeatID int64) (string, error)
 }
 
 type userServiceImpl struct {
@@ -180,6 +182,44 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
 	message = fmt.Sprintf("Отлично! Вы подтвердили, что придете сегодня: %s. "+
 		"Ваше место №%s в офисе: %s", formattedDate, bookSeat.Seat.SeatSign, bookSeat.Office.Name)
+
+	return message, nil
+}
+
+// Admin hold seats
+
+func (u *userServiceImpl) HoldBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	err = u.bookSeatRepo.HoldSeatWithID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+	message := fmt.Sprintf("Ок! Вы закрепили место №%s в офисе: %s, на %s",
+		bookSeat.Seat.SeatSign, bookSeat.Office.Name, formattedDate)
+
+	return message, nil
+}
+
+func (u *userServiceImpl) CancelHoldBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	err = u.bookSeatRepo.CancelHoldSeatWithID(bookSeatID)
+	if err != nil {
+		return "", err
+	}
+
+	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+	message := fmt.Sprintf("Вы сняли бронь с места №%s в офисе: %s, на %s",
+		bookSeat.Seat.SeatSign, bookSeat.Office.Name, formattedDate)
 
 	return message, nil
 }

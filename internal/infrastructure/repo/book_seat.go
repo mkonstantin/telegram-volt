@@ -246,3 +246,31 @@ func (s *bookSeatRepositoryImpl) ConfirmBookSeat(seatID int64) error {
 	_, err = s.db.Exec(query, args...)
 	return nil
 }
+
+func (s *bookSeatRepositoryImpl) HoldSeatWithID(id int64) error {
+	sqQuery := sq.Update("book_seat").
+		Set("hold", true).
+		Where(sq.Eq{"id": id})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}
+
+func (s *bookSeatRepositoryImpl) CancelHoldSeatWithID(id int64) error {
+	sqQuery := sq.Update("book_seat").
+		Set("hold", false).
+		Where(sq.Eq{"id": id})
+
+	query, args, err := sqQuery.ToSql()
+	if err != nil {
+		return err
+	}
+
+	_, err = s.db.Exec(query, args...)
+	return nil
+}

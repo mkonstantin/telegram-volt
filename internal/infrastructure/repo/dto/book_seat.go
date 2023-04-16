@@ -20,6 +20,7 @@ type BookSeat struct {
 	ChatID           *int64     `db:"chat_id,omitempty"`
 	TelegramUsername *string    `db:"telegram_name,omitempty"`
 	Confirm          bool       `db:"confirm,omitempty"`
+	Hold             bool       `db:"hold,omitempty"`
 	BookStartTime    *time.Time `db:"book_start_time,omitempty"`
 	BookEndTime      *time.Time `db:"book_end_time,omitempty"`
 	CreatedAt        time.Time  `db:"created_at" json:"created_at"`
@@ -56,6 +57,7 @@ func (o *BookSeat) ToModel() *model.BookSeat {
 		BookStartTime: o.BookStartTime,
 		BookEndTime:   o.BookEndTime,
 		Confirm:       o.Confirm,
+		Hold:          o.Hold,
 	}
 }
 

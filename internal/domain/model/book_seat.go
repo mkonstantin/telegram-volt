@@ -11,4 +11,5 @@ type BookSeat struct {
 	BookStartTime *time.Time
 	BookEndTime   *time.Time
 	Confirm       bool
+	Hold          bool
 }
