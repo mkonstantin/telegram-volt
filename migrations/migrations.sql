@@ -79,3 +79,7 @@ CREATE TABLE `work_date`
     COLLATE utf8mb4_unicode_ci;
 
 ALTER TABLE book_seat add column confirm BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE seat add column seat_sign VARCHAR(255) NOT NULL;
+
+ALTER TABLE book_seat add column `hold` BOOLEAN DEFAULT FALSE;
