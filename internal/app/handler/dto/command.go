@@ -20,8 +20,9 @@ const (
 	ActionCancelBookYes = 11
 	ActionCancelBookNo  = 12
 
-	ActionBookYes = 21
-	ActionBookNo  = 22
+	ActionBookYes  = 21
+	ActionBookNo   = 22
+	ActionBookHold = 23
 
 	ActionShowOfficeMenu = 31
 	ActionShowSeatList   = 32

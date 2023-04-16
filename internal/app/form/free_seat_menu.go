@@ -16,7 +16,7 @@ type FreeSeatFormData struct {
 }
 
 type FreeSeatForm interface {
-	Build(ctx context.Context, data FreeSeatFormData) (*tgbotapi.MessageConfig, error)
+	Build(ctx context.Context, data FreeSeatFormData, isAdmin bool) (*tgbotapi.MessageConfig, error)
 }
 
 type freeSeatFormImpl struct {
@@ -29,7 +29,7 @@ func NewFreeSeatForm(logger *zap.Logger) FreeSeatForm {
 	}
 }
 
-func (f *freeSeatFormImpl) Build(ctx context.Context, data FreeSeatFormData) (*tgbotapi.MessageConfig, error) {
+func (f *freeSeatFormImpl) Build(ctx context.Context, data FreeSeatFormData, isAdmin bool) (*tgbotapi.MessageConfig, error) {
 	chatID := model.GetCurrentChatID(ctx)
 
 	msg := tgbotapi.NewMessage(chatID, "")
@@ -59,8 +59,35 @@ func (f *freeSeatFormImpl) Build(ctx context.Context, data FreeSeatFormData) (*t
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Занять", string(butt1))
 	button2 := tgbotapi.NewInlineKeyboardButtonData("К списку мест", string(butt2))
 	row := tgbotapi.NewInlineKeyboardRow(button1, button2)
+
+	if isAdmin {
+		buttonAdmin, err := f.addAdminStuff(data)
+		if err != nil {
+			return nil, err
+		}
+		if buttonAdmin != nil {
+			row = append(row, *buttonAdmin)
+		}
+	}
+
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 	msg.ReplyMarkup = keyboard
 
 	return &msg, nil
+}
+
+func (f *freeSeatFormImpl) addAdminStuff(data FreeSeatFormData) (*tgbotapi.InlineKeyboardButton, error) {
+	b := &dto.InlineRequest{
+		Type:       constants.FreeSeatMenuTap,
+		BookSeatID: data.BookSeatID,
+		Action:     dto.ActionBookHold,
+	}
+
+	butt, err := json.Marshal(b)
+	if err != nil {
+		return nil, err
+	}
+
+	button := tgbotapi.NewInlineKeyboardButtonData("Закрепить", string(butt))
+	return &button, nil
 }
