@@ -47,10 +47,10 @@ func (o seatListFormImpl) Build(ctx context.Context, data SeatListFormData) (*tg
 
 		var button tgbotapi.InlineKeyboardButton
 		if bookSeat.User != nil {
-			str := fmt.Sprintf("Место %d, занято: %s", bookSeat.Seat.SeatNumber, bookSeat.User.Name)
+			str := fmt.Sprintf("Место %s, занято: %s", bookSeat.Seat.SeatSign, bookSeat.User.Name)
 			button = tgbotapi.NewInlineKeyboardButtonData(str, string(responseData))
 		} else {
-			str := fmt.Sprintf("Место %d. Свободно!", bookSeat.Seat.SeatNumber)
+			str := fmt.Sprintf("Место %s. Свободно!", bookSeat.Seat.SeatSign)
 			button = tgbotapi.NewInlineKeyboardButtonData(str, string(responseData))
 		}
 

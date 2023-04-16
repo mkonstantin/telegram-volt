@@ -33,7 +33,7 @@ func (f *freeSeatMenuImpl) Call(ctx context.Context, bookSeatID int64) (*tgbotap
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("Занять место №%d?", bookSeat.Seat.SeatNumber)
+	message := fmt.Sprintf("Занять место №%s?", bookSeat.Seat.SeatSign)
 
 	formData := form.FreeSeatFormData{
 		Message:    message,

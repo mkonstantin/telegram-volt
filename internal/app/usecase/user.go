@@ -72,7 +72,7 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 	}
 
 	if bookSeat.User != nil {
-		message = fmt.Sprintf("Место №%d уже занято", bookSeat.Seat.SeatNumber)
+		message = fmt.Sprintf("Место №%s уже занято", bookSeat.Seat.SeatSign)
 	} else {
 		today := helper.TodayZeroTimeUTC()
 		isToday := false
@@ -85,13 +85,13 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		}
 
 		if isToday {
-			message = fmt.Sprintf("Отлично! Ваше место №%d в офисе %s забронировано!",
-				bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+			message = fmt.Sprintf("Отлично! Ваше место №%s в офисе %s забронировано!",
+				bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 		} else {
-			message = fmt.Sprintf("Ваше место №%d в офисе %s забронировано. "+
+			message = fmt.Sprintf("Ваше место №%s в офисе %s забронировано. "+
 				"Завтра в 9:00 откроется возможность подтверждения бронирования, "+
 				"если вы не подтвердите его до 10:00, бронь будет аннулирована",
-				bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+				bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 		}
 	}
 
@@ -122,7 +122,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	if err != nil {
 		return "", false, err
 	}
-	message = fmt.Sprintf("Место №%d в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatNumber, userBookSeat.Office.Name)
+	message = fmt.Sprintf("Место №%s в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatSign, userBookSeat.Office.Name)
 
 	return message, true, nil
 }
@@ -179,7 +179,7 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
 	message = fmt.Sprintf("Отлично! Вы подтвердили, что придете сегодня: %s. "+
-		"Ваше место №%d в офисе: %s", formattedDate, bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+		"Ваше место №%s в офисе: %s", formattedDate, bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 
 	return message, nil
 }

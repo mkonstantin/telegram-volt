@@ -3,6 +3,6 @@ package model
 type Seat struct {
 	ID            int64
 	IsHaveMonitor bool
-	SeatNumber    int
+	SeatSign      string
 	OfficeID      int64
 }

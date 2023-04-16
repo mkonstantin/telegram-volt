@@ -10,7 +10,7 @@ type BookSeat struct {
 	OfficeID         int64      `db:"office_id,omitempty"`
 	SeatID           int64      `db:"seat_id,omitempty"`
 	BookDate         time.Time  `db:"book_date,omitempty"`
-	SeatNumber       int        `db:"seat_number,omitempty"`
+	SeatSign         string     `db:"seat_sign,omitempty"`
 	IsHaveMonitor    bool       `db:"have_monitor,omitempty"`
 	OfficeName       string     `db:"office_name,omitempty"`
 	TimeZone         string     `db:"time_zone,omitempty"`
@@ -48,7 +48,7 @@ func (o *BookSeat) ToModel() *model.BookSeat {
 		Seat: model.Seat{
 			ID:            o.SeatID,
 			IsHaveMonitor: o.IsHaveMonitor,
-			SeatNumber:    o.SeatNumber,
+			SeatSign:      o.SeatSign,
 			OfficeID:      o.OfficeID,
 		},
 		User:          user,

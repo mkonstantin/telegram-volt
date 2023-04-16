@@ -8,7 +8,7 @@ import (
 type Seat struct {
 	ID            int64     `db:"id,omitempty"`
 	IsHaveMonitor bool      `db:"have_monitor,omitempty"`
-	SeatNumber    int       `db:"seat_number,omitempty"`
+	SeatSign      string    `db:"seat_sign,omitempty"`
 	OfficeID      int64     `db:"office_id,omitempty"`
 	CreatedAt     time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt     time.Time `db:"updated_at" json:"updated_at"`
@@ -18,7 +18,7 @@ func (o *Seat) ToModel() *model.Seat {
 	return &model.Seat{
 		ID:            o.ID,
 		IsHaveMonitor: o.IsHaveMonitor,
-		SeatNumber:    o.SeatNumber,
+		SeatSign:      o.SeatSign,
 		OfficeID:      o.OfficeID,
 	}
 }

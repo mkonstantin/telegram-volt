@@ -64,8 +64,8 @@ func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 	case ThisIsSeatBusy:
 		fallthrough
 	default:
-		message := fmt.Sprintf("Место №%d уже занято %s aka @%s",
-			bookSeat.Seat.SeatNumber, bookSeat.User.Name, bookSeat.User.TelegramName)
+		message := fmt.Sprintf("Место №%s уже занято %s aka @%s",
+			bookSeat.Seat.SeatSign, bookSeat.User.Name, bookSeat.User.TelegramName)
 
 		chatID := model.GetCurrentChatID(ctx)
 		msg := tgbotapi.NewMessage(chatID, "")
