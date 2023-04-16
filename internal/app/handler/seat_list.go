@@ -5,6 +5,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/config"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
@@ -15,6 +16,7 @@ const (
 	ThisIsYourSeat = "this_is_your_seat"
 	ThisIsSeatBusy = "this_is_seat_busy"
 	ThisIsSeatFree = "this_is_seat_free"
+	ThisIsSeatHold = "this_is_seat_hold"
 )
 
 type SeatList interface {
@@ -26,6 +28,7 @@ type seatListImpl struct {
 	dateMenu     interfaces.DateMenu
 	ownSeatMenu  interfaces.OwnSeatMenu
 	freeSeatMenu interfaces.FreeSeatMenu
+	cfg          config.AppConfig
 	logger       *zap.Logger
 }
 
@@ -34,6 +37,7 @@ func NewSeatListHandle(
 	dateMenu interfaces.DateMenu,
 	ownSeatMenu interfaces.OwnSeatMenu,
 	freeSeatMenu interfaces.FreeSeatMenu,
+	cfg config.AppConfig,
 	logger *zap.Logger) SeatList {
 
 	return &seatListImpl{
@@ -41,6 +45,7 @@ func NewSeatListHandle(
 		dateMenu:     dateMenu,
 		ownSeatMenu:  ownSeatMenu,
 		freeSeatMenu: freeSeatMenu,
+		cfg:          cfg,
 		logger:       logger,
 	}
 }
@@ -56,18 +61,20 @@ func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 		return nil, err
 	}
 
+	chatID := model.GetCurrentChatID(ctx)
+
 	switch getStatus(ctx, bookSeat) {
 	case ThisIsSeatFree:
 		return s.freeSeatMenu.Call(ctx, command.BookSeatID)
 	case ThisIsYourSeat:
 		return s.ownSeatMenu.Call(ctx, command.BookSeatID)
+	case ThisIsSeatHold:
+		return s.seatHold(ctx, bookSeat)
 	case ThisIsSeatBusy:
 		fallthrough
 	default:
 		message := fmt.Sprintf("Место №%s уже занято %s aka @%s",
 			bookSeat.Seat.SeatSign, bookSeat.User.Name, bookSeat.User.TelegramName)
-
-		chatID := model.GetCurrentChatID(ctx)
 		msg := tgbotapi.NewMessage(chatID, "")
 		msg.Text = message
 		return &msg, nil
@@ -84,6 +91,23 @@ func getStatus(ctx context.Context, bookSeat *model.BookSeat) string {
 			return ThisIsSeatBusy
 		}
 	} else {
+		if bookSeat.Hold {
+			return ThisIsSeatHold
+		}
 		return ThisIsSeatFree
+	}
+}
+
+func (s *seatListImpl) seatHold(ctx context.Context, bookSeat *model.BookSeat) (*tgbotapi.MessageConfig, error) {
+	currentUser := model.GetCurrentUser(ctx)
+
+	if s.cfg.IsAdmin(currentUser.TelegramName) {
+		return s.ownSeatMenu.Call(ctx, bookSeat.ID)
+	} else {
+		chatID := model.GetCurrentChatID(ctx)
+		message := fmt.Sprintf("Место №%s временно закреплено администратором, его нельзя забронировать", bookSeat.Seat.SeatSign)
+		msg := tgbotapi.NewMessage(chatID, "")
+		msg.Text = message
+		return &msg, nil
 	}
 }

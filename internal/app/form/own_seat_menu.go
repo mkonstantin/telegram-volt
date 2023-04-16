@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
+	"telegram-api/config"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
@@ -20,11 +21,15 @@ type OwnSeatForm interface {
 }
 
 type ownSeatFormImpl struct {
+	cfg    config.AppConfig
 	logger *zap.Logger
 }
 
-func NewOwnSeatForm(logger *zap.Logger) OwnSeatForm {
+func NewOwnSeatForm(
+	cfg config.AppConfig,
+	logger *zap.Logger) OwnSeatForm {
 	return &ownSeatFormImpl{
+		cfg:    cfg,
 		logger: logger,
 	}
 }
@@ -58,9 +63,39 @@ func (f *ownSeatFormImpl) Build(ctx context.Context, data OwnSeatFormData) (*tgb
 
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Освободить", string(butt1))
 	button2 := tgbotapi.NewInlineKeyboardButtonData("К списку мест", string(butt2))
+
+	currentUser := model.GetCurrentUser(ctx)
+
 	row := tgbotapi.NewInlineKeyboardRow(button1, button2)
+
+	if f.cfg.IsAdmin(currentUser.TelegramName) {
+		buttonAdmin, err := f.addAdminStuff(data)
+		if err != nil {
+			return nil, err
+		}
+		if buttonAdmin != nil {
+			row = append(row, *buttonAdmin)
+		}
+	}
+
 	keyboard := tgbotapi.NewInlineKeyboardMarkup(row)
 	msg.ReplyMarkup = keyboard
 
 	return &msg, nil
+}
+
+func (f *ownSeatFormImpl) addAdminStuff(data OwnSeatFormData) (*tgbotapi.InlineKeyboardButton, error) {
+	b := &dto.InlineRequest{
+		Type:       constants.OwnSeatMenuTap,
+		BookSeatID: data.BookSeatID,
+		Action:     dto.ActionCancelHold,
+	}
+
+	butt, err := json.Marshal(b)
+	if err != nil {
+		return nil, err
+	}
+
+	button := tgbotapi.NewInlineKeyboardButtonData("Снять закрепление", string(butt))
+	return &button, nil
 }

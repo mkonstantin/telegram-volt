@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/app/informer"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
+	"telegram-api/internal/domain/model"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
 )
 
@@ -57,6 +58,15 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 			}
 		}
 		return o.officeMenu.Call(ctx, message, 0)
+
+	case dto.ActionCancelHold:
+		message, err := o.userService.CancelHoldBookSeat(ctx, command.BookSeatID)
+		if err != nil {
+			return nil, err
+		}
+		chatID := model.GetCurrentChatID(ctx)
+		msg := tgbotapi.NewMessage(chatID, message)
+		return &msg, nil
 
 	case dto.ActionCancelBookNo:
 		fallthrough

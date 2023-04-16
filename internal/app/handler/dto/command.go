@@ -19,6 +19,7 @@ const (
 
 	ActionCancelBookYes = 11
 	ActionCancelBookNo  = 12
+	ActionCancelHold    = 14
 
 	ActionBookYes  = 21
 	ActionBookNo   = 22
