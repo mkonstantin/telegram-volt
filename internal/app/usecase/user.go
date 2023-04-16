@@ -75,19 +75,24 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		message = fmt.Sprintf("Место №%d уже занято", bookSeat.Seat.SeatNumber)
 	} else {
 		today := helper.TodayZeroTimeUTC()
-		confirm := false
+		isToday := false
 		if bookSeat.BookDate.Equal(today) {
-			confirm = true
+			isToday = true
 		}
-		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID, confirm)
+		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID, isToday)
 		if err != nil {
 			return "", err
 		}
 
-		message = fmt.Sprintf("Ваше место №%d в офисе %s забронировано. "+
-			"Завтра в 9:00 откроется возможность подтверждения бронирования, "+
-			"если вы не подтвердите его до 10:00, бронь будет аннулирована",
-			bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+		if isToday {
+			message = fmt.Sprintf("Отлично! Ваше место №%d в офисе %s забронировано!",
+				bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+		} else {
+			message = fmt.Sprintf("Ваше место №%d в офисе %s забронировано. "+
+				"Завтра в 9:00 откроется возможность подтверждения бронирования, "+
+				"если вы не подтвердите его до 10:00, бронь будет аннулирована",
+				bookSeat.Seat.SeatNumber, bookSeat.Office.Name)
+		}
 	}
 
 	return message, nil
