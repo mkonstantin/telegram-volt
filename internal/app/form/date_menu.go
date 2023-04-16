@@ -43,6 +43,19 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 
 	msg := tgbotapi.NewMessage(chatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton
+
+	respMap := &dto.InlineRequest{
+		Type:   constants.DateMenuTap,
+		Action: dto.DateListShowMap,
+	}
+	mapData, err := json.Marshal(respMap)
+	if err != nil {
+		return nil, err
+	}
+	buttonMap := tgbotapi.NewInlineKeyboardButtonData("Карта расположения мест", string(mapData))
+	rowMap := tgbotapi.NewInlineKeyboardRow(buttonMap)
+	rows = append(rows, rowMap)
+
 	for _, seatByDate := range data.SeatByDates {
 		resp := &dto.InlineRequest{
 			Type:     constants.DateMenuTap,

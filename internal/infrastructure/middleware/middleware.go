@@ -28,7 +28,7 @@ func NewUserMW(userRepo interfaces.UserRepository, router router.Router,
 	}
 }
 
-func (r *UserMW) EntryPoint(update tgbotapi.Update) (*tgbotapi.MessageConfig, error) {
+func (r *UserMW) EntryPoint(update tgbotapi.Update) (tgbotapi.Chattable, error) {
 
 	var ctx context.Context
 	var data router.Data

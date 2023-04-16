@@ -26,5 +26,6 @@ const (
 	ActionShowOfficeMenu = 31
 	ActionShowSeatList   = 32
 
-	Back = 100
+	DateListShowMap = 41
+	Back            = 100
 )

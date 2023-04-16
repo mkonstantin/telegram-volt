@@ -19,7 +19,7 @@ type Data struct {
 }
 
 type Router interface {
-	Route(ctx context.Context, data Data) (*tgbotapi.MessageConfig, error)
+	Route(ctx context.Context, data Data) (tgbotapi.Chattable, error)
 }
 
 type routerImpl struct {
@@ -61,7 +61,7 @@ func NewRouter(
 	}
 }
 
-func (r *routerImpl) Route(ctx context.Context, data Data) (*tgbotapi.MessageConfig, error) {
+func (r *routerImpl) Route(ctx context.Context, data Data) (tgbotapi.Chattable, error) {
 
 	if data.Command != "" {
 		return r.command(ctx, data.Command)
@@ -76,7 +76,7 @@ func (r *routerImpl) Route(ctx context.Context, data Data) (*tgbotapi.MessageCon
 	return &msg, nil
 }
 
-func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.MessageConfig, error) {
+func (r *routerImpl) command(ctx context.Context, command string) (tgbotapi.Chattable, error) {
 	switch command {
 	case "start":
 		return r.start.Handle(ctx)
@@ -99,7 +99,7 @@ func (r *routerImpl) command(ctx context.Context, command string) (*tgbotapi.Mes
 	return &msg, nil
 }
 
-func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (tgbotapi.Chattable, error) {
 
 	switch request.Type {
 	case constants.OfficeListTap:
