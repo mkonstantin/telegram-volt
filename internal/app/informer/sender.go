@@ -41,8 +41,6 @@ func (s *senderImpl) StartSenderJob() {
 	_, err := scheduler.Every(1).
 		Second().
 		Do(func() {
-			s.logger.Info("gocron start SenderJob")
-
 			err := s.getFromQueueAndSend()
 			if err != nil {
 				s.logger.Error("gocron execution SenderJob error", zap.Error(err))
@@ -71,8 +69,12 @@ func (s *senderImpl) getFromQueueAndSend() error {
 		messageQueue = nil
 	}
 
-	for _, data := range toSendSlice {
-		s.send(data)
+	if len(toSendSlice) > 0 {
+		s.logger.Info("SenderJob toSendSlice.len > 0, send messages")
+
+		for _, data := range toSendSlice {
+			s.send(data)
+		}
 	}
 	return nil
 }
