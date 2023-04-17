@@ -83,3 +83,7 @@ ALTER TABLE book_seat add column confirm BOOLEAN DEFAULT FALSE;
 ALTER TABLE seat add column seat_sign VARCHAR(255) NOT NULL;
 
 ALTER TABLE book_seat add column `hold` BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE volt.user MODIFY COLUMN chat_id bigint;
+
+ALTER TABLE volt.user MODIFY COLUMN telegram_id bigint;
