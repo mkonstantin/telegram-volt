@@ -22,7 +22,7 @@ services:
       - MAXIDLECONN=30
       - CONNLIFETIME=2
       - KEY=6257462459:AAGkfP_LpWilOGmB2z3CYwsKCfe9rtv7lJs
-      - VERSION=1.0.3
+      - VERSION=1.0.5
       - ADMINS=MayyaMalysheva,irs_pro
 
   db:

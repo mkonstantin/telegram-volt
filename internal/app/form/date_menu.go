@@ -82,7 +82,7 @@ func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData)
 	if err != nil {
 		return nil, err
 	}
-	button := tgbotapi.NewInlineKeyboardButtonData("Назад", string(backData))
+	button := tgbotapi.NewInlineKeyboardButtonData("⬅️ Назад", string(backData))
 	row := tgbotapi.NewInlineKeyboardRow(button)
 	rows = append(rows, row)
 

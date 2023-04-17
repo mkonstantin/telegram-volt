@@ -74,7 +74,7 @@ func (o seatListFormImpl) Build(ctx context.Context, data SeatListFormData) (*tg
 		if err != nil {
 			return nil, err
 		}
-		button := tgbotapi.NewInlineKeyboardButtonData("Назад", string(backData))
+		button := tgbotapi.NewInlineKeyboardButtonData("⬅️ Назад", string(backData))
 		row := tgbotapi.NewInlineKeyboardRow(button)
 		rows = append(rows, row)
 
