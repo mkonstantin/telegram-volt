@@ -46,7 +46,7 @@ func (r *UserMW) EntryPoint(update tgbotapi.Update) (tgbotapi.Chattable, error) 
 			data.Command = update.Message.Command()
 		}
 	} else if update.CallbackQuery != nil {
-		fullName := fmt.Sprintf("%s %s", update.CallbackQuery.Message.From.FirstName, update.CallbackQuery.Message.From.LastName)
+		fullName := fmt.Sprintf("%s %s", update.CallbackQuery.From.FirstName, update.CallbackQuery.From.LastName)
 		ctx = r.setUserContext(
 			update.CallbackQuery.From.ID,
 			update.CallbackQuery.Message.Chat.ID,
@@ -98,7 +98,7 @@ func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 			return ctx
 		}
 	}
-	
+
 	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
 	return ctx
 }
