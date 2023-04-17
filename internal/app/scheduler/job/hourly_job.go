@@ -184,10 +184,7 @@ func (h *hourlyJobImpl) cancelNotConfirmedBookSeats(today model.WorkDate, office
 		if err != nil {
 			return err
 		}
-
-		bookSeat.Office = *office
-		err = h.informerService.SendNotifyToBookDeletedBySystem(bookSeat)
 	}
 
-	return nil
+	return h.informerService.SendNotifyToBookDeletedBySystem(bookSeats, office.Name)
 }

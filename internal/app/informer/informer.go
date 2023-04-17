@@ -16,7 +16,7 @@ type InformerService interface {
 	SendNotifySeatBecomeFree(ctx context.Context, id int64) error
 	SendNotifyTomorrowBookingOpen(office model.Office, message string) error
 	SendNotifiesToConfirm(office *model.Office) error
-	SendNotifyToBookDeletedBySystem(bookSeat *model.BookSeat) error
+	SendNotifyToBookDeletedBySystem(bookSeats []*model.BookSeat, officeName string) error
 }
 
 type informerServiceImpl struct {
@@ -161,29 +161,26 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 	return nil
 }
 
-func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(bookSeat *model.BookSeat) error {
+func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(bookSeats []*model.BookSeat, officeName string) error {
 
-	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+	var arrayToSend []form.InfoFormData
 
-	message := fmt.Sprintf("Мы удалили вашю бронь в офисе %s на %s, так как вы ее не подтвердили", bookSeat.Office.Name, formattedDate)
-	data := form.InfoFormData{
-		Action:     dto.ActionShowOfficeMenu,
-		Message:    message,
-		BookSeatID: bookSeat.ID,
-		ChatID:     bookSeat.User.ChatID,
+	for _, bookSeat := range bookSeats {
+		formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
+		message := fmt.Sprintf("Мы удалили вашю бронь в офисе %s на %s, так как вы ее не подтвердили", officeName, formattedDate)
+
+		data := form.InfoFormData{
+			Action:     dto.ActionShowOfficeMenu,
+			Message:    message,
+			BookSeatID: bookSeat.ID,
+			ChatID:     bookSeat.User.ChatID,
+		}
+		arrayToSend = append(arrayToSend, data)
 	}
-	i.sendInfoForm(context.Background(), data)
+
+	if len(arrayToSend) > 0 {
+		i.sender.AddToQueue(arrayToSend)
+	}
 
 	return nil
-}
-
-func (i *informerServiceImpl) sendInfoForm(ctx context.Context, data form.InfoFormData) {
-	build, err := i.infoForm.Build(ctx, data)
-	if err != nil {
-		i.logger.Error("Error Informer sendInfoForm", zap.Error(err))
-		// Ошибку не возвращаем, show must go on
-	}
-	if _, err = i.botAPI.Send(build); err != nil {
-		i.logger.Error("Error when try to send NOTIFY", zap.Error(err))
-	}
 }
