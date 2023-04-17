@@ -4,6 +4,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
 	"log"
+	"telegram-api/internal/app/informer"
 	"telegram-api/internal/app/scheduler"
 	"telegram-api/internal/infrastructure/middleware"
 )
@@ -12,14 +13,21 @@ type TelegramBot struct {
 	BotAPI       *tgbotapi.BotAPI
 	userSettler  middleware.UserMW
 	jobScheduler scheduler.JobsScheduler
+	sender       informer.Sender
 	logger       *zap.Logger
 }
 
-func NewTelegramBot(botAPI *tgbotapi.BotAPI, router middleware.UserMW, jobScheduler scheduler.JobsScheduler, logger *zap.Logger) TelegramBot {
+func NewTelegramBot(botAPI *tgbotapi.BotAPI,
+	router middleware.UserMW,
+	jobScheduler scheduler.JobsScheduler,
+	sender informer.Sender,
+	logger *zap.Logger) TelegramBot {
+
 	return TelegramBot{
 		BotAPI:       botAPI,
 		userSettler:  router,
 		jobScheduler: jobScheduler,
+		sender:       sender,
 		logger:       logger,
 	}
 }
@@ -27,6 +35,7 @@ func NewTelegramBot(botAPI *tgbotapi.BotAPI, router middleware.UserMW, jobSchedu
 func (t *TelegramBot) StartAsyncScheduler() {
 	t.jobScheduler.StartFillWorkDates()
 	t.jobScheduler.StartHourlyJob()
+	t.sender.StartSenderJob()
 }
 
 func (t *TelegramBot) StartTelegramServer(debugFlag bool, timeout int) {

@@ -42,7 +42,8 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	start := handler.NewStartHandle(officeMenu, officeListMenu, logger)
 	officeList := handler.NewOfficeListHandle(officeMenu, logger)
 	infoMenuForm := form.NewInfoMenuForm(logger)
-	informerService := informer.NewInformer(botAPI, infoMenuForm, userRepository, bookSeatRepository, logger)
+	sender := informer.NewSender(botAPI, infoMenuForm, logger)
+	informerService := informer.NewInformer(botAPI, infoMenuForm, userRepository, bookSeatRepository, sender, logger)
 	dateMenuForm := form.NewDateMenutForm(logger)
 	dateMenu := menu.NewDateMenu(workDateRepository, officeRepository, bookSeatRepository, dateMenuForm, cfg, logger)
 	handlerOfficeMenu := handler.NewOfficeMenuHandle(informerService, userService, dateMenu, officeMenu, officeListMenu, logger)
@@ -67,7 +68,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	seatRepository := repo.NewSeatRepository(connection)
 	seatJob := job.NewSeatsJob(officeRepository, workDateRepository, bookSeatRepository, seatRepository, logger)
 	jobsScheduler := scheduler.NewJobsScheduler(hourlyJob, dateJob, seatJob, logger)
-	telegramBot := telegram.NewTelegramBot(botAPI, userMW, jobsScheduler, logger)
+	telegramBot := telegram.NewTelegramBot(botAPI, userMW, jobsScheduler, sender, logger)
 	return telegramBot, func() {
 		cleanup()
 	}, nil

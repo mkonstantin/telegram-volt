@@ -13,4 +13,5 @@ var servicesSet = wire.NewSet(
 	usecase.NewUserService,
 	scheduler.NewJobsScheduler,
 	informer.NewInformer,
+	informer.NewSender,
 )

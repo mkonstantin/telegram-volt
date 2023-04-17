@@ -24,16 +24,18 @@ type informerServiceImpl struct {
 	infoForm     form.InfoMenuForm
 	userRepo     interfaces.UserRepository
 	bookSeatRepo interfaces.BookSeatRepository
+	sender       Sender
 	logger       *zap.Logger
 }
 
 func NewInformer(botAPI *tgbotapi.BotAPI, infoForm form.InfoMenuForm, userRepo interfaces.UserRepository,
-	bookSeatRepo interfaces.BookSeatRepository, logger *zap.Logger) InformerService {
+	bookSeatRepo interfaces.BookSeatRepository, sender Sender, logger *zap.Logger) InformerService {
 	return &informerServiceImpl{
 		botAPI:       botAPI,
 		infoForm:     infoForm,
 		userRepo:     userRepo,
 		bookSeatRepo: bookSeatRepo,
+		sender:       sender,
 		logger:       logger,
 	}
 }
@@ -81,22 +83,26 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 		mapper[seat.User.ID]++
 	}
 
-	data := form.InfoFormData{
-		Action:     dto.ActionShowSeatList,
-		Message:    text,
-		BookSeatID: bookSeat.ID,
-	}
+	var arrayToSend []form.InfoFormData
 
 	for _, user := range users {
 		if mapper[user.ID] > 0 {
 			continue
 		}
 		if currentUser.ID != user.ID {
-			data.ChatID = user.ChatID
-			i.sendInfoForm(ctx, data)
+			data := form.InfoFormData{
+				Action:     dto.ActionShowSeatList,
+				Message:    text,
+				BookSeatID: bookSeat.ID,
+				ChatID:     user.ChatID,
+			}
+			arrayToSend = append(arrayToSend, data)
 		}
 	}
 
+	if len(arrayToSend) > 0 {
+		i.sender.AddToQueue(arrayToSend)
+	}
 	return nil
 }
 
@@ -110,6 +116,8 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 		return err
 	}
 
+	var arrayToSend []form.InfoFormData
+
 	for _, bookSeat := range bookSeats {
 		message := fmt.Sprintf("Подтвердите или отмените свое бронирование на сегодня до 10:00")
 		data := form.InfoFormData{
@@ -118,10 +126,12 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 			BookSeatID: bookSeat.ID,
 			ChatID:     bookSeat.User.ChatID,
 		}
-
-		i.sendInfoForm(context.Background(), data)
+		arrayToSend = append(arrayToSend, data)
 	}
 
+	if len(arrayToSend) > 0 {
+		i.sender.AddToQueue(arrayToSend)
+	}
 	return nil
 }
 
@@ -133,6 +143,8 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 		return err
 	}
 
+	var arrayToSend []form.InfoFormData
+
 	for _, user := range users {
 		data := form.InfoFormData{
 			Action:     dto.ActionShowOfficeMenu,
@@ -140,9 +152,12 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 			BookSeatID: 0,
 			ChatID:     user.ChatID,
 		}
-		i.sendInfoForm(context.Background(), data)
+		arrayToSend = append(arrayToSend, data)
 	}
 
+	if len(arrayToSend) > 0 {
+		i.sender.AddToQueue(arrayToSend)
+	}
 	return nil
 }
 
