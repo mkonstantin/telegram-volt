@@ -69,6 +69,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 	today := helper.TodayZeroTimeUTC()
 
 	var needConfirmBookSeat *model.BookSeat
+	var todayBook *model.BookSeat
 
 	var bookSeats []*model.BookSeat
 	for _, date := range dates {
@@ -79,6 +80,10 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 		if bookSeat != nil {
 			if bookSeat.Office.ID == callingOfficeID {
 				bookSeats = append(bookSeats, bookSeat)
+			}
+
+			if bookSeat.BookDate == today {
+				todayBook = bookSeat
 			}
 
 			// Проверяем нужно ли подтверждение места на сегодня
@@ -108,7 +113,17 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 	if title != "" {
 		message = fmt.Sprintf("%s\nОфис: %s, действия:", title, office.Name)
 	} else {
-		message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+		if todayBook != nil {
+			if needConfirmBookSeat != nil {
+				message = fmt.Sprintf("Офис: %s\nНа сегодня вы забронировали место №%s. Ждем подтверждения, что вы придете",
+					office.Name, needConfirmBookSeat.Seat.SeatSign)
+			} else {
+				message = fmt.Sprintf("Офис: %s\nНа сегодня вы забронировали место №%s",
+					office.Name, todayBook.Seat.SeatSign)
+			}
+		} else {
+			message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+		}
 	}
 
 	data := form.OfficeMenuFormData{
