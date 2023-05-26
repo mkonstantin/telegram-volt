@@ -11,6 +11,7 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 )
 
 type Data struct {
@@ -65,6 +66,8 @@ func NewRouter(
 }
 
 func (r *routerImpl) Route(ctx context.Context, data Data) (tgbotapi.Chattable, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	if data.Command != "" {
 		return r.command(ctx, data.Command)
