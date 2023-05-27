@@ -83,6 +83,9 @@ func (r *routerImpl) Route(ctx context.Context, data Data) (tgbotapi.Chattable, 
 }
 
 func (r *routerImpl) command(ctx context.Context, command string) (tgbotapi.Chattable, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	switch command {
 	case "start":
 		return r.start.Handle(ctx)
@@ -108,6 +111,8 @@ func (r *routerImpl) command(ctx context.Context, command string) (tgbotapi.Chat
 }
 
 func (r *routerImpl) inline(ctx context.Context, request dto.InlineRequest) (tgbotapi.Chattable, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	switch request.Type {
 	case constants.OfficeListTap:
