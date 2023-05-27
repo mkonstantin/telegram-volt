@@ -88,6 +88,9 @@ func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 }
 
 func getStatus(ctx context.Context, bookSeat *model.BookSeat) string {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	currentUser := model.GetCurrentUser(ctx)
 
 	if bookSeat.User != nil {
@@ -105,6 +108,9 @@ func getStatus(ctx context.Context, bookSeat *model.BookSeat) string {
 }
 
 func (s *seatListImpl) seatHold(ctx context.Context, bookSeat *model.BookSeat) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	currentUser := model.GetCurrentUser(ctx)
 
 	if s.cfg.IsAdmin(currentUser.TelegramName) {
