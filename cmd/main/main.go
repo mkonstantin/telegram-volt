@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/joho/godotenv"
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
-	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
+	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 	"go.uber.org/zap"
 	"os"
 	"strconv"
@@ -21,6 +21,7 @@ import (
 
 const (
 	appName      = "telegram-volt"
+	environment  = "production"
 	batchTimeout = 5
 )
 
@@ -63,9 +64,10 @@ func main() {
 		Admins:                admins,
 	}
 
-	flush, err := initTracer(logger)
+	flush, err := createTracing(logger)
 	if err != nil {
 		logger.Error("can't init jaeger tracer", zap.Error(err))
+		return
 	}
 	logger.Info("Start Jaeger tracer")
 	defer flush()
@@ -78,48 +80,51 @@ func main() {
 	logger.Info("StartTelegramServer")
 }
 
-// http://localhost:14268/api/traces
-
-func initTracer(logger *zap.Logger) (func(), error) {
-	sampler := trace.TraceIDRatioBased(1)
-
-	jaegerHost := os.Getenv("JAEGER_AGENT_HOST")
-	if jaegerHost == "" {
-		jaegerHost = "localhost"
-	}
-	jaegerPort := os.Getenv("JAEGER_AGENT_PORT")
-	if jaegerPort == "" {
-		jaegerPort = "14268"
-	}
-
-	exporter, err := jaeger.New(
-		jaeger.WithAgentEndpoint(
-			jaeger.WithAgentHost(jaegerHost),
-			jaeger.WithAgentPort(jaegerPort),
-		),
-	)
+func createTracing(logger *zap.Logger) (func(), error) {
+	tp, err := makeTracerProvider()
 	if err != nil {
-		return nil, fmt.Errorf("error occurred while trying to setup tracing exporter: %w", err)
+		logger.Error("TraceProvider creation error", zap.Error(err))
+		return nil, err
 	}
 
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter, trace.WithBatchTimeout(batchTimeout*time.Second)),
-		trace.WithSampler(sampler),
-		trace.WithResource(
-			resource.NewWithAttributes(
-				semconv.SchemaURL,
-				semconv.ServiceNameKey.String(appName),
-			),
-		),
-	)
-	otel.SetTextMapPropagator(propagation.TraceContext{})
+	// Register our TracerProvider as the global so any imported
+	// instrumentation in the future will default to using it.
 	otel.SetTracerProvider(tp)
 
+	// Cleanly shutdown and flush telemetry when the application exits.
 	closeFn := func() {
-		if err := tp.Shutdown(context.Background()); err != nil {
-			logger.Error("can't init jaeger tracer", zap.Error(err))
+		if err = tp.Shutdown(context.Background()); err != nil {
+			logger.Error("TraceProvider CloseFn error", zap.Error(err))
 		}
 	}
 
 	return closeFn, nil
+}
+
+func makeTracerProvider() (*tracesdk.TracerProvider, error) {
+
+	jaegerHost := os.Getenv("JAEGER_HOST")
+	jaegerPort := os.Getenv("JAEGER_PORT")
+
+	// http://localhost:14268/api/traces
+	url := fmt.Sprintf("http://%s:%s/api/traces", jaegerHost, jaegerPort)
+
+	// Create the Jaeger exporter
+	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(url)))
+	if err != nil {
+		return nil, err
+	}
+
+	tp := tracesdk.NewTracerProvider(
+		// Always be sure to batch in production.
+		tracesdk.WithBatcher(exp, tracesdk.WithBatchTimeout(batchTimeout*time.Second)),
+		// Record information about this application in a Resource.
+		tracesdk.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceName(appName),
+			attribute.String("environment", environment),
+		)),
+	)
+
+	return tp, nil
 }

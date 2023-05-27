@@ -100,7 +100,7 @@ func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 	}
 
 	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
-	ctx = NewTracing(ctx, tgID)
+	ctx = SetNewTrace(ctx, tgID)
 	return ctx
 }
 

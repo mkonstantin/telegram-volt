@@ -14,8 +14,18 @@ const (
 	frameIndexIncrease = 2
 	targetFrameIndex   = 3
 	targetSplitNumber  = 2
-	targetFrameNumber  = 1
 )
+
+func GetSpanName() string {
+	fnName := getCallerName(targetFrameIndex)
+	splitted := strings.Split(fnName, ".")
+	if len(splitted) > targetSplitNumber {
+		fnName = fmt.Sprintf("%s @ %s", strings.Join(splitted[(len(splitted)-targetSplitNumber):], "."),
+			strings.Join(splitted[:(len(splitted)-targetSplitNumber)], "."))
+	}
+
+	return fnName
+}
 
 func getCallerName(targetFrameIndex int) string {
 	programCounters := make([]uintptr, targetFrameIndex+frameIndexIncrease)
@@ -33,22 +43,6 @@ func getCallerName(targetFrameIndex int) string {
 		}
 	}
 	return frame.Function
-}
-
-func GetSpanName() string {
-	fnName := getCallerName(targetFrameIndex)
-	splitted := strings.Split(fnName, ".")
-	if len(splitted) > targetSplitNumber {
-		fnName = fmt.Sprintf("%s @ %s", strings.Join(splitted[(len(splitted)-targetSplitNumber):], "."),
-			strings.Join(splitted[:(len(splitted)-targetSplitNumber)], "."))
-	}
-
-	return fnName
-}
-
-// GetMethodName projectGithubAddress = "github.com/inDriver/truck-api"
-func GetMethodName(projectGithubAddress string) string {
-	return strings.Replace(getCallerName(targetFrameIndex), projectGithubAddress, "", targetFrameNumber)
 }
 
 // StartSpan добавляет в существующую трассировку новую ветку
