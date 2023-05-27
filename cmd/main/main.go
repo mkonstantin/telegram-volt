@@ -63,16 +63,17 @@ func main() {
 		Admins:                admins,
 	}
 
-	logger.Info(fmt.Sprintf("DB host: %s", cfg.Host))
-	botAPI, _, _ := InitializeApplication(os.Getenv("KEY"), cfg, logger)
-	botAPI.StartAsyncScheduler()
-	botAPI.StartTelegramServer(true, 60)
-
 	flush, err := initTracer(logger)
 	if err != nil {
 		logger.Error("can't init jaeger tracer", zap.Error(err))
 	}
+	logger.Info("Start Jaeger tracer")
 	defer flush()
+
+	logger.Info(fmt.Sprintf("DB host: %s", cfg.Host))
+	botAPI, _, _ := InitializeApplication(os.Getenv("KEY"), cfg, logger)
+	botAPI.StartAsyncScheduler()
+	botAPI.StartTelegramServer(true, 60)
 
 	logger.Info("StartTelegramServer")
 }
