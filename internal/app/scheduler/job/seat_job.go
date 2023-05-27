@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
+	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"telegram-api/pkg/tracing"
 	"time"
@@ -43,7 +44,11 @@ func NewSeatsJob(officeRepo interfaces.OfficeRepository,
 }
 
 func (w *seatJobImpl) SetSeats() error {
+
 	ctx := context.Background()
+	ctx = middleware.SetNewTrace(ctx, 100200300)
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	startDate := helper.TodayZeroTimeUTC()
 	endDate := helper.PlusDaysUTC(startDate, plusDays)

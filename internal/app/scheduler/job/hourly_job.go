@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/helper"
+	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"telegram-api/pkg/tracing"
 )
@@ -40,7 +41,11 @@ func NewHourlyJob(
 }
 
 func (h *hourlyJobImpl) StartSchedule() error {
+
 	ctx := context.Background()
+	ctx = middleware.SetNewTrace(ctx, 100200300)
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	today := helper.TodayZeroTimeUTC()
 	todayPlus2 := helper.TodayPlusUTC(2)

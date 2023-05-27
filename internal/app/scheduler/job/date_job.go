@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/helper"
+	"telegram-api/internal/infrastructure/middleware"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	"telegram-api/pkg/tracing"
 	"time"
@@ -33,6 +34,9 @@ func NewDateJob(dateRepo interfaces.WorkDateRepository, logger *zap.Logger) Date
 func (o *dateJobsImpl) CheckAndSetDates() error {
 
 	ctx := context.Background()
+	ctx = middleware.SetNewTrace(ctx, 100200300)
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	last, err := o.dateRepo.GetLastByDate(ctx)
 	if err != nil {
