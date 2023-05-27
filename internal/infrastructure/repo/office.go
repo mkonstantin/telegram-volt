@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -8,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"telegram-api/pkg/tracing"
 )
 
 type officeRepositoryImpl struct {
@@ -20,7 +22,10 @@ func NewOfficeRepository(conn repository.Connection) interfaces.OfficeRepository
 	}
 }
 
-func (s *officeRepositoryImpl) FindByID(id int64) (*model.Office, error) {
+func (s *officeRepositoryImpl) FindByID(ctx context.Context, id int64) (*model.Office, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("office").
 		Where(sq.Eq{"id": id})
@@ -42,7 +47,10 @@ func (s *officeRepositoryImpl) FindByID(id int64) (*model.Office, error) {
 	return dtoO.ToModel(), nil
 }
 
-func (s *officeRepositoryImpl) GetAll() ([]*model.Office, error) {
+func (s *officeRepositoryImpl) GetAll(ctx context.Context) ([]*model.Office, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("office")
 

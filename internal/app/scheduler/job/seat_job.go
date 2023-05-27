@@ -93,7 +93,7 @@ func (w *seatJobImpl) getOfficeIDs(ctx context.Context) ([]int64, error) {
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	offices, err := w.officeRepo.GetAll()
+	offices, err := w.officeRepo.GetAll(ctx)
 	if err != nil {
 		w.logger.Error("Scheduler jobs get all offices error", zap.Error(err))
 		return []int64{}, err

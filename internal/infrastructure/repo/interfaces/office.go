@@ -1,8 +1,11 @@
 package interfaces
 
-import "telegram-api/internal/domain/model"
+import (
+	"context"
+	"telegram-api/internal/domain/model"
+)
 
 type OfficeRepository interface {
-	FindByID(id int64) (*model.Office, error)
-	GetAll() ([]*model.Office, error)
+	FindByID(ctx context.Context, id int64) (*model.Office, error)
+	GetAll(ctx context.Context) ([]*model.Office, error)
 }

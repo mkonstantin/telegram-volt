@@ -36,7 +36,7 @@ func (o *officeListMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig,
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	offices, err := o.officeRepo.GetAll()
+	offices, err := o.officeRepo.GetAll(ctx)
 	if err != nil {
 		return nil, err
 	}

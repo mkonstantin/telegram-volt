@@ -80,7 +80,7 @@ func (h *hourlyJobImpl) StartSchedule() error {
 		return err
 	}
 
-	offices, err := h.officeRepo.GetAll()
+	offices, err := h.officeRepo.GetAll(ctx)
 	if err != nil {
 		h.logger.Error("HourlyJob officeRepo.GetAll error", zap.Error(err))
 		return err

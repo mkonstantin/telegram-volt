@@ -48,7 +48,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	office, err := f.officeRepo.FindByID(currentUser.OfficeID)
+	office, err := f.officeRepo.FindByID(ctx, currentUser.OfficeID)
 	if err != nil {
 		return nil, err
 	}

@@ -59,7 +59,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 		return nil, err
 	}
 
-	office, err := o.officeRepo.FindByID(callingOfficeID)
+	office, err := o.officeRepo.FindByID(ctx, callingOfficeID)
 	if err != nil {
 		return nil, err
 	}

@@ -152,7 +152,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 		return ctx, "Произошла ошибка: необходимо выбрать офис", nil
 	}
 
-	office, err := u.officeRepo.FindByID(currentUser.OfficeID)
+	office, err := u.officeRepo.FindByID(ctx, currentUser.OfficeID)
 	if err != nil {
 		return ctx, "", err
 	}
