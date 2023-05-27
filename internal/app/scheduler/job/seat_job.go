@@ -110,7 +110,7 @@ func (w *seatJobImpl) insertSeatsTo(ctx context.Context, officeID int64, date ti
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	seats, err := w.seatRepo.GetAllByOfficeID(officeID)
+	seats, err := w.seatRepo.GetAllByOfficeID(ctx, officeID)
 	if err != nil {
 		return err
 	}

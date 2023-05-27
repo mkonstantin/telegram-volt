@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -8,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"telegram-api/pkg/tracing"
 )
 
 type seatRepositoryImpl struct {
@@ -20,7 +22,10 @@ func NewSeatRepository(conn repository.Connection) interfaces.SeatRepository {
 	}
 }
 
-func (s *seatRepositoryImpl) FindByID(id int64) (*model.Seat, error) {
+func (s *seatRepositoryImpl) FindByID(ctx context.Context, id int64) (*model.Seat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("seat").
 		Where(sq.Eq{"id": id})
@@ -41,7 +46,10 @@ func (s *seatRepositoryImpl) FindByID(id int64) (*model.Seat, error) {
 	return dtoO.ToModel(), nil
 }
 
-func (s *seatRepositoryImpl) GetAllByOfficeID(id int64) ([]*model.Seat, error) {
+func (s *seatRepositoryImpl) GetAllByOfficeID(ctx context.Context, id int64) ([]*model.Seat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("s1.id, s1.have_monitor, s1.seat_sign, s1.office_id, s1.created_at, s1.updated_at").
 		From("seat as s1").
 		Where(sq.Eq{"office_id": id}).
