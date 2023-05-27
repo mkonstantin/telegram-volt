@@ -46,7 +46,7 @@ func NewSeatsJob(officeRepo interfaces.OfficeRepository,
 func (w *seatJobImpl) SetSeats() error {
 
 	ctx := context.Background()
-	ctx = middleware.SetNewTrace(ctx, 100200300)
+	ctx = middleware.SetNewTrace(ctx, "SeatJob", 100200300)
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 

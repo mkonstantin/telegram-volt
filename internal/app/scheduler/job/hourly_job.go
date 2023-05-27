@@ -43,7 +43,7 @@ func NewHourlyJob(
 func (h *hourlyJobImpl) StartSchedule() error {
 
 	ctx := context.Background()
-	ctx = middleware.SetNewTrace(ctx, 100200300)
+	ctx = middleware.SetNewTrace(ctx, "HourlyJob", 100200300)
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 

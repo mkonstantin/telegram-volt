@@ -7,9 +7,9 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func SetNewTrace(ctx context.Context, userID int64) context.Context {
+func SetNewTrace(ctx context.Context, traceName string, userID int64) context.Context {
 	tracer := otel.Tracer("main-trace")
-	ctx, span, _ := startTrace(ctx, tracer, "start", userID)
+	ctx, span, _ := startTrace(ctx, tracer, traceName, userID)
 	defer span.End()
 
 	return ctx

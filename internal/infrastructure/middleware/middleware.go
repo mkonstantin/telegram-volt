@@ -79,7 +79,7 @@ func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 
 	ctx = context.WithValue(ctx, model.ContextChatIDKey, chatID)
 	ctx = context.WithValue(ctx, model.ContextMessageIDKey, MessageID)
-	ctx = SetNewTrace(ctx, tgID)
+	ctx = SetNewTrace(ctx, fmt.Sprintf("trace:%d-%d", tgID, MessageID), tgID)
 
 	user, err := r.userRepo.GetByTelegramID(ctx, tgID)
 	if err != nil {
