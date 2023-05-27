@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/informer"
@@ -8,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/common"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type hourlyJobImpl struct {
@@ -38,6 +40,7 @@ func NewHourlyJob(
 }
 
 func (h *hourlyJobImpl) StartSchedule() error {
+	ctx := context.Background()
 
 	today := helper.TodayZeroTimeUTC()
 	todayPlus2 := helper.TodayPlusUTC(2)
@@ -71,7 +74,7 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	}
 
 	// в любом случае открываем запись на сегодня
-	err = h.openTodayAccept(todayWorkDate)
+	err = h.openTodayAccept(ctx, todayWorkDate)
 	if err != nil {
 		h.logger.Error("HourlyJob h.openTodayAccept error", zap.Error(err))
 		return err
@@ -84,14 +87,14 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	}
 
 	// чекаем что сегодня рабочий день закончился и закрываем его
-	err = h.checkTodayStages(todayWorkDate, offices)
+	err = h.checkTodayStages(ctx, todayWorkDate, offices)
 	if err != nil {
 		h.logger.Error("HourlyJob h.checkTodayStages error", zap.Error(err))
 		return err
 	}
 
 	// чекаем что сегодня прошло 14:00 и открываем запись
-	err = h.checkTomorrowStages(tomorrowWorkDate, offices)
+	err = h.checkTomorrowStages(ctx, tomorrowWorkDate, offices)
 	if err != nil {
 		h.logger.Error("HourlyJob h.checkTomorrowStages error", zap.Error(err))
 		return err
@@ -100,7 +103,10 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	return nil
 }
 
-func (h *hourlyJobImpl) openTodayAccept(today model.WorkDate) error {
+func (h *hourlyJobImpl) openTodayAccept(ctx context.Context, today model.WorkDate) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	if today.Status == model.StatusSetBookSeats {
 		err := h.workDateRepo.UpdateStatusByID(today.ID, model.StatusAccept)
 		if err != nil {
@@ -110,7 +116,9 @@ func (h *hourlyJobImpl) openTodayAccept(today model.WorkDate) error {
 	return nil
 }
 
-func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.Office) error {
+func (h *hourlyJobImpl) checkTodayStages(ctx context.Context, today model.WorkDate, offices []*model.Office) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	for _, office := range offices {
 		currentTime, err := helper.CurrentTimeWithTimeZone(office.TimeZone)
@@ -120,7 +128,7 @@ func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.
 
 		// Send notify users to confirm
 		if currentTime.After(morningNotify) || currentTime.Equal(morningNotify) {
-			err = h.informerService.SendNotifiesToConfirm(office)
+			err = h.informerService.SendNotifiesToConfirm(ctx, office)
 			if err != nil {
 				return err
 			}
@@ -128,7 +136,7 @@ func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.
 
 		// Cancel book time
 		if currentTime.After(removeBookTime) || currentTime.Equal(removeBookTime) {
-			err = h.cancelNotConfirmedBookSeats(today, office)
+			err = h.cancelNotConfirmedBookSeats(ctx, today, office)
 			if err != nil {
 				return err
 			}
@@ -146,7 +154,10 @@ func (h *hourlyJobImpl) checkTodayStages(today model.WorkDate, offices []*model.
 	return nil
 }
 
-func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*model.Office) error {
+func (h *hourlyJobImpl) checkTomorrowStages(ctx context.Context, tomorrow model.WorkDate, offices []*model.Office) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	for _, office := range offices {
 		currentTime, err := helper.CurrentTimeWithTimeZone(office.TimeZone)
 		openBooking, err := helper.TimeWithTimeZone(helper.OpenBooking, office.TimeZone)
@@ -159,7 +170,7 @@ func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*
 
 			formattedDate := tomorrow.Date.Format(helper.DateFormat)
 			message := fmt.Sprintf("Открыта запись на %s в офис: %s", formattedDate, office.Name)
-			err = h.informerService.SendNotifyTomorrowBookingOpen(*office, message)
+			err = h.informerService.SendNotifyTomorrowBookingOpen(ctx, *office, message)
 			if err != nil {
 				return err
 			}
@@ -169,22 +180,25 @@ func (h *hourlyJobImpl) checkTomorrowStages(tomorrow model.WorkDate, offices []*
 	return nil
 }
 
-func (h *hourlyJobImpl) cancelNotConfirmedBookSeats(today model.WorkDate, office *model.Office) error {
+func (h *hourlyJobImpl) cancelNotConfirmedBookSeats(ctx context.Context, today model.WorkDate, office *model.Office) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	if office == nil {
 		return nil
 	}
 
-	bookSeats, err := h.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(office.ID, today.Date.String())
+	bookSeats, err := h.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(ctx, office.ID, today.Date.String())
 	if err != nil {
 		return err
 	}
 
 	for _, bookSeat := range bookSeats {
-		err = h.bookSeatRepo.CancelBookSeatWithID(bookSeat.ID)
+		err = h.bookSeatRepo.CancelBookSeatWithID(ctx, bookSeat.ID)
 		if err != nil {
 			return err
 		}
 	}
 
-	return h.informerService.SendNotifyToBookDeletedBySystem(bookSeats, office.Name)
+	return h.informerService.SendNotifyToBookDeletedBySystem(ctx, bookSeats, office.Name)
 }

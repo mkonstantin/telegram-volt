@@ -10,13 +10,14 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type InformerService interface {
 	SendNotifySeatBecomeFree(ctx context.Context, id int64) error
-	SendNotifyTomorrowBookingOpen(office model.Office, message string) error
-	SendNotifiesToConfirm(office *model.Office) error
-	SendNotifyToBookDeletedBySystem(bookSeats []*model.BookSeat, officeName string) error
+	SendNotifyTomorrowBookingOpen(ctx context.Context, office model.Office, message string) error
+	SendNotifiesToConfirm(ctx context.Context, office *model.Office) error
+	SendNotifyToBookDeletedBySystem(ctx context.Context, bookSeats []*model.BookSeat, officeName string) error
 }
 
 type informerServiceImpl struct {
@@ -43,8 +44,10 @@ func NewInformer(botAPI *tgbotapi.BotAPI, infoForm form.InfoMenuForm, userRepo i
 // SendNotifySeatBecomeFree Сообщение подписавшимся кроме тех кто уже занимает место, что место освободилось
 
 func (i *informerServiceImpl) SendNotifySeatBecomeFree(ctx context.Context, bookSeatID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
-	bookSeat, err := i.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := i.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return err
 	}
@@ -66,6 +69,9 @@ func (i *informerServiceImpl) SendNotifySeatBecomeFree(ctx context.Context, book
 }
 
 func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bookSeat *model.BookSeat) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
 	text := fmt.Sprintf("Освободилось место в офисе: %s на %s", bookSeat.Office.Name, formattedDate)
 
@@ -76,7 +82,7 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 		return err
 	}
 
-	seats, err := i.bookSeatRepo.FindByOfficeIDAndDate(bookSeat.Office.ID, bookSeat.BookDate.String())
+	seats, err := i.bookSeatRepo.FindByOfficeIDAndDate(ctx, bookSeat.Office.ID, bookSeat.BookDate.String())
 	var mapper = make(map[int64]int)
 	mapper[currentUser.ID]++
 	for _, seat := range seats {
@@ -108,10 +114,12 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 
 // SendNotifiesToConfirm рассылка уведомлений на подтверждение брони
 
-func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error {
+func (i *informerServiceImpl) SendNotifiesToConfirm(ctx context.Context, office *model.Office) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	today := helper.TodayZeroTimeUTC()
-	bookSeats, err := i.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(office.ID, today.String())
+	bookSeats, err := i.bookSeatRepo.FindNotConfirmedByOfficeIDAndDate(ctx, office.ID, today.String())
 	if err != nil {
 		return err
 	}
@@ -137,7 +145,10 @@ func (i *informerServiceImpl) SendNotifiesToConfirm(office *model.Office) error 
 
 // SendNotifyTomorrowBookingOpen Сообщение подписавшимся, что открыта запись на завтра
 
-func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office, message string) error {
+func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(ctx context.Context, office model.Office, message string) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	users, err := i.userRepo.GetUsersToNotify(office.ID)
 	if err != nil {
 		return err
@@ -161,7 +172,9 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(office model.Office,
 	return nil
 }
 
-func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(bookSeats []*model.BookSeat, officeName string) error {
+func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(ctx context.Context, bookSeats []*model.BookSeat, officeName string) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	var arrayToSend []form.InfoFormData
 

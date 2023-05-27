@@ -62,7 +62,7 @@ func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 		return s.dateMenu.Call(ctx)
 	}
 
-	bookSeat, err := s.bookSeatRepo.FindByID(command.BookSeatID)
+	bookSeat, err := s.bookSeatRepo.FindByID(ctx, command.BookSeatID)
 	if err != nil {
 		return nil, err
 	}

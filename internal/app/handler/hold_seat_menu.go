@@ -55,7 +55,7 @@ func (o *holdSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 		fallthrough
 
 	default:
-		bookSeat, err := o.bookSeatRepo.FindByID(command.BookSeatID)
+		bookSeat, err := o.bookSeatRepo.FindByID(ctx, command.BookSeatID)
 		if err != nil {
 			return nil, err
 		}

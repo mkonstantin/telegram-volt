@@ -47,7 +47,7 @@ func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*
 		return o.officeMenu.Call(ctx, "", currentUser.NotifyOfficeID)
 	}
 
-	bookSeat, err := o.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := o.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return nil, err
 	}

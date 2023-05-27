@@ -76,7 +76,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 
 	var bookSeats []*model.BookSeat
 	for _, date := range dates {
-		bookSeat, err := o.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, date.Date.String())
+		bookSeat, err := o.bookSeatRepo.FindByUserIDAndDate(ctx, currentUser.ID, date.Date.String())
 		if err != nil {
 			return nil, err
 		}

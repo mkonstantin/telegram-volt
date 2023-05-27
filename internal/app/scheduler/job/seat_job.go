@@ -1,11 +1,13 @@
 package job
 
 import (
+	"context"
 	"fmt"
 	"go.uber.org/zap"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -41,6 +43,7 @@ func NewSeatsJob(officeRepo interfaces.OfficeRepository,
 }
 
 func (w *seatJobImpl) SetSeats() error {
+	ctx := context.Background()
 
 	startDate := helper.TodayZeroTimeUTC()
 	endDate := helper.PlusDaysUTC(startDate, plusDays)
@@ -51,14 +54,14 @@ func (w *seatJobImpl) SetSeats() error {
 		return err
 	}
 
-	officeIDs, err := w.getOfficeIDs()
+	officeIDs, err := w.getOfficeIDs(ctx)
 	if err != nil {
 		w.logger.Error("Scheduler Seat_jobs: w.getOfficeIDs", zap.Error(err))
 		return err
 	}
 
 	for _, day := range dates {
-		err = w.fillByOffices(officeIDs, day)
+		err = w.fillByOffices(ctx, officeIDs, day)
 		if err != nil {
 			w.logger.Error("Scheduler Seat_jobs: w.fillByOffices", zap.Error(err))
 			return err
@@ -73,9 +76,12 @@ func (w *seatJobImpl) SetSeats() error {
 	return nil
 }
 
-func (w *seatJobImpl) fillByOffices(officeIDs []int64, workDate model.WorkDate) error {
+func (w *seatJobImpl) fillByOffices(ctx context.Context, officeIDs []int64, workDate model.WorkDate) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	for _, officeID := range officeIDs {
-		err := w.insertSeatsTo(officeID, workDate.Date)
+		err := w.insertSeatsTo(ctx, officeID, workDate.Date)
 		if err != nil {
 			return err
 		}
@@ -83,7 +89,9 @@ func (w *seatJobImpl) fillByOffices(officeIDs []int64, workDate model.WorkDate) 
 	return nil
 }
 
-func (w *seatJobImpl) getOfficeIDs() ([]int64, error) {
+func (w *seatJobImpl) getOfficeIDs(ctx context.Context) ([]int64, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	offices, err := w.officeRepo.GetAll()
 	if err != nil {
@@ -98,14 +106,17 @@ func (w *seatJobImpl) getOfficeIDs() ([]int64, error) {
 	return ids, nil
 }
 
-func (w *seatJobImpl) insertSeatsTo(officeID int64, date time.Time) error {
+func (w *seatJobImpl) insertSeatsTo(ctx context.Context, officeID int64, date time.Time) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	seats, err := w.seatRepo.GetAllByOfficeID(officeID)
 	if err != nil {
 		return err
 	}
 
 	for _, seat := range seats {
-		err = w.bookSeatRepo.InsertSeat(officeID, seat.ID, date)
+		err = w.bookSeatRepo.InsertSeat(ctx, officeID, seat.ID, date)
 		if err != nil {
 			w.logger.Error("InsertSeat", zap.Error(err))
 			return err

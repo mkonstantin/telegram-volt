@@ -64,7 +64,7 @@ func (f *freeSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest
 	case dto.ActionBookNo:
 		fallthrough
 	default:
-		bookSeat, err := f.bookSeatRepo.FindByID(command.BookSeatID)
+		bookSeat, err := f.bookSeatRepo.FindByID(ctx, command.BookSeatID)
 		if err != nil {
 			return nil, err
 		}

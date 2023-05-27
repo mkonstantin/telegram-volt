@@ -1,22 +1,23 @@
 package interfaces
 
 import (
+	"context"
 	"telegram-api/internal/domain/model"
 	"time"
 )
 
 type BookSeatRepository interface {
-	FindByID(id int64) (*model.BookSeat, error)
-	GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	FindByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	GetFreeSeatsByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	BookSeatWithID(id, userID int64, confirm bool) error
-	CancelBookSeatWithID(id int64) error
-	FindByUserID(userID int64) (*model.BookSeat, error)
-	FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error)
-	InsertSeat(officeID, seatID int64, dayDate time.Time) error
-	ConfirmBookSeat(seatID int64) error
-	FindNotConfirmedByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error)
-	HoldSeatWithID(id int64) error
-	CancelHoldSeatWithID(id int64) error
+	FindByID(ctx context.Context, id int64) (*model.BookSeat, error)
+	GetAllByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error)
+	FindByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error)
+	GetFreeSeatsByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error)
+	BookSeatWithID(ctx context.Context, id, userID int64, confirm bool) error
+	CancelBookSeatWithID(ctx context.Context, id int64) error
+	FindByUserID(ctx context.Context, userID int64) (*model.BookSeat, error)
+	FindByUserIDAndDate(ctx context.Context, userID int64, dateStr string) (*model.BookSeat, error)
+	InsertSeat(ctx context.Context, officeID, seatID int64, dayDate time.Time) error
+	ConfirmBookSeat(ctx context.Context, seatID int64) error
+	FindNotConfirmedByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error)
+	HoldSeatWithID(ctx context.Context, id int64) error
+	CancelHoldSeatWithID(ctx context.Context, id int64) error
 }

@@ -66,12 +66,12 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := u.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
 
-	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, bookSeat.BookDate.String())
+	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(ctx, currentUser.ID, bookSeat.BookDate.String())
 	if err != nil {
 		return "", err
 	}
@@ -88,7 +88,7 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		if bookSeat.BookDate.Equal(today) {
 			isToday = true
 		}
-		err = u.bookSeatRepo.BookSeatWithID(currentUser.ID, bookSeatID, isToday)
+		err = u.bookSeatRepo.BookSeatWithID(ctx, currentUser.ID, bookSeatID, isToday)
 		if err != nil {
 			return "", err
 		}
@@ -116,12 +116,12 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := u.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return "", false, err
 	}
 
-	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(currentUser.ID, bookSeat.BookDate.String())
+	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(ctx, currentUser.ID, bookSeat.BookDate.String())
 	if err != nil {
 		return "", false, err
 	}
@@ -130,7 +130,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 		return message, false, nil
 	}
 
-	err = u.bookSeatRepo.CancelBookSeatWithID(bookSeatID)
+	err = u.bookSeatRepo.CancelBookSeatWithID(ctx, bookSeatID)
 	if err != nil {
 		return "", false, err
 	}
@@ -185,12 +185,12 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 
 	var message string
 
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := u.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
 
-	err = u.bookSeatRepo.ConfirmBookSeat(bookSeatID)
+	err = u.bookSeatRepo.ConfirmBookSeat(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
@@ -208,12 +208,12 @@ func (u *userServiceImpl) HoldBookSeat(ctx context.Context, bookSeatID int64) (s
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := u.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
 
-	err = u.bookSeatRepo.HoldSeatWithID(bookSeatID)
+	err = u.bookSeatRepo.HoldSeatWithID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
@@ -229,12 +229,12 @@ func (u *userServiceImpl) CancelHoldBookSeat(ctx context.Context, bookSeatID int
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := u.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}
 
-	err = u.bookSeatRepo.CancelHoldSeatWithID(bookSeatID)
+	err = u.bookSeatRepo.CancelHoldSeatWithID(ctx, bookSeatID)
 	if err != nil {
 		return "", err
 	}

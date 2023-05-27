@@ -38,7 +38,7 @@ func (f *freeSeatMenuImpl) Call(ctx context.Context, bookSeatID int64) (*tgbotap
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	bookSeat, err := f.bookSeatRepo.FindByID(bookSeatID)
+	bookSeat, err := f.bookSeatRepo.FindByID(ctx, bookSeatID)
 	if err != nil {
 		return nil, err
 	}

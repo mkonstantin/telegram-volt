@@ -64,7 +64,7 @@ func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest)
 	case dto.ActionCancelBookNo:
 		fallthrough
 	default:
-		bookSeat, err := o.bookSeatRepo.FindByID(command.BookSeatID)
+		bookSeat, err := o.bookSeatRepo.FindByID(ctx, command.BookSeatID)
 		if err != nil {
 			return nil, err
 		}

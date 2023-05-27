@@ -55,7 +55,7 @@ func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time, officeID in
 		return nil, err
 	}
 
-	seats, err := s.bookSeatRepo.GetAllByOfficeIDAndDate(callingOfficeID, date.String())
+	seats, err := s.bookSeatRepo.GetAllByOfficeIDAndDate(ctx, callingOfficeID, date.String())
 	if err != nil {
 		return nil, err
 	}

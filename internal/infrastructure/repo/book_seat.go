@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -9,6 +10,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -22,7 +24,10 @@ func NewBookSeatRepository(conn repository.Connection) interfaces.BookSeatReposi
 	}
 }
 
-func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindByID(ctx context.Context, id int64) (*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -46,7 +51,10 @@ func (s *bookSeatRepositoryImpl) FindByID(id int64) (*model.BookSeat, error) {
 	return dtoO.ToModel(), nil
 }
 
-func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -71,7 +79,10 @@ func (s *bookSeatRepositoryImpl) GetFreeSeatsByOfficeIDAndDate(id int64, dateStr
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) FindByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -94,7 +105,10 @@ func (s *bookSeatRepositoryImpl) FindByOfficeIDAndDate(id int64, dateStr string)
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) FindNotConfirmedByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindNotConfirmedByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -117,7 +131,10 @@ func (s *bookSeatRepositoryImpl) FindNotConfirmedByOfficeIDAndDate(id int64, dat
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(id int64, dateStr string) ([]*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(ctx context.Context, id int64, dateStr string) ([]*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -142,7 +159,10 @@ func (s *bookSeatRepositoryImpl) GetAllByOfficeIDAndDate(id int64, dateStr strin
 	return dto.ToBookSeatModels(dtoO), nil
 }
 
-func (s *bookSeatRepositoryImpl) BookSeatWithID(userID, id int64, confirm bool) error {
+func (s *bookSeatRepositoryImpl) BookSeatWithID(ctx context.Context, userID, id int64, confirm bool) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("book_seat").
 		Set("user_id", userID).
 		Set("confirm", confirm).
@@ -157,7 +177,10 @@ func (s *bookSeatRepositoryImpl) BookSeatWithID(userID, id int64, confirm bool) 
 	return nil
 }
 
-func (s *bookSeatRepositoryImpl) CancelBookSeatWithID(id int64) error {
+func (s *bookSeatRepositoryImpl) CancelBookSeatWithID(ctx context.Context, id int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("book_seat").
 		Set("user_id", nil).
 		Where(sq.Eq{"id": id})
@@ -171,7 +194,10 @@ func (s *bookSeatRepositoryImpl) CancelBookSeatWithID(id int64) error {
 	return nil
 }
 
-func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindByUserID(ctx context.Context, userID int64) (*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -195,7 +221,10 @@ func (s *bookSeatRepositoryImpl) FindByUserID(userID int64) (*model.BookSeat, er
 	return dtoO.ToModel(), nil
 }
 
-func (s *bookSeatRepositoryImpl) FindByUserIDAndDate(userID int64, dateStr string) (*model.BookSeat, error) {
+func (s *bookSeatRepositoryImpl) FindByUserIDAndDate(ctx context.Context, userID int64, dateStr string) (*model.BookSeat, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("bs.*, s1.seat_sign, s1.have_monitor, u1.name as user_name, u1.telegram_id, u1.chat_id, u1.telegram_name, o1.name as office_name, o1.time_zone").
 		From("book_seat as bs").
 		InnerJoin("seat as s1 ON bs.seat_id = s1.id").
@@ -219,7 +248,10 @@ func (s *bookSeatRepositoryImpl) FindByUserIDAndDate(userID int64, dateStr strin
 	return dtoO.ToModel(), nil
 }
 
-func (s *bookSeatRepositoryImpl) InsertSeat(officeID, seatID int64, dayDate time.Time) error {
+func (s *bookSeatRepositoryImpl) InsertSeat(ctx context.Context, officeID, seatID int64, dayDate time.Time) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.
 		Insert("book_seat").Columns("office_id", "seat_id", "book_date").
 		Values(officeID, seatID, dayDate)
@@ -233,7 +265,10 @@ func (s *bookSeatRepositoryImpl) InsertSeat(officeID, seatID int64, dayDate time
 	return nil
 }
 
-func (s *bookSeatRepositoryImpl) ConfirmBookSeat(seatID int64) error {
+func (s *bookSeatRepositoryImpl) ConfirmBookSeat(ctx context.Context, seatID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("book_seat").
 		Set("confirm", true).
 		Where(sq.Eq{"id": seatID})
@@ -247,7 +282,10 @@ func (s *bookSeatRepositoryImpl) ConfirmBookSeat(seatID int64) error {
 	return nil
 }
 
-func (s *bookSeatRepositoryImpl) HoldSeatWithID(id int64) error {
+func (s *bookSeatRepositoryImpl) HoldSeatWithID(ctx context.Context, id int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("book_seat").
 		Set("hold", true).
 		Where(sq.Eq{"id": id})
@@ -261,7 +299,10 @@ func (s *bookSeatRepositoryImpl) HoldSeatWithID(id int64) error {
 	return nil
 }
 
-func (s *bookSeatRepositoryImpl) CancelHoldSeatWithID(id int64) error {
+func (s *bookSeatRepositoryImpl) CancelHoldSeatWithID(ctx context.Context, id int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("book_seat").
 		Set("hold", false).
 		Where(sq.Eq{"id": id})
