@@ -10,6 +10,7 @@ import (
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -37,6 +38,8 @@ func NewSeatListMenu(
 }
 
 func (s *seatListMenuImpl) Call(ctx context.Context, date time.Time, officeID int64) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	currentUser := model.GetCurrentUser(ctx)
 

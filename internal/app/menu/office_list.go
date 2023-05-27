@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type officeListMenuImpl struct {
@@ -30,6 +31,8 @@ func NewOfficeListMenu(
 }
 
 func (o *officeListMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	currentUser := model.GetCurrentUser(ctx)
 

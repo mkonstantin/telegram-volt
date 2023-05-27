@@ -7,6 +7,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type UserService interface {
@@ -40,6 +41,9 @@ func NewUserService(userRepo interfaces.UserRepository,
 //========= Выбрали офис и вызываем его меню
 
 func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	currentUser := model.GetCurrentUser(ctx)
 
 	err := u.userRepo.SetOffice(officeID, currentUser.TelegramID)
@@ -56,6 +60,9 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 // ========== Забронировали место
 
 func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -103,6 +110,9 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 // ========== Отменили бронирование места
 
 func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) (string, bool, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -132,6 +142,9 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 // ========== Подписка/отписка на свободные места
 
 func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, string, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	var message string
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -167,6 +180,9 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 }
 
 func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	var message string
 
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
@@ -189,6 +205,9 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 // Admin hold seats
 
 func (u *userServiceImpl) HoldBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
 		return "", err
@@ -207,6 +226,9 @@ func (u *userServiceImpl) HoldBookSeat(ctx context.Context, bookSeatID int64) (s
 }
 
 func (u *userServiceImpl) CancelHoldBookSeat(ctx context.Context, bookSeatID int64) (string, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	bookSeat, err := u.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
 		return "", err

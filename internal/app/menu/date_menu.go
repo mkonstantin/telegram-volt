@@ -11,6 +11,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type dateMenuImpl struct {
@@ -42,6 +43,9 @@ func NewDateMenu(
 
 func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error) {
 
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	currentUser := model.GetCurrentUser(ctx)
 
 	office, err := f.officeRepo.FindByID(currentUser.OfficeID)
@@ -49,7 +53,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 		return nil, err
 	}
 
-	dates, err := f.getDates(f.cfg.IsAdmin(currentUser.TelegramName))
+	dates, err := f.getDates(ctx, f.cfg.IsAdmin(currentUser.TelegramName))
 
 	var daySeats []form.DaySeat
 	for _, date := range dates {
@@ -79,7 +83,10 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 	return f.dateMenuForm.Build(ctx, formData)
 }
 
-func (f *dateMenuImpl) getDates(isAdmin bool) ([]model.WorkDate, error) {
+func (f *dateMenuImpl) getDates(ctx context.Context, isAdmin bool) ([]model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	today := helper.TodayZeroTimeUTC()
 
 	var dates []model.WorkDate

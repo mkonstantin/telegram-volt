@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/form"
 	"telegram-api/internal/app/menu/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type holdSeatMenuImpl struct {
@@ -24,6 +25,9 @@ func NewHoldSeatMenu(
 }
 
 func (f *holdSeatMenuImpl) Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	message := "Место закреплено, хотите снять закрепление?"
 
 	formData := form.HoldSeatFormData{

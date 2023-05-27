@@ -10,6 +10,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type freeSeatMenuImpl struct {
@@ -34,6 +35,9 @@ func NewFreeSeatMenu(
 }
 
 func (f *freeSeatMenuImpl) Call(ctx context.Context, bookSeatID int64) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	bookSeat, err := f.bookSeatRepo.FindByID(bookSeatID)
 	if err != nil {
 		return nil, err
