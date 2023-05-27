@@ -5,6 +5,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -58,6 +59,9 @@ func (o *dateJobsImpl) CheckAndSetDates() error {
 }
 
 func (o *dateJobsImpl) addDays(ctx context.Context, startDate time.Time, daysAmount int) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	for i := 0; i < daysAmount; i++ {
 		nextDate := startDate.AddDate(0, 0, i)
 		err := o.dateRepo.InsertDate(ctx, nextDate)
