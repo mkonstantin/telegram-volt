@@ -79,44 +79,44 @@ func (r *UserMW) setUserContext(tgID, chatID int64, MessageID int, tgUserName, f
 
 	ctx = context.WithValue(ctx, model.ContextChatIDKey, chatID)
 	ctx = context.WithValue(ctx, model.ContextMessageIDKey, MessageID)
+	ctx = SetNewTrace(ctx, tgID)
 
-	user, err := r.userRepo.GetByTelegramID(tgID)
+	user, err := r.userRepo.GetByTelegramID(ctx, tgID)
 	if err != nil {
 		return ctx
 	}
 
 	if user == nil {
-		user, err = r.createUser(tgID, chatID, tgUserName, fullName)
+		user, err = r.createUser(ctx, tgID, chatID, tgUserName, fullName)
 		if err != nil {
 			return ctx
 		}
 	}
 
 	if user.ChatID != chatID {
-		err = r.setChatID(tgID, chatID)
+		err = r.setChatID(ctx, tgID, chatID)
 		if err != nil {
 			return ctx
 		}
 	}
 
 	ctx = context.WithValue(ctx, model.ContextUserKey, *user)
-	ctx = SetNewTrace(ctx, tgID)
 	return ctx
 }
 
-func (r *UserMW) createUser(tgID, chatID int64, tgUserName, fullName string) (*model.User, error) {
+func (r *UserMW) createUser(ctx context.Context, tgID, chatID int64, tgUserName, fullName string) (*model.User, error) {
 	userModel := model.User{
 		Name:         fullName,
 		TelegramID:   tgID,
 		TelegramName: tgUserName,
 		ChatID:       chatID,
 	}
-	err := r.userRepo.Create(userModel)
+	err := r.userRepo.Create(ctx, userModel)
 	if err != nil {
 		return nil, err
 	}
 
-	user, err := r.userRepo.GetByTelegramID(tgID)
+	user, err := r.userRepo.GetByTelegramID(ctx, tgID)
 	if err != nil {
 		return nil, err
 	}
@@ -124,8 +124,8 @@ func (r *UserMW) createUser(tgID, chatID int64, tgUserName, fullName string) (*m
 	return user, nil
 }
 
-func (r *UserMW) setChatID(tgID, chatID int64) error {
-	err := r.userRepo.SetChatID(chatID, tgID)
+func (r *UserMW) setChatID(ctx context.Context, tgID, chatID int64) error {
+	err := r.userRepo.SetChatID(ctx, chatID, tgID)
 	if err != nil {
 		return err
 	}

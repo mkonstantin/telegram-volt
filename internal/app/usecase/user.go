@@ -46,7 +46,7 @@ func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	err := u.userRepo.SetOffice(officeID, currentUser.TelegramID)
+	err := u.userRepo.SetOffice(ctx, officeID, currentUser.TelegramID)
 	if err != nil {
 		return ctx, err
 	}
@@ -158,7 +158,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 	}
 
 	if currentUser.NotifyOfficeID == currentUser.OfficeID {
-		err = u.userRepo.Unsubscribe(currentUser.TelegramID)
+		err = u.userRepo.Unsubscribe(ctx, currentUser.TelegramID)
 		if err != nil {
 			return ctx, "", err
 		}
@@ -166,7 +166,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 		currentUser.NotifyOfficeID = 0
 		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
 	} else {
-		err = u.userRepo.Subscribe(currentUser.TelegramID, currentUser.OfficeID)
+		err = u.userRepo.Subscribe(ctx, currentUser.TelegramID, currentUser.OfficeID)
 		if err != nil {
 			return ctx, "", err
 		}

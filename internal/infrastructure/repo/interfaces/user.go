@@ -1,13 +1,16 @@
 package interfaces
 
-import "telegram-api/internal/domain/model"
+import (
+	"context"
+	"telegram-api/internal/domain/model"
+)
 
 type UserRepository interface {
-	GetUsersToNotify(notifyOfficeID int64) ([]*model.User, error)
-	GetByTelegramID(id int64) (*model.User, error)
-	Create(user model.User) error
-	SetChatID(chatID, tgID int64) error
-	SetOffice(officeID, tgID int64) error
-	Subscribe(tgID, officeID int64) error
-	Unsubscribe(tgID int64) error
+	GetUsersToNotify(ctx context.Context, notifyOfficeID int64) ([]*model.User, error)
+	GetByTelegramID(ctx context.Context, id int64) (*model.User, error)
+	Create(ctx context.Context, user model.User) error
+	SetChatID(ctx context.Context, chatID, tgID int64) error
+	SetOffice(ctx context.Context, officeID, tgID int64) error
+	Subscribe(ctx context.Context, tgID, officeID int64) error
+	Unsubscribe(ctx context.Context, tgID int64) error
 }

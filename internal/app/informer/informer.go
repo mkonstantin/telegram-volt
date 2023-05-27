@@ -77,7 +77,7 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 
 	currentUser := model.GetCurrentUser(ctx)
 
-	users, err := i.userRepo.GetUsersToNotify(bookSeat.Office.ID)
+	users, err := i.userRepo.GetUsersToNotify(ctx, bookSeat.Office.ID)
 	if err != nil {
 		return err
 	}
@@ -149,7 +149,7 @@ func (i *informerServiceImpl) SendNotifyTomorrowBookingOpen(ctx context.Context,
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
 	defer span.End()
 
-	users, err := i.userRepo.GetUsersToNotify(office.ID)
+	users, err := i.userRepo.GetUsersToNotify(ctx, office.ID)
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -8,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"telegram-api/pkg/tracing"
 )
 
 type userRepositoryImpl struct {
@@ -20,7 +22,10 @@ func NewUserRepository(conn repository.Connection) interfaces.UserRepository {
 	}
 }
 
-func (s *userRepositoryImpl) GetUsersToNotify(notifyOfficeID int64) ([]*model.User, error) {
+func (s *userRepositoryImpl) GetUsersToNotify(ctx context.Context, notifyOfficeID int64) ([]*model.User, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("user").
 		Where(sq.And{sq.Eq{"notify_office_id": notifyOfficeID}, sq.NotEq{"chat_id": 0}})
@@ -42,7 +47,10 @@ func (s *userRepositoryImpl) GetUsersToNotify(notifyOfficeID int64) ([]*model.Us
 	return dto.ToUserModels(dtoO), nil
 }
 
-func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
+func (s *userRepositoryImpl) GetByTelegramID(ctx context.Context, id int64) (*model.User, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("user").
 		Where(sq.Eq{"telegram_id": id})
@@ -63,7 +71,10 @@ func (s *userRepositoryImpl) GetByTelegramID(id int64) (*model.User, error) {
 	return dtoU.ToModel(), nil
 }
 
-func (s *userRepositoryImpl) Create(user model.User) error {
+func (s *userRepositoryImpl) Create(ctx context.Context, user model.User) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.
 		Insert("user").Columns("name", "telegram_id", "telegram_name", "chat_id").
 		Values(user.Name, user.TelegramID, user.TelegramName, user.ChatID)
@@ -77,7 +88,10 @@ func (s *userRepositoryImpl) Create(user model.User) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) SetChatID(chatID, tgID int64) error {
+func (s *userRepositoryImpl) SetChatID(ctx context.Context, chatID, tgID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("user").
 		Set("chat_id", chatID).
 		Where(sq.Eq{"telegram_id": tgID})
@@ -91,7 +105,10 @@ func (s *userRepositoryImpl) SetChatID(chatID, tgID int64) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) SetOffice(officeID, tgID int64) error {
+func (s *userRepositoryImpl) SetOffice(ctx context.Context, officeID, tgID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("user").
 		Set("office_id", officeID).
 		Where(sq.Eq{"telegram_id": tgID})
@@ -105,7 +122,10 @@ func (s *userRepositoryImpl) SetOffice(officeID, tgID int64) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) Subscribe(tgID, officeID int64) error {
+func (s *userRepositoryImpl) Subscribe(ctx context.Context, tgID, officeID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("user").
 		Set("notify_office_id", officeID).
 		Where(sq.Eq{"telegram_id": tgID})
@@ -119,7 +139,10 @@ func (s *userRepositoryImpl) Subscribe(tgID, officeID int64) error {
 	return nil
 }
 
-func (s *userRepositoryImpl) Unsubscribe(tgID int64) error {
+func (s *userRepositoryImpl) Unsubscribe(ctx context.Context, tgID int64) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("user").
 		Set("notify_office_id", 0).
 		Where(sq.Eq{"telegram_id": tgID})
