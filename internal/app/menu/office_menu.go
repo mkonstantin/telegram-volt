@@ -64,7 +64,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 		return nil, err
 	}
 
-	dates, err := o.dateRepo.FindByStatus(model.StatusAccept)
+	dates, err := o.dateRepo.FindByStatus(ctx, model.StatusAccept)
 	if err != nil {
 		return nil, err
 	}

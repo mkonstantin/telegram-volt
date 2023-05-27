@@ -1,6 +1,7 @@
 package job
 
 import (
+	"context"
 	"go.uber.org/zap"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/repo/interfaces"
@@ -30,14 +31,16 @@ func NewDateJob(dateRepo interfaces.WorkDateRepository, logger *zap.Logger) Date
 
 func (o *dateJobsImpl) CheckAndSetDates() error {
 
-	last, err := o.dateRepo.GetLastByDate()
+	ctx := context.Background()
+
+	last, err := o.dateRepo.GetLastByDate(ctx)
 	if err != nil {
 		return err
 	}
 
 	// Если дат нет, то сразу добавляем totalDaysAmount дней
 	if last == nil {
-		return o.addDays(helper.TodayZeroTimeUTC(), totalDaysAmount)
+		return o.addDays(ctx, helper.TodayZeroTimeUTC(), totalDaysAmount)
 	}
 
 	// Замеряем сколько дней до лимита даты
@@ -48,16 +51,16 @@ func (o *dateJobsImpl) CheckAndSetDates() error {
 	// Если меньше или равно checkDays, то прибавляем разницу чтобы всегда было + 20-30 дней
 	if days <= checkDays {
 		date := last.Date.AddDate(0, 0, 1)
-		return o.addDays(date, totalDaysAmount-days)
+		return o.addDays(ctx, date, totalDaysAmount-days)
 	}
 
 	return nil
 }
 
-func (o *dateJobsImpl) addDays(startDate time.Time, daysAmount int) error {
+func (o *dateJobsImpl) addDays(ctx context.Context, startDate time.Time, daysAmount int) error {
 	for i := 0; i < daysAmount; i++ {
 		nextDate := startDate.AddDate(0, 0, i)
-		err := o.dateRepo.InsertDate(nextDate)
+		err := o.dateRepo.InsertDate(ctx, nextDate)
 		if err != nil {
 			o.logger.Error("error while add dates", zap.Error(err))
 			return err

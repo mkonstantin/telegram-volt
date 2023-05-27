@@ -48,7 +48,7 @@ func (w *seatJobImpl) SetSeats() error {
 	startDate := helper.TodayZeroTimeUTC()
 	endDate := helper.PlusDaysUTC(startDate, plusDays)
 
-	dates, err := w.dateRepo.FindByDatesAndStatus(startDate.String(), endDate.String(), model.StatusWait)
+	dates, err := w.dateRepo.FindByDatesAndStatus(ctx, startDate.String(), endDate.String(), model.StatusWait)
 	if err != nil {
 		w.logger.Error("Scheduler Seat_jobs: w.dateRepo.FindByDatesAndStatus", zap.Error(err))
 		return err
@@ -66,7 +66,7 @@ func (w *seatJobImpl) SetSeats() error {
 			w.logger.Error("Scheduler Seat_jobs: w.fillByOffices", zap.Error(err))
 			return err
 		}
-		err = w.dateRepo.UpdateStatusByID(day.ID, model.StatusSetBookSeats)
+		err = w.dateRepo.UpdateStatusByID(ctx, day.ID, model.StatusSetBookSeats)
 		if err != nil {
 			w.logger.Error("Scheduler Seat_jobs: w.dateRepo.UpdateStatusByID", zap.Error(err))
 			return err

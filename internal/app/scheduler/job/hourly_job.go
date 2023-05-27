@@ -46,14 +46,14 @@ func (h *hourlyJobImpl) StartSchedule() error {
 	todayPlus2 := helper.TodayPlusUTC(2)
 
 	// переводим все прошедшие даты в статус Done
-	err := h.workDateRepo.DoneAllPastByDate(today.String())
+	err := h.workDateRepo.DoneAllPastByDate(ctx, today.String())
 	if err != nil {
 		h.logger.Error("HourlyJob workDateRepo.DoneAllPastByDate error", zap.Error(err))
 		return err
 	}
 
 	// получаем сегодня и завтра
-	dates, err := h.workDateRepo.FindByDates(today.String(), todayPlus2.String())
+	dates, err := h.workDateRepo.FindByDates(ctx, today.String(), todayPlus2.String())
 	if err != nil {
 		h.logger.Error("HourlyJob workDateRepo.FindByDatesAndStatus error", zap.Error(err))
 		return err
@@ -108,7 +108,7 @@ func (h *hourlyJobImpl) openTodayAccept(ctx context.Context, today model.WorkDat
 	defer span.End()
 
 	if today.Status == model.StatusSetBookSeats {
-		err := h.workDateRepo.UpdateStatusByID(today.ID, model.StatusAccept)
+		err := h.workDateRepo.UpdateStatusByID(ctx, today.ID, model.StatusAccept)
 		if err != nil {
 			return err
 		}
@@ -144,7 +144,7 @@ func (h *hourlyJobImpl) checkTodayStages(ctx context.Context, today model.WorkDa
 
 		// Update to done status after 18-00 o'clock
 		if currentTime.After(evening) || currentTime.Equal(evening) {
-			err = h.workDateRepo.UpdateStatusByID(today.ID, model.StatusDone)
+			err = h.workDateRepo.UpdateStatusByID(ctx, today.ID, model.StatusDone)
 			if err != nil {
 				return err
 			}
@@ -163,7 +163,7 @@ func (h *hourlyJobImpl) checkTomorrowStages(ctx context.Context, tomorrow model.
 		openBooking, err := helper.TimeWithTimeZone(helper.OpenBooking, office.TimeZone)
 
 		if (currentTime.After(openBooking) || currentTime.Equal(openBooking)) && tomorrow.Status != model.StatusAccept {
-			err = h.workDateRepo.UpdateStatusByID(tomorrow.ID, model.StatusAccept)
+			err = h.workDateRepo.UpdateStatusByID(ctx, tomorrow.ID, model.StatusAccept)
 			if err != nil {
 				return err
 			}

@@ -1,6 +1,7 @@
 package repo
 
 import (
+	"context"
 	"database/sql"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
@@ -8,6 +9,7 @@ import (
 	"telegram-api/internal/infrastructure/repo/dto"
 	"telegram-api/internal/infrastructure/repo/interfaces"
 	repository "telegram-api/pkg"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -21,7 +23,9 @@ func NewWorkDateRepository(conn repository.Connection) interfaces.WorkDateReposi
 	}
 }
 
-func (s *workDateRepositoryImpl) DoneAllPastByDate(date string) error {
+func (s *workDateRepositoryImpl) DoneAllPastByDate(ctx context.Context, date string) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	sqQuery := sq.Update("work_date as wd").
 		Set("status", model.StatusDone).
@@ -36,7 +40,10 @@ func (s *workDateRepositoryImpl) DoneAllPastByDate(date string) error {
 	return nil
 }
 
-func (s *workDateRepositoryImpl) FindByDates(startDate string, endDate string) ([]model.WorkDate, error) {
+func (s *workDateRepositoryImpl) FindByDates(ctx context.Context, startDate string, endDate string) ([]model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
 		Where(sq.And{sq.GtOrEq{"wd.work_date": startDate}, sq.Lt{"wd.work_date": endDate}}).
@@ -61,8 +68,10 @@ func (s *workDateRepositoryImpl) FindByDates(startDate string, endDate string) (
 	return dto.ToWorkDateModels(dtoO), nil
 }
 
-func (s *workDateRepositoryImpl) FindByDatesAndStatus(startDate string, endDate string,
+func (s *workDateRepositoryImpl) FindByDatesAndStatus(ctx context.Context, startDate string, endDate string,
 	status model.DateStatus) ([]model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
@@ -90,7 +99,9 @@ func (s *workDateRepositoryImpl) FindByDatesAndStatus(startDate string, endDate 
 	return dto.ToWorkDateModels(dtoO), nil
 }
 
-func (s *workDateRepositoryImpl) FindByStatus(status model.DateStatus) ([]model.WorkDate, error) {
+func (s *workDateRepositoryImpl) FindByStatus(ctx context.Context, status model.DateStatus) ([]model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
@@ -116,7 +127,10 @@ func (s *workDateRepositoryImpl) FindByStatus(status model.DateStatus) ([]model.
 	return dto.ToWorkDateModels(dtoO), nil
 }
 
-func (s *workDateRepositoryImpl) GetLastByDate() (*model.WorkDate, error) {
+func (s *workDateRepositoryImpl) GetLastByDate(ctx context.Context) (*model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("work_date as wd").
 		OrderBy("wd.work_date desc").
@@ -141,7 +155,10 @@ func (s *workDateRepositoryImpl) GetLastByDate() (*model.WorkDate, error) {
 	return dtoO[0].ToModel(), nil
 }
 
-func (s *workDateRepositoryImpl) InsertDate(date time.Time) error {
+func (s *workDateRepositoryImpl) InsertDate(ctx context.Context, date time.Time) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.
 		Insert("work_date").Columns("status", "work_date").
 		Values(model.StatusWait, date)
@@ -155,7 +172,10 @@ func (s *workDateRepositoryImpl) InsertDate(date time.Time) error {
 	return nil
 }
 
-func (s *workDateRepositoryImpl) FindByID(id int64) (*model.WorkDate, error) {
+func (s *workDateRepositoryImpl) FindByID(ctx context.Context, id int64) (*model.WorkDate, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Select("*").
 		From("work_date").
 		Where(sq.Eq{"id": id})
@@ -176,7 +196,10 @@ func (s *workDateRepositoryImpl) FindByID(id int64) (*model.WorkDate, error) {
 	return dtoO.ToModel(), nil
 }
 
-func (s *workDateRepositoryImpl) UpdateStatusByID(id int64, status model.DateStatus) error {
+func (s *workDateRepositoryImpl) UpdateStatusByID(ctx context.Context, id int64, status model.DateStatus) error {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	sqQuery := sq.Update("work_date").
 		Set("status", status).
 		Where(sq.Eq{"id": id})

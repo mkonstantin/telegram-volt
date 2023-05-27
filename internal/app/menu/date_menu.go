@@ -94,13 +94,13 @@ func (f *dateMenuImpl) getDates(ctx context.Context, isAdmin bool) ([]model.Work
 
 	if isAdmin {
 		todayPlus10 := helper.TodayPlusUTC(10)
-		dates, err = f.dateRepo.FindByDates(today.String(), todayPlus10.String())
+		dates, err = f.dateRepo.FindByDates(ctx, today.String(), todayPlus10.String())
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		todayPlus2 := helper.TodayPlusUTC(2)
-		dates, err = f.dateRepo.FindByDatesAndStatus(today.String(), todayPlus2.String(), model.StatusAccept)
+		dates, err = f.dateRepo.FindByDatesAndStatus(ctx, today.String(), todayPlus2.String(), model.StatusAccept)
 		if err != nil {
 			return nil, err
 		}
