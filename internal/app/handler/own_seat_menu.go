@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type OwnSeatMenu interface {
@@ -43,6 +44,8 @@ func NewOwnSeatMenuHandle(
 }
 
 func (o *ownSeatMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	switch command.Action {
 	case dto.ActionCancelBookYes:

@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 )
 
 type SeatListFormData struct {
@@ -31,7 +32,9 @@ func NewSeatListForm(logger *zap.Logger) SeatListForm {
 }
 
 func (o seatListFormImpl) Build(ctx context.Context, data SeatListFormData) (*tgbotapi.MessageConfig, error) {
-
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+	
 	chatID := model.GetCurrentChatID(ctx)
 
 	var rows [][]tgbotapi.InlineKeyboardButton

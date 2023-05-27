@@ -7,6 +7,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 )
 
 type InfoFormData struct {
@@ -30,7 +31,10 @@ func NewInfoMenuForm(logger *zap.Logger) InfoMenuForm {
 	}
 }
 
-func (f *infoMenuFormImpl) Build(_ context.Context, data InfoFormData) (*tgbotapi.MessageConfig, error) {
+func (f *infoMenuFormImpl) Build(ctx context.Context, data InfoFormData) (*tgbotapi.MessageConfig, error) {
+
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	msg := tgbotapi.NewMessage(data.ChatID, "")
 	var rows [][]tgbotapi.InlineKeyboardButton

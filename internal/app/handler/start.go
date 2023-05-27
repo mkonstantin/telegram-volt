@@ -6,6 +6,7 @@ import (
 	"go.uber.org/zap"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
+	"telegram-api/pkg/tracing"
 )
 
 type Start interface {
@@ -31,6 +32,8 @@ func NewStartHandle(
 }
 
 func (s *startImpl) Handle(ctx context.Context) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	currentUser := model.GetCurrentUser(ctx)
 

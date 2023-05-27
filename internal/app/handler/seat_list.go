@@ -10,6 +10,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 	repo "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 const (
@@ -54,6 +55,8 @@ func NewSeatListHandle(
 }
 
 func (s *seatListImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	if command.Action == dto.Back {
 		return s.dateMenu.Call(ctx)

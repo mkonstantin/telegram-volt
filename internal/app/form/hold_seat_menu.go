@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 )
 
 type HoldSeatFormData struct {
@@ -30,6 +31,9 @@ func NewHoldSeatForm(logger *zap.Logger) HoldSeatForm {
 }
 
 func (f *holdSeatFormImpl) Build(ctx context.Context, data HoldSeatFormData) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	chatID := model.GetCurrentChatID(ctx)
 
 	msg := tgbotapi.NewMessage(chatID, "")

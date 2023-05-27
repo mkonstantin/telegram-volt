@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
+	"telegram-api/pkg/tracing"
 )
 
 type DateMenu interface {
@@ -34,6 +35,8 @@ func NewDateMenuHandle(
 }
 
 func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (tgbotapi.Chattable, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	switch command.Action {
 	case dto.DateListShowMap:

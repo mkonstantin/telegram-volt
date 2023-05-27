@@ -8,6 +8,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
 	interfaces2 "telegram-api/internal/infrastructure/repo/interfaces"
+	"telegram-api/pkg/tracing"
 )
 
 type InfoMenu interface {
@@ -36,6 +37,8 @@ func NewInfoMenuHandle(
 }
 
 func (o *infoMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	bookSeatID := command.BookSeatID
 

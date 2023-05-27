@@ -9,6 +9,7 @@ import (
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/app/usecase"
 	"telegram-api/internal/domain/model"
+	"telegram-api/pkg/tracing"
 )
 
 type OfficeMenu interface {
@@ -43,6 +44,8 @@ func NewOfficeMenuHandle(
 }
 
 func (o *officeMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	switch command.Action {
 	case dto.OfficeMenuFreeSeats:

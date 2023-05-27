@@ -10,6 +10,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 	"time"
 )
 
@@ -39,6 +40,10 @@ func NewDateMenutForm(logger *zap.Logger) DateMenuForm {
 }
 
 func (f *freeDateMenuFormImpl) Build(ctx context.Context, data DateMenuFormData) (*tgbotapi.MessageConfig, error) {
+
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
+
 	chatID := model.GetCurrentChatID(ctx)
 
 	msg := tgbotapi.NewMessage(chatID, "")

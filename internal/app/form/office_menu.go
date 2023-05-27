@@ -10,6 +10,7 @@ import (
 	"telegram-api/internal/domain/model"
 	"telegram-api/internal/infrastructure/helper"
 	"telegram-api/internal/infrastructure/router/constants"
+	"telegram-api/pkg/tracing"
 )
 
 type OfficeMenuFormData struct {
@@ -35,6 +36,8 @@ func NewOfficeMenuForm(logger *zap.Logger) OfficeMenuForm {
 }
 
 func (o *officeMenuFormImpl) Build(ctx context.Context, data OfficeMenuFormData) (*tgbotapi.MessageConfig, error) {
+	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
+	defer span.End()
 
 	var sum [][]tgbotapi.InlineKeyboardButton
 
