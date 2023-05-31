@@ -125,7 +125,11 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 					office.Name, todayBook.Seat.SeatSign)
 			}
 		} else {
-			message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+			if office.ID == 4 {
+				message = fmt.Sprintf("Офис: %s\n‼️Бронирование в этом разделе возможно только для сотрудников департамента Marketing‼️", office.Name)
+			} else {
+				message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+			}
 		}
 	}
 
