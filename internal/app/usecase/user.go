@@ -76,7 +76,11 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		return "", err
 	}
 	if userBookSeat != nil {
-		message = "У вас уже есть бронь в этом офисе на эту дату"
+		if userBookSeat.Office.ID == currentUser.OfficeID {
+			message = "У вас уже есть бронь в этом офисе на эту дату"
+		} else {
+			message = fmt.Sprintf("У вас уже есть бронь в офисе %s на эту дату", userBookSeat.Office.Name)
+		}
 		return message, nil
 	}
 
