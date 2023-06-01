@@ -121,11 +121,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 		return "", false, err
 	}
 
-	userBookSeat, err := u.bookSeatRepo.FindByUserIDAndDate(ctx, currentUser.ID, bookSeat.BookDate.String())
-	if err != nil {
-		return "", false, err
-	}
-	if userBookSeat == nil || (userBookSeat != nil && userBookSeat.User.ID != currentUser.ID) {
+	if bookSeat == nil || (bookSeat != nil && bookSeat.User.ID != currentUser.ID) {
 		message = "У вас нет брони на эту дату"
 		return message, false, nil
 	}
@@ -134,7 +130,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	if err != nil {
 		return "", false, err
 	}
-	message = fmt.Sprintf("Место №%s в офисе: %s освобождено. Спасибо!", userBookSeat.Seat.SeatSign, userBookSeat.Office.Name)
+	message = fmt.Sprintf("Место №%s в офисе: %s освобождено. Спасибо!", bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 
 	return message, true, nil
 }
