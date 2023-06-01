@@ -85,7 +85,7 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 				bookSeats = append(bookSeats, bookSeat)
 			}
 
-			if bookSeat.BookDate == today {
+			if bookSeat.BookDate == today && bookSeat.Office.ID == callingOfficeID {
 				todayBook = bookSeat
 			}
 
