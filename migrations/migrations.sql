@@ -1,12 +1,14 @@
-
 CREATE TABLE `user`
 (
-    `id`                INT(11)               NOT NULL AUTO_INCREMENT,
-    `name`              VARCHAR(255)          NOT NULL,
-    `telegram_id`       INT(16)               NOT NULL,
-    `telegram_name`     VARCHAR(255)          NOT NULL,
-    `created_at`        DATETIME              DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`        DATETIME              DEFAULT CURRENT_TIMESTAMP,
+    `id`                INT(11)         NOT NULL AUTO_INCREMENT,
+    `name`              VARCHAR(255)    NOT NULL,
+    `telegram_id`       BIGINT          NOT NULL,
+    `telegram_name`     VARCHAR(255)    NOT NULL,
+    `office_id`     	INT(11)         NOT NULL,
+    `notify_office_id`  INT(16)			NOT NULL,
+    `chat_id`     		BIGINT          NOT NULL,
+    `created_at`        DATETIME        DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        DATETIME        DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -15,11 +17,12 @@ CREATE TABLE `user`
 
 CREATE TABLE `office`
 (
-    `id`                INT(11)               NOT NULL AUTO_INCREMENT,
-    `name`              VARCHAR(255)          NOT NULL,
-    `city`              VARCHAR(255)          NOT NULL,
-    `created_at`        DATETIME              DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`        DATETIME              DEFAULT CURRENT_TIMESTAMP,
+    `id`                INT(11)          NOT NULL AUTO_INCREMENT,
+    `name`              VARCHAR(255)     NOT NULL,
+    `city`              VARCHAR(255)     NOT NULL,
+    `time_zone`         VARCHAR(255)     NOT NULL,
+    `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
@@ -32,6 +35,7 @@ CREATE TABLE `seat`
     `seat_number`       INT(11)          NOT NULL,
     `have_monitor`      BOOLEAN          DEFAULT FALSE,
     `office_id`         INT(11)          NOT NULL,
+    `seat_sign`         VARCHAR(255)     NOT NULL,
     `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
@@ -42,28 +46,22 @@ CREATE TABLE `seat`
 
 CREATE TABLE `book_seat`
 (
-    `id`                INT(11)          NOT NULL AUTO_INCREMENT,
-    `office_id`         INT(11)          NOT NULL,
-    `seat_id`           INT(11)          NOT NULL,
-    `user_id`           INT(11)          DEFAULT NULL,
-    `book_date`         DATETIME         NOT NULL,
-    `book_start_time`   DATETIME         DEFAULT NULL,
-    `book_end_time`     DATETIME         DEFAULT NULL,
-    `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
-    `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
+    `id`                INT(11)         NOT NULL AUTO_INCREMENT,
+    `office_id`         INT(11)         NOT NULL,
+    `seat_id`           INT(11)         NOT NULL,
+    `user_id`           INT(11)         DEFAULT NULL,
+    `book_date`         DATETIME        NOT NULL,
+    `book_start_time`   DATETIME        DEFAULT NULL,
+    `book_end_time`     DATETIME        DEFAULT NULL,
+    `confirm`     		BOOLEAN         DEFAULT FALSE,
+    `hold`     			BOOLEAN         DEFAULT FALSE,
+    `created_at`        DATETIME        DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        DATETIME        DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 )
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_unicode_ci;
-
-alter table user add office_id INT(11) default NULL;
-
-ALTER TABLE user add column notify_office_id int(16) default 0;
-
-ALTER TABLE office add column time_zone VARCHAR(255) NOT NULL;
-
-ALTER TABLE user add column chat_id INT(11) default 0;
 
 CREATE TABLE `work_date`
 (
@@ -78,12 +76,9 @@ CREATE TABLE `work_date`
     DEFAULT CHARSET = utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-ALTER TABLE book_seat add column confirm BOOLEAN DEFAULT FALSE;
+CREATE INDEX idx_user_id_date ON book_seat (user_id, book_date);
+CREATE INDEX idx_office_id ON book_seat (office_id, book_date);
 
-ALTER TABLE seat add column seat_sign VARCHAR(255) NOT NULL;
+CREATE INDEX id_telegram_id ON user (telegram_id);
 
-ALTER TABLE book_seat add column `hold` BOOLEAN DEFAULT FALSE;
-
-ALTER TABLE volt.user MODIFY COLUMN chat_id bigint;
-
-ALTER TABLE volt.user MODIFY COLUMN telegram_id bigint;
+CREATE INDEX idx_work_date ON work_date (work_date);
