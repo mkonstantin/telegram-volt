@@ -24,7 +24,7 @@ services:
       - CONNLIFETIME=2
       - KEY=6257462459:AAGkfP_LpWilOGmB2z3CYwsKCfe9rtv7lJs
       - VERSION=1.0.7
-      - ADMINS=MayyaMalysheva,irs_pro
+      - ADMINS=km505603,irs_pro
       - JAEGER_HOST=jaeger
       - JAEGER_PORT=14268
 
@@ -48,7 +48,7 @@ services:
       - CONNLIFETIME=2
       - KEY=6229893044:AAFg6cuCSfny8-jN6YJ3BR29_ApsmSouKs8
       - VERSION=1.0.7
-      - ADMINS=MayyaMalysheva,irs_pro
+      - ADMINS=km505603,dstepanovaa
       - JAEGER_HOST=jaeger
       - JAEGER_PORT=14268
 
