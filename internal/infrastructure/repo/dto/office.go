@@ -10,6 +10,7 @@ type Office struct {
 	Name      string    `db:"name,omitempty"`
 	City      string    `db:"city,omitempty"`
 	TimeZone  string    `db:"time_zone,omitempty"`
+	Image     string    `db:"image,omitempty"`
 	CreatedAt time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -20,6 +21,7 @@ func (o *Office) ToModel() *model.Office {
 		Name:     o.Name,
 		City:     o.City,
 		TimeZone: o.TimeZone,
+		Image:    o.Image,
 	}
 }
 

@@ -5,10 +5,11 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"os"
 	"telegram-api/internal/app/handler/dto"
 	"telegram-api/internal/app/menu/interfaces"
 	"telegram-api/internal/domain/model"
+	repo "telegram-api/internal/infrastructure/repo/interfaces"
 	"telegram-api/pkg/tracing"
 )
 
@@ -19,17 +20,20 @@ type DateMenu interface {
 type dateMenuImpl struct {
 	seatList   interfaces.SeatListMenu
 	officeMenu interfaces.OfficeMenu
+	officeRepo repo.OfficeRepository
 	logger     *zap.Logger
 }
 
 func NewDateMenuHandle(
 	seatList interfaces.SeatListMenu,
 	officeMenu interfaces.OfficeMenu,
+	officeRepo repo.OfficeRepository,
 	logger *zap.Logger) DateMenu {
 
 	return &dateMenuImpl{
 		seatList:   seatList,
 		officeMenu: officeMenu,
+		officeRepo: officeRepo,
 		logger:     logger,
 	}
 }
@@ -41,15 +45,26 @@ func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (t
 	switch command.Action {
 	case dto.DateListShowMap:
 		currentUser := model.GetCurrentUser(ctx)
-		path := fmt.Sprintf("./picture/%d.jpg", currentUser.OfficeID)
 
-		photoBytes, err := ioutil.ReadFile(path)
+		office, err := o.officeRepo.FindByID(ctx, currentUser.OfficeID)
+		if err != nil {
+			o.logger.Warn("error while get office images", zap.Error(err))
+
+			return sendNoImageMessage(ctx)
+		}
+
+		image := office.Image
+		if image == "" {
+			return sendNoImageMessage(ctx)
+		}
+
+		path := fmt.Sprintf("./picture/%s.jpg", image)
+
+		photoBytes, err := os.ReadFile(path)
 		if err != nil {
 			o.logger.Warn("error while trying send photo", zap.Error(err))
 
-			msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "")
-			msg.Text = "К сожалению, пока нет карты расположения мест для этого офиса"
-			return msg, nil
+			return sendNoImageMessage(ctx)
 		}
 
 		photoFileBytes := tgbotapi.FileBytes{
@@ -68,4 +83,10 @@ func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (t
 	}
 
 	return o.seatList.Call(ctx, *command.BookDate, 0)
+}
+
+func sendNoImageMessage(ctx context.Context) (tgbotapi.Chattable, error) {
+	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "")
+	msg.Text = "К сожалению, пока нет карты расположения мест для этого офиса"
+	return msg, nil
 }

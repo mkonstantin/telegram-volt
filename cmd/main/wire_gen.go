@@ -58,7 +58,7 @@ func InitializeApplication(secret string, cfg config.AppConfig, logger *zap.Logg
 	seatListMenu := menu.NewSeatListMenu(userService, bookSeatRepository, seatListForm, logger)
 	handlerOwnSeatMenu := handler.NewOwnSeatMenuHandle(officeMenu, informerService, userService, bookSeatRepository, seatListMenu, logger)
 	handlerFreeSeatMenu := handler.NewFreeSeatMenuHandle(officeMenu, userService, bookSeatRepository, seatListMenu, logger)
-	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, logger)
+	handlerDateMenu := handler.NewDateMenuHandle(seatListMenu, officeMenu, officeRepository, logger)
 	infoMenu := handler.NewInfoMenuHandle(bookSeatRepository, seatListMenu, officeMenu, logger)
 	handlerHoldSeatMenu := handler.NewHoldSeatMenuHandle(userService, bookSeatRepository, seatListMenu, logger)
 	routerRouter := router.NewRouter(cfg, start, officeList, handlerOfficeMenu, seatList, handlerOwnSeatMenu, handlerFreeSeatMenu, handlerDateMenu, infoMenu, handlerHoldSeatMenu, logger)
