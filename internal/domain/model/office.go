@@ -6,4 +6,5 @@ type Office struct {
 	City     string
 	TimeZone string
 	Image    string
+	Title    string
 }
