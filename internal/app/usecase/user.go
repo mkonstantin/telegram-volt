@@ -38,7 +38,7 @@ func NewUserService(userRepo interfaces.UserRepository,
 	}
 }
 
-//========= Выбрали офис и вызываем его меню
+//========= Выбрали хотдеск и вызываем его меню
 
 func (u *userServiceImpl) SetOfficeScript(ctx context.Context, officeID int64) (context.Context, error) {
 	ctx, span, _ := tracing.StartSpan(ctx, tracing.GetSpanName())
@@ -77,9 +77,9 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 	}
 	if userBookSeat != nil {
 		if userBookSeat.Office.ID == currentUser.OfficeID {
-			message = "У вас уже есть бронь в этом офисе на эту дату"
+			message = "У вас уже есть бронь в этом хотдеске на эту дату"
 		} else {
-			message = fmt.Sprintf("У вас уже есть бронь в офисе %s на эту дату", userBookSeat.Office.Name)
+			message = fmt.Sprintf("У вас уже есть бронь в хотдеске %s на эту дату", userBookSeat.Office.Name)
 		}
 		return message, nil
 	}
@@ -98,10 +98,10 @@ func (u *userServiceImpl) BookSeat(ctx context.Context, bookSeatID int64) (strin
 		}
 
 		if isToday {
-			message = fmt.Sprintf("Отлично! Ваше место №%s в офисе %s забронировано!",
+			message = fmt.Sprintf("Отлично! Ваше место №%s в хотдеске %s забронировано!",
 				bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 		} else {
-			message = fmt.Sprintf("Ваше место №%s в офисе %s забронировано. "+
+			message = fmt.Sprintf("Ваше место №%s в хотдеске %s забронировано. "+
 				"Завтра в 9:00 откроется возможность подтверждения бронирования, "+
 				"если вы не подтвердите его до 10:00, бронь будет аннулирована",
 				bookSeat.Seat.SeatSign, bookSeat.Office.Name)
@@ -134,7 +134,7 @@ func (u *userServiceImpl) CancelBookSeat(ctx context.Context, bookSeatID int64) 
 	if err != nil {
 		return "", false, err
 	}
-	message = fmt.Sprintf("Место №%s в офисе: %s освобождено. Спасибо!", bookSeat.Seat.SeatSign, bookSeat.Office.Name)
+	message = fmt.Sprintf("Место №%s в хотдеске: %s освобождено. Спасибо!", bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 
 	return message, true, nil
 }
@@ -149,7 +149,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 	currentUser := model.GetCurrentUser(ctx)
 
 	if currentUser.OfficeID == 0 {
-		return ctx, "Произошла ошибка: необходимо выбрать офис", nil
+		return ctx, "Произошла ошибка: необходимо выбрать хотдеск", nil
 	}
 
 	office, err := u.officeRepo.FindByID(ctx, currentUser.OfficeID)
@@ -164,7 +164,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 		}
 
 		currentUser.NotifyOfficeID = 0
-		message = fmt.Sprintf("Вы отменили подписку на свободные места в офисе: %s", office.Name)
+		message = fmt.Sprintf("Вы отменили подписку на свободные места в хотдеске: %s", office.Name)
 	} else {
 		err = u.userRepo.Subscribe(ctx, currentUser.TelegramID, currentUser.OfficeID)
 		if err != nil {
@@ -172,7 +172,7 @@ func (u *userServiceImpl) SubscribeWork(ctx context.Context) (context.Context, s
 		}
 
 		currentUser.NotifyOfficeID = currentUser.OfficeID
-		message = fmt.Sprintf("Вы подписались на свободные места в офисе: %s", office.Name)
+		message = fmt.Sprintf("Вы подписались на свободные места в хотдеске: %s", office.Name)
 	}
 
 	ctx = context.WithValue(ctx, model.ContextUserKey, currentUser)
@@ -197,7 +197,7 @@ func (u *userServiceImpl) ConfirmBookSeat(ctx context.Context, bookSeatID int64)
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
 	message = fmt.Sprintf("Отлично! Вы подтвердили, что придете сегодня: %s. "+
-		"Ваше место №%s в офисе: %s", formattedDate, bookSeat.Seat.SeatSign, bookSeat.Office.Name)
+		"Ваше место №%s в хотдеске: %s", formattedDate, bookSeat.Seat.SeatSign, bookSeat.Office.Name)
 
 	return message, nil
 }
@@ -219,7 +219,7 @@ func (u *userServiceImpl) HoldBookSeat(ctx context.Context, bookSeatID int64) (s
 	}
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
-	message := fmt.Sprintf("Ок! Вы закрепили место №%s в офисе: %s, на %s",
+	message := fmt.Sprintf("Ок! Вы закрепили место №%s в хотдеске: %s, на %s",
 		bookSeat.Seat.SeatSign, bookSeat.Office.Name, formattedDate)
 
 	return message, nil
@@ -240,7 +240,7 @@ func (u *userServiceImpl) CancelHoldBookSeat(ctx context.Context, bookSeatID int
 	}
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
-	message := fmt.Sprintf("Вы сняли бронь с места №%s в офисе: %s, на %s",
+	message := fmt.Sprintf("Вы сняли бронь с места №%s в хотдеске: %s, на %s",
 		bookSeat.Seat.SeatSign, bookSeat.Office.Name, formattedDate)
 
 	return message, nil

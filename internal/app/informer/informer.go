@@ -73,7 +73,7 @@ func (i *informerServiceImpl) chooseUsersAndSendNotifies(ctx context.Context, bo
 	defer span.End()
 
 	formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
-	text := fmt.Sprintf("Освободилось место в офисе: %s на %s", bookSeat.Office.Name, formattedDate)
+	text := fmt.Sprintf("Освободилось место в хотдеске: %s на %s", bookSeat.Office.Name, formattedDate)
 
 	currentUser := model.GetCurrentUser(ctx)
 
@@ -180,7 +180,7 @@ func (i *informerServiceImpl) SendNotifyToBookDeletedBySystem(ctx context.Contex
 
 	for _, bookSeat := range bookSeats {
 		formattedDate := bookSeat.BookDate.Format(helper.DateFormat)
-		message := fmt.Sprintf("Мы удалили вашю бронь в офисе %s на %s, так как вы ее не подтвердили", officeName, formattedDate)
+		message := fmt.Sprintf("Мы удалили вашю бронь в хотдеске %s на %s, так как вы ее не подтвердили", officeName, formattedDate)
 
 		data := form.InfoFormData{
 			Action:     dto.ActionShowOfficeMenu,

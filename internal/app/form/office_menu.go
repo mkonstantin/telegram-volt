@@ -120,7 +120,7 @@ func addStandartButtons(sum [][]tgbotapi.InlineKeyboardButton, data OfficeMenuFo
 
 	button1 := tgbotapi.NewInlineKeyboardButtonData("Показать места", string(butt1))
 	button2 := tgbotapi.NewInlineKeyboardButtonData(data.SubscribeButtonText, string(butt2))
-	button3 := tgbotapi.NewInlineKeyboardButtonData("Выбрать другой офис", string(butt3))
+	button3 := tgbotapi.NewInlineKeyboardButtonData("⬅️ Выбрать другой хотдеск", string(butt3))
 	row1 := tgbotapi.NewInlineKeyboardRow(button1)
 	row2 := tgbotapi.NewInlineKeyboardRow(button2)
 	row3 := tgbotapi.NewInlineKeyboardRow(button3)

@@ -40,7 +40,7 @@ func (o *officeListMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig,
 	if err != nil {
 		return nil, err
 	}
-	message := fmt.Sprintf("%s, давай выберем офис:", currentUser.Name)
+	message := fmt.Sprintf("%s, давай выберем хотдеск:", currentUser.Name)
 	data := form.OfficeListFormData{
 		Offices: offices,
 		Message: message,

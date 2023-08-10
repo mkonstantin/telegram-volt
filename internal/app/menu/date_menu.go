@@ -72,7 +72,7 @@ func (f *dateMenuImpl) Call(ctx context.Context) (*tgbotapi.MessageConfig, error
 	if len(daySeats) > 0 {
 		message = fmt.Sprintf("Выберите дату:")
 	} else {
-		message = fmt.Sprintf("В этом офисе сегодня мест нет или не работает")
+		message = fmt.Sprintf("В этом хотдеске сегодня мест нет или не работает")
 	}
 
 	formData := form.DateMenuFormData{

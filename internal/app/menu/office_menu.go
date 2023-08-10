@@ -114,21 +114,21 @@ func (o *officeMenuImpl) Call(ctx context.Context, title string, officeID int64)
 
 	var message string
 	if title != "" {
-		message = fmt.Sprintf("%s\nОфис: %s, действия:", title, office.Name)
+		message = fmt.Sprintf("%s\nХотдеск: %s, действия:", title, office.Name)
 	} else {
 		if todayBook != nil {
 			if needConfirmBookSeat != nil {
-				message = fmt.Sprintf("Офис: %s\nНа сегодня вы забронировали место №%s. Ждем подтверждения, что вы придете",
+				message = fmt.Sprintf("Хотдеск: %s\nНа сегодня вы забронировали место №%s. Ждем подтверждения, что вы придете",
 					office.Name, needConfirmBookSeat.Seat.SeatSign)
 			} else {
-				message = fmt.Sprintf("Офис: %s\nНа сегодня вы забронировали место №%s",
+				message = fmt.Sprintf("Хотдеск: %s\nНа сегодня вы забронировали место №%s",
 					office.Name, todayBook.Seat.SeatSign)
 			}
 		} else {
 			if office.ID == 4 {
-				message = fmt.Sprintf("Офис: %s\n‼️Бронирование в этом разделе возможно только для сотрудников департамента Marketing‼️", office.Name)
+				message = fmt.Sprintf("Хотдеск: %s\n‼️Бронирование в этом разделе возможно только для сотрудников департамента Marketing‼️", office.Name)
 			} else {
-				message = fmt.Sprintf("Офис: %s, действия:", office.Name)
+				message = fmt.Sprintf("Хотдеск: %s, действия:", office.Name)
 			}
 		}
 	}

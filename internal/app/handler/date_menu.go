@@ -87,6 +87,6 @@ func (o *dateMenuImpl) Handle(ctx context.Context, command dto.InlineRequest) (t
 
 func sendNoImageMessage(ctx context.Context) (tgbotapi.Chattable, error) {
 	msg := tgbotapi.NewMessage(model.GetCurrentChatID(ctx), "")
-	msg.Text = "К сожалению, пока нет карты расположения мест для этого офиса"
+	msg.Text = "К сожалению, пока нет карты расположения мест для этого хотдеска"
 	return msg, nil
 }
