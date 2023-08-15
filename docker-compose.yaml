@@ -48,7 +48,7 @@ services:
       - CONNLIFETIME=2
       - KEY=6229893044:AAFg6cuCSfny8-jN6YJ3BR29_ApsmSouKs8
       - VERSION=1.0.7
-      - ADMINS=km505603,dstepanovaa
+      - ADMINS=km505603,dstepanovaa,natsem28
       - JAEGER_HOST=jaeger
       - JAEGER_PORT=14268
 
