@@ -51,7 +51,7 @@ services:
     command: ./telegram-api
     restart: always
     ports:
-      - "3014:3014"
+      - "3016:3016"
     depends_on:
       - db
     environment:
