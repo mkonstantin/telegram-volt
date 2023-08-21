@@ -21,6 +21,8 @@ CREATE TABLE `office`
     `name`              VARCHAR(255)     NOT NULL,
     `city`              VARCHAR(255)     NOT NULL,
     `time_zone`         VARCHAR(255)     NOT NULL,
+    `image`             VARCHAR(100)     NOT NULL,
+    `title`             VARCHAR(255)     NOT NULL,
     `created_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     `updated_at`        DATETIME         DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
