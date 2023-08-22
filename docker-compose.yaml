@@ -42,7 +42,7 @@ services:
       - MAXOPENCONN=60
       - MAXIDLECONN=30
       - CONNLIFETIME=2
-      - KEY=6229893044:AAFg6cuCSfny8-jN6YJ3BR29_ApsmSouKs8
+      - KEY=6229893044:AAFRTpF5VDNelZQKxLgjGNXEzAMsJiFhSso
       - VERSION=1.0.7
       - ADMINS=dstepanovaa,natsem28
 
