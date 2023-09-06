@@ -84,9 +84,7 @@ services:
     command: mysqld --sql_mode="NO_ENGINE_SUBSTITUTION"
     restart: always
     ports:
-      - "3310:3306"
+      - "127.0.0.1:3340:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      MYSQL_ROOT_PASSWORD: SuperParolOnMac131415
+      MYSQL_PASSWORD: SuperParolOnMac131415
