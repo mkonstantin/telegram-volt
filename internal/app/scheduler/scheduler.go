@@ -2,10 +2,11 @@ package scheduler
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/go-co-op/gocron"
 	"go.uber.org/zap"
 	"telegram-api/internal/app/scheduler/job"
-	"time"
 )
 
 type jobsSchedulerImpl struct {
@@ -45,15 +46,15 @@ func (w *jobsSchedulerImpl) StartFillWorkDates() {
 		Do(func() {
 			w.logger.Info("gocron start Date & Seat Jobs")
 
-			err := w.dateJob.CheckAndSetDates()
-			if err != nil {
-				w.logger.Error("gocron execution DateJobs error", zap.Error(err))
-			}
-
-			err = w.seatJob.SetSeats()
-			if err != nil {
-				w.logger.Error("gocron execution SeatJob error", zap.Error(err))
-			}
+			//err := w.dateJob.CheckAndSetDates()
+			//if err != nil {
+			//	w.logger.Error("gocron execution DateJobs error", zap.Error(err))
+			//}
+			//
+			//err = w.seatJob.SetSeats()
+			//if err != nil {
+			//	w.logger.Error("gocron execution SeatJob error", zap.Error(err))
+			//}
 		})
 
 	if err != nil {
