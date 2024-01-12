@@ -5,8 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
-	"telegram-api/config"
 	"time"
+
+	"telegram-api/config"
 
 	_ "github.com/go-sql-driver/mysql" // mysql driver
 	"github.com/jmoiron/sqlx"
@@ -49,6 +50,7 @@ func InitConnection(ctx context.Context, cfg config.AppConfig, l *zap.Logger) (C
 	master, err := InitMainConnection(ctx, cfg, l)
 	if err != nil {
 		l.Error("Can't initialize master database connection", zap.Error(err))
+		// TODO if got err then must return
 	}
 	con := Connection{
 		Main: (*sqlx.DB)(master),
